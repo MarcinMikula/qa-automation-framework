@@ -1,0 +1,5 @@
+- Zawsze generuj testy w tests/unit/
+- Używaj sqlite:///:memory: do izolacji bazy
+- Testy piszemy po polsku z docstringami
+- Stack: Python + pytest + SQLAlchemy + Playwright
+- Stosujemy wzorzec Page Object i Service Object Model
