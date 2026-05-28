@@ -7,6 +7,15 @@ Aktualizuj go za każdym razem, gdy coś zrozumiesz głębiej lub popełnisz bł
 
 ## Unit Testy + AI
 
+### Złota reguła
+
+> Unit test to umowa — mówi «ta funkcja/metoda zachowuje się dokładnie tak».
+> Gdy ktoś zmieni kod i złamie tę umowę — test od razu krzyczy.
+> Bez testu zmiana przechodzi cicho i dowiadujesz się o problemie
+> dopiero w produkcji.
+
+---
+
 ### Trzy rzeczy, które QA musi rozumieć
 
 Zanim zaakceptujesz test wygenerowany przez AI, upewnij się, że rozumiesz:
