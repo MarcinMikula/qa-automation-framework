@@ -3,3 +3,8 @@
 - Testy piszemy po polsku z docstringami
 - Stack: Python + pytest + SQLAlchemy + Playwright
 - Stosujemy wzorzec Page Object i Service Object Model
+- Kontekst: szkielet QA framework w domenie telco/CRM/billing
+- Domyślna baza danych: SQLite (SQLAlchemy)
+- Modele danych: Customer(msisdn, full_name, contract_type, plan, account_status) oraz Invoice(customer_id, amount, due_date, status)
+- Organizacja testów: unit -> tests/unit/, integracyjne -> tests/integration/, E2E -> tests/e2e/
+- Lokalnie symulujemy mikroserwisy w FastAPI (np. do testów integracyjnych)

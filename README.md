@@ -12,6 +12,14 @@ Szkielet frameworka automatyzacji testow w kontekscie systemow enterprise klasy 
 | Raportowanie | Allure |
 | CI/CD | GitHub Actions |
 
+## Tooling
+
+Projekt rozwijany przy wsparciu AI:
+- Cursor IDE (AI-powered editor)
+- Claude Sonnet (Anthropic) — generowanie testów, analiza kodu, code review
+
+> Każdy wygenerowany fragment kodu jest weryfikowany i akceprowany przez autora.
+
 ## Struktura projektu
 
 ```
