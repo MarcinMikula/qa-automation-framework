@@ -9,6 +9,11 @@ import os
 BASE_URL = os.getenv("BASE_URL", "https://automationintesting.online")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://restful-booker.herokuapp.com")
 
+# Mikroserwisy FastAPI (lokalne)
+USERS_BASE_URL = os.getenv("USERS_BASE_URL", "http://localhost:8001")
+ORDERS_BASE_URL = os.getenv("ORDERS_BASE_URL", "http://localhost:8002")
+PRODUCTS_BASE_URL = os.getenv("PRODUCTS_BASE_URL", "http://localhost:8003")
+
 # --- Credentials ------------------------------------------------------------
 ADMIN_USER = os.getenv("ADMIN_USER", "admin")
 ADMIN_PASS = os.getenv("ADMIN_PASS", "password123")
