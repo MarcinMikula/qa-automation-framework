@@ -106,6 +106,13 @@ Trzy poziomy — im wyżej, tym wolniej, drożej i trudniej o izolację.
 - **Kiedy pada:** zmiana kontraktu API, błąd autoryzacji, nieoczekiwana struktura JSON.
 - **Prędkość:** sekundy. Uruchamiaj przed mergem.
 
+### Testy integracyjne — pułapki
+
+> Nie testuj konkretnych wartości ID — magazyn/baza nie zawsze
+> resetuje licznik między testami. Sprawdzaj `id > 0` zamiast `id == 1`.
+
+Dotyczy to np. mikroserwisów z magazynem in-memory (`services/`) oraz fixture’ów `clean_*`, które usuwają rekordy, ale nie zerują autoinkrementacji ID między testami w tej samej sesji.
+
 ### Poziom 3 — E2E / UI
 
 - **Co testuje:** pełny scenariusz użytkownika przez przeglądarkę — od logowania do wyniku.
