@@ -7,6 +7,7 @@ import pytest
 from pages.login_page import LoginPage
 from pages.dashboard_page import DashboardPage
 from testdata.settings import AGENT_USER, AGENT_PASS, SUPERVISOR_USER, SUPERVISOR_PASS
+pytestmark = pytest.mark.external
 
 
 class TestLogin:

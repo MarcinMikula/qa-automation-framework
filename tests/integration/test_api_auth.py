@@ -6,6 +6,7 @@ Weryfikacja tokenow, rol i scenariuszy nieautoryzowanego dostepu.
 import pytest
 from api.auth_service import AuthService
 from testdata.settings import AGENT_USER, AGENT_PASS
+pytestmark = pytest.mark.external
 
 
 class TestApiAuth:

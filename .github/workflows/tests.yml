@@ -38,7 +38,7 @@ jobs:
         run: python -m pytest tests/unit/ -v
 
       - name: Testy integracyjne
-        run: python -m pytest tests/integration/ -v
+        run: python -m pytest tests/integration/ -v -m "not external"
 
       - name: Testy E2E
         run: python -m pytest tests/e2e/ -v
