@@ -4,6 +4,7 @@ Testy API zarzadzania klientem — data-driven, kontekst billingowy telco.
 """
 import pytest
 from api.customer_service import CustomerService
+pytestmark = pytest.mark.external
 
 
 MSISDN_ACTIVE = "48100200301"
