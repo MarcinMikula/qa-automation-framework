@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> A reusable QA automation framework skeleton for enterprise UI and API testing.
+> A reusable QA automation framework skeleton for enterprise UI and API testing.  
 > Bring your own application, locators, endpoints, data, and domain rules.
 
 This repository is a **framework skeleton**, not a plug-and-play automation product.
@@ -111,6 +111,7 @@ testdata/     Test data models, seed data, and settings
 mocks/        Mocked responses and isolated test inputs
 tests/        Unit, integration, and E2E test structure
 .github/      CI workflow
+docs/         Project documentation and adaptation guides
 ```
 
 ### Replaceable example implementation
@@ -145,6 +146,16 @@ qa-automation-framework/
 │   └── swagger_generator.py
 ├── components/
 │   └── ...
+├── docs/
+│   ├── README.md
+│   ├── architecture.md
+│   ├── pom_guide.md
+│   ├── som_guide.md
+│   ├── adaptation_guide.md
+│   ├── test_strategy.md
+│   ├── example_cases.md
+│   ├── known_limitations.md
+│   └── ai_assisted_adaptation.md
 ├── mocks/
 │   └── ...
 ├── pages/
@@ -477,6 +488,30 @@ Am I testing a small unit, an API/service boundary, or a full user flow?
 
 ---
 
+## Documentation
+
+Detailed project documentation lives in [`docs/`](docs/).
+
+| Document | Purpose |
+|---|---|
+| [Documentation index](docs/README.md) | Entry point for the full documentation set |
+| [Architecture](docs/architecture.md) | Framework layers, boundaries, and data flow |
+| [POM Guide](docs/pom_guide.md) | How to structure UI automation with Page Objects |
+| [SOM Guide](docs/som_guide.md) | How to structure API automation with Service Objects |
+| [Adaptation Guide](docs/adaptation_guide.md) | How to adapt the skeleton to a real project |
+| [Test Strategy](docs/test_strategy.md) | Unit, integration, E2E, markers, and CI scope |
+| [Example Cases](docs/example_cases.md) | Planned Salesforce-like UI and API/SOM examples |
+| [Known Limitations](docs/known_limitations.md) | Current boundaries and intentional gaps |
+| [AI-assisted Adaptation](docs/ai_assisted_adaptation.md) | How to use AI safely with this skeleton |
+
+Root-level supporting documents:
+
+- [PHILOSOPHY.md](PHILOSOPHY.md) — design rationale and test philosophy.
+- [LEARNINGS.md](LEARNINGS.md) — learning journal and lessons from building the framework.
+- [CODEGEN.md](CODEGEN.md) — notes about Swagger/OpenAPI-based Service Object generation.
+
+---
+
 ## Domain annotations
 
 Some example files use domain markers to show what is reusable and what is project-specific.
@@ -653,32 +688,6 @@ Tests should not depend on random, unknown, or manually prepared state unless ex
 CI should run deterministic tests that do not require private environments or live third-party systems.
 
 External tests should be clearly marked and opt-in.
-
----
-
-## Documentation
-
-Current documentation:
-
-- [PHILOSOPHY.md](PHILOSOPHY.md) — design rationale and test philosophy.
-- [LEARNINGS.md](LEARNINGS.md) — learning journal and lessons from building the framework.
-- [CODEGEN.md](CODEGEN.md) — notes about Swagger/OpenAPI-based Service Object generation.
-
-Planned documentation expansion:
-
-```text
-docs/
-├── architecture.md
-├── pom_guide.md
-├── som_guide.md
-├── adaptation_guide.md
-├── test_strategy.md
-├── example_cases.md
-├── known_limitations.md
-└── ai_assisted_adaptation.md
-```
-
-The planned `docs/` section will move detailed explanations out of the README and make the repository easier to use as a real framework template.
 
 ---
 
