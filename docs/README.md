@@ -1,37 +1,65 @@
 # Documentation index
 
-This directory contains the project-level documentation for `qa-automation-framework`.
+This directory contains project-specific documentation for the
+`qa-automation-framework` repository.
 
-The repository is intentionally positioned as a reusable QA automation framework skeleton, not as a plug-and-play product. The docs explain how the skeleton is structured, what belongs to the reusable framework core, what belongs to the replaceable example implementation, and how to adapt the project to a real application.
+The root `README.md` is the public landing page. This directory holds the
+longer design notes, boundaries, gaps, and adaptation guides.
 
-## Documents
+The documentation style intentionally follows the structure used in PhoenixQA:
+separate documents for architecture decisions, gaps, known limitations, testing
+strategy, and future ideas.
+
+---
+
+## Recommended reading order
+
+1. [Architecture decisions](architecture-decisions.md)
+2. [Known limitations](known-limitations.md)
+3. [Testing strategy](testing-strategy.md)
+4. [POM guide](pom-guide.md)
+5. [SOM guide](som-guide.md)
+6. [Adaptation guide](adaptation-guide.md)
+7. [Example cases](example-cases.md)
+8. [AI-assisted adaptation](ai-assisted-adaptation.md)
+9. [Gaps](gaps.md)
+10. [Future ideas](future-ideas.md)
+
+---
+
+## Document map
 
 | Document | Purpose |
 |---|---|
-| [architecture.md](architecture.md) | Explains the framework layers, responsibilities, boundaries, and design decisions. |
-| [pom_guide.md](pom_guide.md) | Describes how to use Page Object Model for UI and E2E testing. |
-| [som_guide.md](som_guide.md) | Describes how to use Service Object Model for API and integration testing. |
-| [adaptation_guide.md](adaptation_guide.md) | Shows how to adapt the skeleton to a real project. |
-| [test_strategy.md](test_strategy.md) | Defines the test pyramid, pytest structure, markers, and CI strategy. |
-| [example_cases.md](example_cases.md) | Documents current and planned realistic example cases. |
-| [known_limitations.md](known_limitations.md) | Lists intentional limitations, deferred work, and scope boundaries. |
-| [ai_assisted_adaptation.md](ai_assisted_adaptation.md) | Describes safe AI-assisted adaptation of the framework. |
+| [architecture-decisions.md](architecture-decisions.md) | Key design decisions and why they were made |
+| [gaps.md](gaps.md) | Open gaps that are known and intentionally tracked |
+| [known-limitations.md](known-limitations.md) | Current boundaries, non-goals, and demo-only areas |
+| [testing-strategy.md](testing-strategy.md) | Unit, integration, E2E, markers, and CI rules |
+| [future-ideas.md](future-ideas.md) | Ideas worth keeping, but not part of the current scope |
+| [pom-guide.md](pom-guide.md) | Page Object Model rules for UI automation |
+| [som-guide.md](som-guide.md) | Service Object Model rules for API automation |
+| [adaptation-guide.md](adaptation-guide.md) | How to adapt the skeleton to a real project |
+| [example-cases.md](example-cases.md) | Planned UI and API case studies |
+| [ai-assisted-adaptation.md](ai-assisted-adaptation.md) | Safe workflow for using AI to adapt the framework |
 
-## Reading order
+---
 
-Recommended order for a new reader:
+## What belongs here
 
-1. `README.md` in the repository root.
-2. `docs/architecture.md`.
-3. `docs/pom_guide.md` and `docs/som_guide.md`.
-4. `docs/adaptation_guide.md`.
-5. `docs/test_strategy.md`.
-6. `docs/known_limitations.md`.
+This directory should contain documentation that explains the project itself:
 
-## Documentation principle
+- architecture choices,
+- current scope,
+- known limitations,
+- framework adaptation,
+- test strategy,
+- example case studies,
+- project-specific gaps.
 
-The root `README.md` should stay concise and explain the repository at a high level.
+Evergreen testing principles live one level above, in:
 
-Detailed reasoning belongs here in `docs/`.
+```text
+AUTOMATION_PRINCIPLES.md
+```
 
-Learning notes and personal development history remain in `LEARNINGS.md`.
+That file is intentionally broader than this repository.

@@ -9,12 +9,12 @@
 
 This repository is a **framework skeleton**, not a plug-and-play automation product.
 
-It gives you a clean structure for building tests around two complementary automation patterns:
+It provides a clean structure for building tests around two complementary automation patterns:
 
 - **Page Object Model (POM)** for browser-based UI and E2E flows.
 - **Service Object Model (SOM)** for API, microservice, and integration testing.
 
-The framework includes a small working example implementation so the structure can be executed, reviewed, and adapted before it is used against a real application.
+The repository includes a small working example implementation so the structure can be executed, reviewed, and adapted before it is used against a real application.
 
 ---
 
@@ -148,14 +148,16 @@ qa-automation-framework/
 │   └── ...
 ├── docs/
 │   ├── README.md
-│   ├── architecture.md
-│   ├── pom_guide.md
-│   ├── som_guide.md
-│   ├── adaptation_guide.md
-│   ├── test_strategy.md
-│   ├── example_cases.md
-│   ├── known_limitations.md
-│   └── ai_assisted_adaptation.md
+│   ├── architecture-decisions.md
+│   ├── gaps.md
+│   ├── known-limitations.md
+│   ├── testing-strategy.md
+│   ├── future-ideas.md
+│   ├── pom-guide.md
+│   ├── som-guide.md
+│   ├── adaptation-guide.md
+│   ├── example-cases.md
+│   └── ai-assisted-adaptation.md
 ├── mocks/
 │   └── ...
 ├── pages/
@@ -175,6 +177,7 @@ qa-automation-framework/
 │   ├── unit/
 │   ├── integration/
 │   └── e2e/
+├── AUTOMATION_PRINCIPLES.md
 ├── CODEGEN.md
 ├── LEARNINGS.md
 ├── PHILOSOPHY.md
@@ -270,43 +273,9 @@ The framework follows the ISTQB-style test pyramid.
  models, constraints, logic
 ```
 
-### Unit tests
-
-Unit tests verify small, isolated pieces of logic.
-
-Typical examples:
-
-- model defaults,
-- constraints,
-- validation rules,
-- deterministic seed data,
-- edge cases.
-
-### Integration tests
-
-Integration tests verify communication between layers.
-
-Typical examples:
-
-- API response structure,
-- HTTP status codes,
-- service object behavior,
-- contract-level assumptions,
-- mocked or local service interactions.
-
-### E2E tests
-
-E2E tests verify user-facing flows through the browser.
-
-Typical examples:
-
-- login,
-- search,
-- create entity,
-- submit form,
-- verify visible result.
-
 E2E tests are intentionally fewer because they are slower, more fragile, and more expensive to maintain.
+
+Detailed execution rules are documented in [Testing Strategy](docs/testing-strategy.md).
 
 ---
 
@@ -383,108 +352,16 @@ allure serve allure-results
 
 ## How to adapt this framework to a real project
 
-### Step 1: Replace the UI layer
+The short version:
 
-Update or add Page Objects in:
+1. Replace or extend Page Objects in `pages/` and `components/`.
+2. Replace or extend Service Objects in `api/`.
+3. Replace demo data in `testdata/` and `mocks/`.
+4. Move environment-specific values into settings or environment variables.
+5. Add tests at the correct level: unit, integration, or E2E.
+6. Keep external/live tests opt-in.
 
-```text
-pages/
-components/
-```
-
-Replace demo selectors with real application locators.
-
-Recommended locator strategy:
-
-1. stable `data-testid` attributes where available,
-2. accessible roles and names,
-3. stable labels and form semantics,
-4. CSS/XPath only when no better option exists.
-
-### Step 2: Replace the API layer
-
-Update or add Service Objects in:
-
-```text
-api/
-```
-
-Replace demo endpoints with real project APIs.
-
-Each Service Object should represent meaningful business operations, not random HTTP calls.
-
-Good examples:
-
-```python
-customer_service.get_customer_by_msisdn(...)
-order_service.create_order(...)
-billing_service.get_invoice_status(...)
-case_service.create_case(...)
-```
-
-Weak examples:
-
-```python
-api_client.get(...)
-api_client.post(...)
-```
-
-The lower-level HTTP methods belong in the base client. Tests should use domain-level service methods.
-
-### Step 3: Replace test data
-
-Update:
-
-```text
-testdata/
-mocks/
-```
-
-Replace demo seed data with real project concepts.
-
-For example:
-
-```text
-customer
-account
-contract
-subscription
-invoice
-order
-case
-opportunity
-```
-
-### Step 4: Configure environments
-
-Update settings and environment variables for your project.
-
-Example:
-
-```bash
-BASE_URL=https://your-app.example.com
-API_BASE_URL=https://your-api.example.com
-```
-
-Keep environment-specific values outside test logic.
-
-Tests should not hardcode DEV, SIT, UAT, or PROD-like URLs.
-
-### Step 5: Add project-specific tests
-
-Add tests to the correct level:
-
-```text
-tests/unit/          pure logic, models, validation
-tests/integration/   APIs, contracts, service behavior
-tests/e2e/           critical UI flows
-```
-
-If you are unsure where a test belongs, ask:
-
-```text
-Am I testing a small unit, an API/service boundary, or a full user flow?
-```
+For the full process, see [Adaptation Guide](docs/adaptation-guide.md).
 
 ---
 
@@ -495,18 +372,21 @@ Detailed project documentation lives in [`docs/`](docs/).
 | Document | Purpose |
 |---|---|
 | [Documentation index](docs/README.md) | Entry point for the full documentation set |
-| [Architecture](docs/architecture.md) | Framework layers, boundaries, and data flow |
-| [POM Guide](docs/pom_guide.md) | How to structure UI automation with Page Objects |
-| [SOM Guide](docs/som_guide.md) | How to structure API automation with Service Objects |
-| [Adaptation Guide](docs/adaptation_guide.md) | How to adapt the skeleton to a real project |
-| [Test Strategy](docs/test_strategy.md) | Unit, integration, E2E, markers, and CI scope |
-| [Example Cases](docs/example_cases.md) | Planned Salesforce-like UI and API/SOM examples |
-| [Known Limitations](docs/known_limitations.md) | Current boundaries and intentional gaps |
-| [AI-assisted Adaptation](docs/ai_assisted_adaptation.md) | How to use AI safely with this skeleton |
+| [Architecture decisions](docs/architecture-decisions.md) | Key design decisions and boundaries |
+| [Gaps](docs/gaps.md) | Known open gaps and follow-up work |
+| [Known limitations](docs/known-limitations.md) | Current boundaries and intentional non-goals |
+| [Testing strategy](docs/testing-strategy.md) | Unit, integration, E2E, markers, and CI scope |
+| [Future ideas](docs/future-ideas.md) | Ideas intentionally not in the current scope |
+| [POM guide](docs/pom-guide.md) | How to structure UI automation with Page Objects |
+| [SOM guide](docs/som-guide.md) | How to structure API automation with Service Objects |
+| [Adaptation guide](docs/adaptation-guide.md) | How to adapt the skeleton to a real project |
+| [Example cases](docs/example-cases.md) | Planned Salesforce-like UI and API/SOM examples |
+| [AI-assisted adaptation](docs/ai-assisted-adaptation.md) | How to use AI safely with this skeleton |
 
 Root-level supporting documents:
 
-- [PHILOSOPHY.md](PHILOSOPHY.md) — design rationale and test philosophy.
+- [AUTOMATION_PRINCIPLES.md](AUTOMATION_PRINCIPLES.md) — evergreen testing and automation principles.
+- [PHILOSOPHY.md](PHILOSOPHY.md) — older design rationale, to be rewritten after principles extraction.
 - [LEARNINGS.md](LEARNINGS.md) — learning journal and lessons from building the framework.
 - [CODEGEN.md](CODEGEN.md) — notes about Swagger/OpenAPI-based Service Object generation.
 
@@ -534,24 +414,6 @@ They are documentation hints for safe adaptation.
 
 This repository is designed to work well with AI-assisted development.
 
-A practical workflow:
-
-1. Provide the AI model with this repository structure.
-2. Add project-specific context:
-   - application type,
-   - main user roles,
-   - key workflows,
-   - available environments,
-   - authentication method,
-   - UI locator strategy,
-   - API documentation,
-   - data constraints.
-3. Ask the AI to propose Page Objects or Service Objects.
-4. Review the generated code manually.
-5. Replace fake assumptions with verified project facts.
-6. Add tests gradually.
-7. Run the suite locally and in CI.
-
 AI can speed up framework adaptation, but it should not decide business meaning on its own.
 
 A QA engineer still needs to verify:
@@ -563,131 +425,7 @@ A QA engineer still needs to verify:
 - whether the API operation matches the real contract,
 - whether the test failure would help diagnose a real problem.
 
----
-
-## Example future use cases
-
-The skeleton is intentionally generic, but it is suitable for realistic case studies such as:
-
-### UI / POM case study
-
-A Salesforce-like CRM flow:
-
-```text
-Login
-→ open Sales / Service area
-→ create Case or Opportunity
-→ fill required fields
-→ save
-→ verify record status or confirmation
-```
-
-This belongs in the POM / E2E layer.
-
-### API / SOM case study
-
-A public or local microservice flow:
-
-```text
-Create customer
-→ create order
-→ verify order status
-→ fetch related customer data
-→ validate response contract
-```
-
-This belongs in the SOM / integration layer.
-
-These case studies should be added as examples, not as hardcoded assumptions inside the framework core.
-
----
-
-## Service Object generation
-
-The repository includes a Swagger/OpenAPI helper as a productivity tool.
-
-Example:
-
-```bash
-python api/swagger_generator.py --swagger path/to/swagger.json --tag customers
-```
-
-Generated code should be treated as a starting point.
-
-Before accepting generated Service Objects, review:
-
-- method names,
-- endpoint paths,
-- request payloads,
-- response expectations,
-- authentication,
-- error handling,
-- domain meaning.
-
-Generated code is not automatically good test design.
-
----
-
-## Design principles
-
-### Tests should speak business language
-
-A test should describe the behavior being verified.
-
-Good:
-
-```python
-customer_service.suspend_account(customer_id)
-dashboard.search_customer(msisdn)
-```
-
-Weak:
-
-```python
-client.post("/x/y/z")
-page.locator("#btn-123").click()
-```
-
-### Page Objects should hide UI mechanics
-
-Page Objects should know:
-
-- locators,
-- UI actions,
-- page-specific waits,
-- navigation details.
-
-Tests should know:
-
-- scenario,
-- input data,
-- expected business result.
-
-### Service Objects should hide HTTP mechanics
-
-Service Objects should know:
-
-- endpoints,
-- payloads,
-- headers,
-- status-code expectations,
-- response parsing.
-
-Tests should know:
-
-- business operation,
-- input data,
-- expected behavior.
-
-### Test data should be deterministic
-
-Tests should not depend on random, unknown, or manually prepared state unless explicitly marked as external or environment-dependent.
-
-### CI should run safe tests by default
-
-CI should run deterministic tests that do not require private environments or live third-party systems.
-
-External tests should be clearly marked and opt-in.
+See [AI-assisted adaptation](docs/ai-assisted-adaptation.md) for a practical workflow.
 
 ---
 
