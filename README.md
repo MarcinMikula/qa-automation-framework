@@ -14,13 +14,15 @@ It provides a clean structure for building tests around two complementary automa
 - **Page Object Model (POM)** for browser-based UI and E2E flows.
 - **Service Object Model (SOM)** for API, microservice, and integration testing.
 
-The repository includes a small working example implementation so the structure can be executed, reviewed, and adapted before it is used against a real application.
+The repository includes a small working example implementation so the structure can be executed,
+reviewed, and adapted before it is used against a real application.
 
 ---
 
 ## What this repository is
 
-This repository is a practical starting point for building automated tests in enterprise-style systems such as:
+This repository is a practical starting point for building automated tests in enterprise-style
+systems such as:
 
 - CRM platforms,
 - billing systems,
@@ -43,9 +45,11 @@ In a real project, you are expected to replace or extend:
 - business assertions,
 - domain-specific fixtures.
 
-The goal is not to pretend that a public repository can fully automate an unknown enterprise system.
+The goal is not to pretend that a public repository can fully automate an unknown enterprise
+system.
 
-The goal is to show how a QA automation framework can be structured so it can be safely adapted to one.
+The goal is to show how a QA automation framework can be structured so it can be safely adapted
+to one.
 
 ---
 
@@ -61,7 +65,8 @@ This repository is **not**:
 - a self-healing test tool,
 - a code generator that removes the need for review.
 
-The skeleton can be used with AI-assisted development, but the output still requires QA review, project context, and manual adaptation.
+The skeleton can be used with AI-assisted development, but the output still requires QA review,
+project context, and manual adaptation.
 
 ---
 
@@ -86,7 +91,8 @@ They are not mixed into one abstraction. They are separated into different adapt
 - `tests/integration/` uses SOM.
 - shared fixtures, settings, data, and reporting support both layers.
 
-The shared repository gives one consistent test structure while keeping UI and API responsibilities separate.
+The shared repository gives one consistent test structure while keeping UI and API responsibilities
+separate.
 
 ---
 
@@ -126,7 +132,8 @@ tests/integration/
 tests/e2e/    Example browser tests through Page Objects
 ```
 
-In a real project, the example microservices can be removed or replaced with your actual application under test.
+In a real project, the example microservices can be removed or replaced with your actual
+application under test.
 
 ---
 
@@ -273,7 +280,8 @@ The framework follows the ISTQB-style test pyramid.
  models, constraints, logic
 ```
 
-E2E tests are intentionally fewer because they are slower, more fragile, and more expensive to maintain.
+E2E tests are intentionally fewer because they are slower, more fragile, and more expensive to
+maintain.
 
 Detailed execution rules are documented in [Testing Strategy](docs/testing-strategy.md).
 
@@ -402,7 +410,8 @@ Some example files use domain markers to show what is reusable and what is proje
 # [DOMAIN: GENERIC] — reusable across most projects
 ```
 
-When adapting the framework, search for domain markers and replace anything that does not match your project context.
+When adapting the framework, search for domain markers and replace anything that does not match
+your project context.
 
 The markers are not part of the framework mechanics.
 

@@ -1,14 +1,12 @@
 # Automation Principles
 
-Evergreen testing principles extracted before rewriting the project-specific
-documentation.
+Evergreen testing principles extracted before rewriting the project-specific documentation.
 
-This file is intentionally broader than this repository. It captures the
-automation rules that should remain useful across different frameworks,
-projects, tools, and domains.
+This file is intentionally broader than this repository. It captures the automation rules that
+should remain useful across different frameworks, projects, tools, and domains.
 
-The framework may change. These principles should change only when the testing
-thinking behind them changes.
+The framework may change. These principles should change only when the testing thinking behind
+them changes.
 
 ---
 
@@ -50,8 +48,8 @@ page.locator("#btn-123").click()
 client.post("/internal/api/v1/x/y/z")
 ```
 
-Selectors, URLs, headers, payload construction, and low-level protocol details
-belong in framework layers.
+Selectors, URLs, headers, payload construction, and low-level protocol details belong in framework
+layers.
 
 The test should describe the scenario.
 
@@ -110,8 +108,8 @@ Why?
 
 Because business intent belongs to the scenario.
 
-A Page Object should help the test observe the application, not silently decide
-which outcome is important.
+A Page Object should help the test observe the application, not silently decide which outcome is
+important.
 
 ---
 
@@ -142,8 +140,7 @@ Weak Service Objects are only wrappers around `get()` and `post()`.
 
 Good Service Objects express domain behavior.
 
-The lower-level HTTP client belongs underneath the Service Object, not in every
-test.
+The lower-level HTTP client belongs underneath the Service Object, not in every test.
 
 ---
 
@@ -160,8 +157,7 @@ Examples:
 - local,
 - production-like environments.
 
-Environment-specific values should live in configuration, settings, or
-environment variables.
+Environment-specific values should live in configuration, settings, or environment variables.
 
 Tests should not hardcode:
 
@@ -259,11 +255,9 @@ A unit test is a contract.
 
 It says:
 
-> this function, method, model, or rule behaves exactly like this under these
-> conditions.
+> this function, method, model, or rule behaves exactly like this under these conditions.
 
-When the implementation changes and breaks that contract, the test should fail
-early.
+When the implementation changes and breaks that contract, the test should fail early.
 
 Before accepting a unit test, understand:
 
@@ -297,8 +291,8 @@ They should answer:
 
 > Can this layer still communicate correctly with the next one?
 
-When an API test fails, it should point toward a broken contract, not just a
-random implementation detail.
+When an API test fails, it should point toward a broken contract, not just a random
+implementation detail.
 
 ---
 
@@ -345,8 +339,7 @@ A healthy automation suite usually has:
  small rules and logic
 ```
 
-The higher the test is in the pyramid, the more expensive it is to run and
-maintain.
+The higher the test is in the pyramid, the more expensive it is to run and maintain.
 
 The lower the test is in the pyramid, the faster and more isolated it should be.
 
@@ -541,8 +534,7 @@ It does not replace:
 
 Automated tests are strongest when they encode well-understood expectations.
 
-They are weakest when they are used as a substitute for understanding the
-system.
+They are weakest when they are used as a substitute for understanding the system.
 
 ---
 
@@ -606,5 +598,4 @@ It is defined by whether the tests:
 
 The goal is not to automate everything.
 
-The goal is to automate the right things in a way that can be understood,
-trusted, and maintained.
+The goal is to automate the right things in a way that can be understood, trusted, and maintained.

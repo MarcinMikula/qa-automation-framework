@@ -2,8 +2,8 @@
 
 Planned realistic case studies for the framework skeleton.
 
-These examples should demonstrate the structure without pretending to automate
-a private enterprise system out of the box.
+These examples should demonstrate the structure without pretending to automate a private
+enterprise system out of the box.
 
 ---
 
@@ -83,8 +83,8 @@ Rules:
 
 ## Case 3 — AI-assisted adaptation demo
 
-Purpose: show how this skeleton can be provided to AI together with project
-context to generate first-draft Page Objects or Service Objects.
+Purpose: show how this skeleton can be provided to AI together with project context to generate
+first-draft Page Objects or Service Objects.
 
 The demo should include:
 

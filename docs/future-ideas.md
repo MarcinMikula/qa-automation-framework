@@ -1,10 +1,8 @@
 # Future ideas
 
-Ideas that may be useful later, but are intentionally not part of the current
-scope.
+Ideas that may be useful later, but are intentionally not part of the current scope.
 
-This file prevents ideas from being lost while keeping the present project
-focused.
+This file prevents ideas from being lost while keeping the present project focused.
 
 ---
 
@@ -21,8 +19,7 @@ Login
 → verify record status or confirmation
 ```
 
-This should remain a safe demo or training flow, not a copy of any private work
-system.
+This should remain a safe demo or training flow, not a copy of any private work system.
 
 ---
 

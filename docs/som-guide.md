@@ -2,8 +2,7 @@
 
 Service Object Model is the API adapter layer of the framework.
 
-Its purpose is to hide HTTP mechanics from tests and expose meaningful service
-operations.
+Its purpose is to hide HTTP mechanics from tests and expose meaningful service operations.
 
 ---
 

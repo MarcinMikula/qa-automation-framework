@@ -111,8 +111,7 @@ Any test requiring live external systems should be explicitly marked:
 @pytest.mark.external
 ```
 
-Default local and CI runs should exclude external tests unless deliberately
-enabled.
+Default local and CI runs should exclude external tests unless deliberately enabled.
 
 ---
 

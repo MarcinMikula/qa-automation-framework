@@ -32,8 +32,7 @@ Typical scope:
 - helper functions,
 - small domain rules.
 
-Unit tests should be fast, deterministic, and independent from browsers or live
-services.
+Unit tests should be fast, deterministic, and independent from browsers or live services.
 
 ---
 
@@ -50,8 +49,8 @@ Typical scope:
 - Service Object behavior,
 - contract assumptions.
 
-Integration tests should usually go through Service Objects instead of raw HTTP
-calls from the test body.
+Integration tests should usually go through Service Objects instead of raw HTTP calls from the
+test body.
 
 ---
 
@@ -86,8 +85,8 @@ Recommended marker policy:
 
 External tests should be opt-in.
 
-Default local and CI runs should avoid tests that require live third-party
-systems, private credentials, or unstable environments.
+Default local and CI runs should avoid tests that require live third-party systems, private
+credentials, or unstable environments.
 
 ---
 
@@ -135,5 +134,5 @@ CI should run tests that are:
 - not dependent on private credentials,
 - not dependent on unstable live systems.
 
-Live or external tests may exist, but they should not block the default pipeline
-unless explicitly configured for a trusted environment.
+Live or external tests may exist, but they should not block the default pipeline unless explicitly
+configured for a trusted environment.

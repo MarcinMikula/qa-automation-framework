@@ -75,8 +75,8 @@ Recommended order:
 3. stable labels and form semantics,
 4. CSS/XPath only when no better option exists.
 
-A framework skeleton should encourage stable locators, but real projects may
-not always provide them.
+A framework skeleton should encourage stable locators, but real projects may not always provide
+them.
 
 When locators are weak, document the trade-off.
 
@@ -109,8 +109,8 @@ def test_user_can_log_in(login_page, dashboard_page):
 
 ## Salesforce-like note
 
-For heavy enterprise UIs such as Salesforce-like CRM systems, Page Objects
-should avoid overfitting to unstable DOM details.
+For heavy enterprise UIs such as Salesforce-like CRM systems, Page Objects should avoid
+overfitting to unstable DOM details.
 
 Prefer methods that describe business actions:
 

@@ -1,7 +1,7 @@
 # AI-assisted adaptation
 
-This framework can be adapted with AI assistance, but generated output should
-not be trusted without review.
+This framework can be adapted with AI assistance, but generated output should not be trusted
+without review.
 
 ---
 
@@ -29,7 +29,7 @@ The more precise the context, the less the model has to invent.
 AI can help draft:
 
 - Page Objects,
-- Service Objects,
+- Service Object methods,
 - fixtures,
 - data builders,
 - mock responses,

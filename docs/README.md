@@ -1,14 +1,13 @@
 # Documentation index
 
-This directory contains project-specific documentation for the
-`qa-automation-framework` repository.
+This directory contains project-specific documentation for the `qa-automation-framework`
+repository.
 
-The root `README.md` is the public landing page. This directory holds the
-longer design notes, boundaries, gaps, and adaptation guides.
+The root `README.md` is the public landing page. This directory holds the longer design notes,
+boundaries, gaps, and adaptation guides.
 
-The documentation style intentionally follows the structure used in PhoenixQA:
-separate documents for architecture decisions, gaps, known limitations, testing
-strategy, and future ideas.
+The documentation style intentionally follows the structure used in PhoenixQA: separate documents
+for architecture decisions, gaps, known limitations, testing strategy, and future ideas.
 
 ---
 
