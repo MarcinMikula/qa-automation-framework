@@ -12,7 +12,10 @@ on:
 jobs:
   test:
     name: Run pytest suite
-    runs-on: ubuntu-latest
+    # Playwright 1.44.0 expects Ubuntu 22.04-era system packages.
+    # On ubuntu-latest / Ubuntu 24.04, `playwright install --with-deps`
+    # fails because packages such as libasound2 were renamed/replaced.
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
 
     steps:
