@@ -1,136 +1,341 @@
-# LEARNINGS — Dziennik nauki AI-powered QA
+# Learnings
 
-Żywy dokument. Każda sekcja to lekcja wyciągnięta z praktyki.
-Aktualizuj go za każdym razem, gdy coś zrozumiesz głębiej lub popełnisz błąd, który warto zapamiętać.
+Project journal for lessons learned while building and adapting this framework.
 
----
+This file is intentionally lighter than PhoenixQA's `LEARNINGS.md`.
 
-## Unit Testy + AI
+PhoenixQA is a research-heavy self-healing project with many architecture
+pivots. This repository is simpler: it is a reusable POM/SOM framework skeleton
+that should become more interesting when it is adapted to a real application.
 
-### Złota reguła
+The goal of this file is not to duplicate all documentation.
 
-> Unit test to umowa — mówi «ta funkcja/metoda zachowuje się dokładnie tak».
-> Gdy ktoś zmieni kod i złamie tę umowę — test od razu krzyczy.
-> Bez testu zmiana przechodzi cicho i dowiadujesz się o problemie
-> dopiero w produkcji.
+Use the dedicated documents for stable reference material:
 
----
+- [`README.md`](README.md) — repository landing page.
+- [`AUTOMATION_PRINCIPLES.md`](AUTOMATION_PRINCIPLES.md) — evergreen automation principles.
+- [`PHILOSOPHY.md`](PHILOSOPHY.md) — project-specific framework philosophy.
+- [`docs/`](docs/) — architecture decisions, gaps, limitations, testing strategy, and guides.
 
-### Trzy rzeczy, które QA musi rozumieć
-
-Zanim zaakceptujesz test wygenerowany przez AI, upewnij się, że rozumiesz:
-
-**1. KOD — co robi funkcja/metoda którą testujesz**
-- Jaką odpowiedzialność ma ta metoda w systemie?
-- Na jakich danych operuje i skąd je bierze?
-- Jakie efekty uboczne wywołuje (zapis do bazy, zmiana stanu, wywołanie zewnętrzne)?
-
-**2. TEST — co unit test sprawdza w tej funkcji**
-- Jaką jedną rzecz weryfikuje ten konkretny test?
-- Czy nazwa testu jednoznacznie opisuje scenariusz i oczekiwany rezultat?
-- Czy asercja jest precyzyjna — sprawdza dokładnie to, co ważne biznesowo?
-
-**3. SETUP — dane na których testy pracują**
-- Skąd pochodzą dane testowe (seed, fixture, mock, generowane inline)?
-- Czy dane są izolowane — test nie zmienia stanu innego testu?
-- Czy zestaw danych pokrywa scenariusze, które faktycznie wystąpią w produkcji?
+This file should capture what changed in understanding while the project was
+being built.
 
 ---
 
-### Jak ocenić czy AI wygenerował sensowny test
+## Current phase: framework skeleton
 
-Dla każdego testu zadaj sobie pięć pytań:
+The current phase is about making the repository coherent as a practical QA
+automation framework skeleton.
 
-- **Co robi dana funkcja/metoda?**
-  Jeśli nie potrafisz odpowiedzieć jednym zdaniem — wróć do kodu.
+The main work is not advanced algorithm design.
 
-- **Jakie przyjmuje dane wejściowe?**
-  Jakie typy, zakresy, wartości graniczne? Co się dzieje z `null`, pustym stringiem, duplikatem?
+The main work is:
 
-- **Co zwraca i w jakich warunkach?**
-  Happy path, ścieżka błędu, wyjątek — czy test pokrywa tylko jeden z tych przypadków?
+- clarifying scope,
+- separating framework core from demo implementation,
+- making POM and SOM boundaries explicit,
+- documenting how the skeleton should be adapted,
+- keeping tests organized by level,
+- avoiding overclaiming.
 
-- **Czy test weryfikuje coś wartościowego?**
-  Test, który zawsze przechodzi niezależnie od implementacji, jest gorszy niż brak testu.
-
-- **Czy pokrywa przypadki brzegowe?**
-  `null`, `empty`, `duplicate`, wartości poza zakresem, brak wymaganego pola — to miejsca, gdzie produkcja wybucha najczęściej.
-
----
-
-### Rola QA w AI-powered świecie
-
-> AI przyspiesza pisanie testów 10x.
-> QA nadal musi rozumieć biznes, oceniać jakość tego co AI wygenerował
-> i diagnozować gdy coś pada.
-
-Konkretnie oznacza to:
-
-- **AI generuje szkielet** — QA decyduje, czy scenariusze mają sens domenowo.
-- **AI nie zna kontekstu biznesowego** — QA wie, że `OVERDUE` dla zawieszonego konta to inny priorytet niż `UNPAID` dla aktywnego.
-- **AI nie diagnozuje** — gdy test pada o 3 w nocy w CI, to QA czyta logi i rozumie, co się zepsuło i dlaczego.
-- **AI nie ocenia wartości testu** — test może być poprawny technicznie i bezużyteczny biznesowo jednocześnie.
-
-Dobrze wygenerowany test to tylko punkt startowy. Wartościowy test to ten, który rozumiesz i potrafisz obronić na review.
+The repository should be understandable before it becomes more ambitious.
 
 ---
 
-## Piramida testów
+## Lesson 1 — A framework skeleton must not overclaim
 
-Trzy poziomy — im wyżej, tym wolniej, drożej i trudniej o izolację.
+The early version of the repository could be read as if it tried to be a full
+enterprise automation framework.
 
-```
-            ▲
-           /E2E\          <- najmniej testów, najwolniejsze
-          / UI  \            Playwright, pełny flow przez przeglądarkę
-         /-------\           Testuj krytyczne ścieżki biznesowe
-        /   API   \       <- warstwa środkowa
-       / Integracja\         httpx + Service Object Model
-      /-------------\        Testuj kontrakty, kody HTTP, strukturę odpowiedzi
-     /  Unit / Model  \   <- najwięcej testów, najszybsze
-    /  Dane / Logika   \     pytest + SQLAlchemy :memory:
-   /--------------------\    Testuj każdy constraint, default, edge case
+That was too broad.
+
+A public repository cannot honestly provide automation for an unknown
+enterprise system because it does not know:
+
+- the real application,
+- stable locators,
+- authentication rules,
+- API contracts,
+- domain data,
+- permissions,
+- environment constraints,
+- business-critical assertions.
+
+The better positioning is:
+
+> This repository provides the structure. The real project provides the truth.
+
+That makes the framework more credible and easier to adapt.
+
+---
+
+## Lesson 2 — POM and SOM can live together if their boundaries are explicit
+
+Combining Page Object Model and Service Object Model in one repository is not a
+problem by itself.
+
+The problem appears when the documentation makes them look like one mixed
+abstraction.
+
+The clearer model is:
+
+```text
+pages/   -> UI adapter layer
+api/     -> API/service adapter layer
 ```
 
-### Poziom 1 — Unit
+POM and SOM can share:
 
-- **Co testuje:** pojedyncza funkcja, metoda, model danych — w izolacji.
-- **Izolacja:** baza `sqlite:///:memory:`, mocki dla zewnętrznych zależności.
-- **Kiedy pada:** błąd w logice domenowej, constraint bazy, nieprawidłowy default.
-- **Prędkość:** milisekundy. Powinny działać przy każdym commicie.
+- fixtures,
+- settings,
+- test data,
+- reporting,
+- CI structure,
+- test organization.
 
-### Poziom 2 — API / Integracja
+But they should not hide their different responsibilities.
 
-- **Co testuje:** komunikacja między warstwami — klient HTTP, endpoint, format odpowiedzi.
-- **Izolacja:** Service Object Model (`api/`), opcjonalnie mocki (`mocks/`).
-- **Kiedy pada:** zmiana kontraktu API, błąd autoryzacji, nieoczekiwana struktura JSON.
-- **Prędkość:** sekundy. Uruchamiaj przed mergem.
+POM models user interactions.
 
-### Testy integracyjne — pułapki
+SOM models API/service operations.
 
-> Nie testuj konkretnych wartości ID — magazyn/baza nie zawsze
-> resetuje licznik między testami. Sprawdzaj `id > 0` zamiast `id == 1`.
-
-Dotyczy to np. mikroserwisów z magazynem in-memory (`services/`) oraz fixture’ów `clean_*`, które usuwają rekordy, ale nie zerują autoinkrementacji ID między testami w tej samej sesji.
-
-### Poziom 3 — E2E / UI
-
-- **Co testuje:** pełny scenariusz użytkownika przez przeglądarkę — od logowania do wyniku.
-- **Izolacja:** brak pełnej izolacji — test dotyka prawdziwego środowiska.
-- **Kiedy pada:** zmiana selektorów, timeout sieci, problem z renderowaniem.
-- **Prędkość:** minuty. Uruchamiaj na dedykowanym środowisku (SIT/UAT).
+The test should use whichever layer fits the risk being checked.
 
 ---
-## Lessons Learned — porządek w strukturze testów
 
-**Problem:** Testy z oryginalnego szkieletu siedziały w root `tests/` 
-zamiast w `tests/integration/` — łamało to piramidę testów i strukturę projektu.
+## Lesson 3 — Demo services are useful, but they must be labeled as replaceable
 
-**Rozwiązanie:** Przenieść wszystkie testy do odpowiednich podfolderów:
-- `tests/unit/` — testy jednostkowe
-- `tests/integration/` — testy API i integracyjne  
-- `tests/e2e/` — testy end-to-end przez Playwright
+The local FastAPI services are useful because they make the framework runnable
+without access to a private system.
 
-**Zasada:** Struktura folderów musi odzwierciedlać piramidę testów. 
-Jeśli nie wiesz gdzie wrzucić test — pytasz: "Co testuję, jednostkę czy integrację?"
-*— kolejne sekcje będą tu dodawane wraz z postępem projektu —*
+They help demonstrate:
+
+- Service Object structure,
+- integration tests,
+- local API flows,
+- CI-safe examples.
+
+But they are not the product.
+
+They should be treated as example implementation, not framework core.
+
+A real project may remove or replace them completely.
+
+This distinction should be visible in documentation, otherwise the repository
+starts to look like a demo app instead of a framework skeleton.
+
+---
+
+## Lesson 4 — Test level matters more than test count
+
+The framework should not aim to maximize the number of tests.
+
+It should make it easier to place tests at the right level.
+
+Useful distinction:
+
+```text
+Unit          -> small deterministic logic
+Integration  -> API/service contracts and boundaries
+E2E/UI        -> critical user-facing flows
+```
+
+A UI test is not automatically better because it is closer to the user.
+
+An API test is not automatically sufficient because it is faster.
+
+A unit test is not automatically valuable because it is cheap.
+
+The correct level depends on the risk.
+
+This is why the folder structure matters:
+
+```text
+tests/unit/
+tests/integration/
+tests/e2e/
+```
+
+The structure should guide test design.
+
+---
+
+## Lesson 5 — Test data and state are not secondary details
+
+Test data is part of the test design.
+
+During earlier work, one important integration-testing trap became clear:
+
+> Do not assert exact auto-increment IDs when the storage layer does not reset
+> counters between tests.
+
+For example, in local in-memory services or database-backed examples, cleanup
+may remove records without resetting ID counters.
+
+A safer assertion may be:
+
+```python
+assert created_entity["id"] > 0
+```
+
+instead of:
+
+```python
+assert created_entity["id"] == 1
+```
+
+The broader lesson is that automation must understand state.
+
+If state is not controlled, tests become fragile.
+
+If state is not visible, failures become harder to diagnose.
+
+---
+
+## Lesson 6 — AI helps create drafts, not trusted automation
+
+AI can speed up work on a framework skeleton.
+
+It can help generate:
+
+- Page Objects,
+- Service Objects,
+- fixtures,
+- mock data,
+- test skeletons,
+- documentation.
+
+But generated automation is only a draft.
+
+A QA engineer still needs to verify:
+
+- whether the scenario matters,
+- whether the test belongs at the right level,
+- whether the data is realistic,
+- whether the assertion is meaningful,
+- whether the locator or endpoint is real,
+- whether the failure would help diagnose a real issue.
+
+This lesson is important enough that the detailed rules were moved to
+[`AUTOMATION_PRINCIPLES.md`](AUTOMATION_PRINCIPLES.md).
+
+---
+
+## Lesson 7 — Documentation structure matters before code expansion
+
+Before adding more code, the repository needed clearer documentation.
+
+The cleanup created a stronger separation:
+
+```text
+README.md                    -> landing page
+AUTOMATION_PRINCIPLES.md     -> evergreen testing rules
+PHILOSOPHY.md                -> project-specific rationale
+docs/                        -> framework documentation
+LEARNINGS.md                 -> project journal
+```
+
+This makes later work safer.
+
+When the framework is adapted to a real application, new code changes can be
+judged against the documented scope instead of reinventing the project direction
+each time.
+
+---
+
+## Lesson 8 — Keep the skeleton boring until real usage proves otherwise
+
+This project should not become complex too early.
+
+For now, boring is good:
+
+- clear folders,
+- readable Page Objects,
+- readable Service Objects,
+- simple fixtures,
+- deterministic examples,
+- explicit limitations,
+- safe CI defaults.
+
+More advanced patterns should be added only when real usage justifies them.
+
+The framework should change because a real test case exposed a need, not
+because the architecture could theoretically become more impressive.
+
+---
+
+## Future learning area: real application adaptation
+
+The most valuable future learnings will appear when this framework is used
+against a realistic application.
+
+That phase may change the framework more than the initial skeleton work.
+
+Expected learning areas:
+
+### Salesforce-like UI adaptation
+
+Questions to capture later:
+
+- How much of the current POM structure survives a heavy SPA UI?
+- Which locator strategy works best?
+- Which waits are framework-level and which are page-specific?
+- How should modals, tabs, dynamic forms, and validation messages be modeled?
+- Where do Page Objects become too large?
+- Which flows are worth E2E automation?
+
+### API / SOM adaptation
+
+Questions to capture later:
+
+- Are current Service Objects expressive enough?
+- How should authentication be handled?
+- Is response validation too weak or too heavy?
+- Should contracts be checked with schemas or typed models?
+- How should test data setup be shared between API and UI tests?
+
+### Test data and state
+
+Questions to capture later:
+
+- What state must be created through API before UI tests?
+- What state can be mocked?
+- What needs cleanup?
+- Which tests can run repeatedly?
+- Which tests require known seeded records?
+
+### Framework changes caused by real usage
+
+Track any changes that real usage forces, such as:
+
+- new base page helpers,
+- better service client behavior,
+- retry or timeout policy,
+- improved fixtures,
+- stronger reporting,
+- Allure conventions,
+- environment profiles,
+- external/live test markers.
+
+This is where `LEARNINGS.md` should grow.
+
+Not because the skeleton needs more notes now, but because real usage will
+expose real trade-offs.
+
+---
+
+## Current status
+
+The documentation has been reorganized around a more realistic scope.
+
+Current shape:
+
+- the repository is a POM/SOM framework skeleton,
+- POM and SOM are separate adapter layers,
+- demo services are replaceable examples,
+- evergreen principles are preserved separately,
+- project-specific docs live in `docs/`,
+- the next major source of learning should be real-world adaptation.
+
+The project is now ready to move from documentation cleanup toward code review,
+test verification, and realistic case studies.
