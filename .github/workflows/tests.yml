@@ -33,11 +33,17 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
 
+      - name: Prepare reports directory
+        run: mkdir -p reports
+
       - name: Check Python syntax
         run: python -m compileall -q api pages components services testdata tests
 
       - name: Check pytest collection
-        run: python -m pytest --collect-only -q
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest --collect-only -q | tee reports/collection.txt
 
       - name: Initialize local test data
         run: python testdata/testdb.py
@@ -67,10 +73,123 @@ jobs:
           PY
 
       - name: Run unit tests
-        run: python -m pytest tests/unit/ -v
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests/unit/ -v --junitxml=reports/unit-results.xml | tee reports/unit-output.txt
 
       - name: Run integration tests
-        run: python -m pytest tests/integration/ -v -m "not external"
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests/integration/ -v -m "not external" --junitxml=reports/integration-results.xml | tee reports/integration-output.txt
 
       - name: Run E2E tests
-        run: python -m pytest tests/e2e/ -v -m "not external"
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest tests/e2e/ -v -m "not external" --junitxml=reports/e2e-results.xml | tee reports/e2e-output.txt
+
+      - name: Write test summary
+        if: always()
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          reports_dir = Path("reports")
+          summary_path = Path(os.environ["GITHUB_STEP_SUMMARY"])
+
+          def parse_junit(path: Path) -> dict[str, str | int | float]:
+              if not path.exists():
+                  return {
+                      "tests": "n/a",
+                      "failures": "n/a",
+                      "errors": "n/a",
+                      "skipped": "n/a",
+                      "time": "n/a",
+                      "result": "not generated",
+                  }
+
+              root = ET.parse(path).getroot()
+
+              if root.tag == "testsuites":
+                  tests = sum(int(suite.attrib.get("tests", 0)) for suite in root)
+                  failures = sum(int(suite.attrib.get("failures", 0)) for suite in root)
+                  errors = sum(int(suite.attrib.get("errors", 0)) for suite in root)
+                  skipped = sum(int(suite.attrib.get("skipped", 0)) for suite in root)
+                  time = sum(float(suite.attrib.get("time", 0.0)) for suite in root)
+              else:
+                  tests = int(root.attrib.get("tests", 0))
+                  failures = int(root.attrib.get("failures", 0))
+                  errors = int(root.attrib.get("errors", 0))
+                  skipped = int(root.attrib.get("skipped", 0))
+                  time = float(root.attrib.get("time", 0.0))
+
+              result = "passed" if failures == 0 and errors == 0 else "failed"
+
+              return {
+                  "tests": tests,
+                  "failures": failures,
+                  "errors": errors,
+                  "skipped": skipped,
+                  "time": f"{time:.2f}s",
+                  "result": result,
+              }
+
+          def read_collection_count() -> str:
+              path = reports_dir / "collection.txt"
+
+              if not path.exists():
+                  return "not generated"
+
+              text = path.read_text(encoding="utf-8", errors="replace")
+              matches = re.findall(r"(\d+) tests collected", text)
+
+              if matches:
+                  return f"{matches[-1]} collected"
+
+              return "generated"
+
+          suites = [
+              ("Unit", parse_junit(reports_dir / "unit-results.xml")),
+              ("Integration", parse_junit(reports_dir / "integration-results.xml")),
+              ("E2E", parse_junit(reports_dir / "e2e-results.xml")),
+          ]
+
+          lines = [
+              "# QA Framework Test Summary",
+              "",
+              f"- Python syntax check: completed before pytest runs",
+              f"- Pytest collection: {read_collection_count()}",
+              "",
+              "| Suite | Result | Tests | Failures | Errors | Skipped | Time |",
+              "|---|---:|---:|---:|---:|---:|---:|",
+          ]
+
+          for name, data in suites:
+              lines.append(
+                  f"| {name} | {data['result']} | {data['tests']} | "
+                  f"{data['failures']} | {data['errors']} | {data['skipped']} | {data['time']} |"
+              )
+
+          lines.extend(
+              [
+                  "",
+                  "Raw pytest output and JUnit XML files are available in the `pytest-reports` artifact.",
+                  "",
+              ]
+          )
+
+          summary_path.write_text("\n".join(lines), encoding="utf-8")
+          PY
+
+      - name: Upload pytest reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-reports
+          path: reports/
+          if-no-files-found: warn
