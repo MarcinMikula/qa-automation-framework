@@ -1,7 +1,9 @@
+"""Reusable FastAPI CRUD router factory.
+
+This module provides a small generic CRUD layer for local demo services used by
+the framework's SOM examples.
 """
-crud.py
-[DOMAIN: GENERIC] Fabryka routera CRUD — reużywalna logika endpointów.
-"""
+
 from typing import Any, Callable, Type
 
 from fastapi import APIRouter, HTTPException
@@ -19,9 +21,13 @@ def create_crud_router(
     response_model: Type[BaseModel],
     to_response: Callable[[dict[str, Any]], BaseModel],
 ) -> APIRouter:
+    """Create a reusable CRUD router.
+
+    The create path stores full validated payloads, including Pydantic defaults.
+    The update path stores only explicitly provided fields so partial updates do
+    not overwrite existing values with defaults or None.
     """
-    Tworzy router z pełnym CRUD: GET lista, GET jeden, POST, PUT, DELETE.
-    """
+
     router = APIRouter(prefix=prefix, tags=[tag])
 
     @router.get("", response_model=list[response_model])
@@ -31,25 +37,41 @@ def create_crud_router(
     @router.get("/{item_id}", response_model=response_model)
     def get_item(item_id: int) -> BaseModel:
         item = store.get(item_id)
+
         if item is None:
-            raise HTTPException(status_code=404, detail=f"{tag} o id={item_id} nie istnieje")
+            raise HTTPException(
+                status_code=404,
+                detail=f"{tag} o id={item_id} nie istnieje",
+            )
+
         return to_response(item)
 
     @router.post("", response_model=response_model, status_code=201)
     def create_item(body: create_model) -> BaseModel:  # type: ignore[valid-type]
-        item = store.create(body.model_dump(exclude_unset=True))
+        item = store.create(body.model_dump())
         return to_response(item)
 
     @router.put("/{item_id}", response_model=response_model)
-    def update_item(item_id: int, body: update_model) -> BaseModel:  # type: ignore[valid-type]
+    def update_item(
+        item_id: int,
+        body: update_model,  # type: ignore[valid-type]
+    ) -> BaseModel:
         item = store.update(item_id, body.model_dump(exclude_unset=True))
+
         if item is None:
-            raise HTTPException(status_code=404, detail=f"{tag} o id={item_id} nie istnieje")
+            raise HTTPException(
+                status_code=404,
+                detail=f"{tag} o id={item_id} nie istnieje",
+            )
+
         return to_response(item)
 
     @router.delete("/{item_id}", status_code=204)
     def delete_item(item_id: int) -> None:
         if not store.delete(item_id):
-            raise HTTPException(status_code=404, detail=f"{tag} o id={item_id} nie istnieje")
+            raise HTTPException(
+                status_code=404,
+                detail=f"{tag} o id={item_id} nie istnieje",
+            )
 
     return router
