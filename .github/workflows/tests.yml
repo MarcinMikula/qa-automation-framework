@@ -2,43 +2,66 @@ name: QA Framework Tests
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   test:
+    name: Run pytest suite
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
-      - name: Checkout kodu
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.11"
 
-      - name: Instalacja zależności
+      - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          python -m playwright install chromium
+          python -m playwright install --with-deps chromium
 
-      - name: Inicjalizacja bazy danych
+      - name: Initialize local test data
         run: python testdata/testdb.py
 
-      - name: Start mikroserwisów
+      - name: Start local FastAPI services
         run: |
           python -m services.users.main &
           python -m services.orders.main &
           python -m services.products.main &
-          sleep 3
+          sleep 5
 
-      - name: Testy unit
+      - name: Smoke check local services
+        run: |
+          python - <<'PY'
+          import httpx
+
+          urls = [
+              "http://localhost:8001/health",
+              "http://localhost:8002/health",
+              "http://localhost:8003/health",
+          ]
+
+          for url in urls:
+              response = httpx.get(url, timeout=10.0)
+              response.raise_for_status()
+              print(url, response.json())
+          PY
+
+      - name: Run unit tests
         run: python -m pytest tests/unit/ -v
 
-      - name: Testy integracyjne
+      - name: Run integration tests
         run: python -m pytest tests/integration/ -v -m "not external"
 
-      - name: Testy E2E
-        run: python -m pytest tests/e2e/ -v
+      - name: Run E2E tests
+        run: python -m pytest tests/e2e/ -v -m "not external"
