@@ -1,8 +1,10 @@
 # Future ideas
 
-Ideas that may be useful later, but are intentionally not part of the current scope.
+Ideas that may be useful later, but are intentionally not part of the current
+scope.
 
-This file prevents ideas from being lost while keeping the present project focused.
+This file prevents ideas from being lost while keeping the present project
+focused.
 
 ---
 
@@ -19,7 +21,8 @@ Login
 → verify record status or confirmation
 ```
 
-This should remain a safe demo or training flow, not a copy of any private work system.
+This should remain a safe demo or training flow, not a copy of any private work
+system.
 
 ---
 
@@ -36,6 +39,107 @@ Create customer
 ```
 
 This can use local FastAPI services or a public API marked as external.
+
+---
+
+## Context-aware framework filler
+
+A possible future tool that uses this framework skeleton together with
+application context to propose project-specific automation artifacts.
+
+This would not be Playwright Codegen 2.0.
+
+Playwright Codegen mainly answers:
+
+> How can Playwright interact with this element?
+
+A context-aware framework filler should answer a different question:
+
+> Where should this element, action, endpoint, or flow live in the framework so
+> it becomes useful automation?
+
+The tool would not work in isolation from the framework or the tested
+application. It would need both:
+
+```text
+framework structure
++ application context
++ explored UI/API behavior
++ human QA review
+```
+
+Possible outputs:
+
+- proposed Page Objects,
+- proposed Service Objects,
+- selector placement suggestions,
+- endpoint-to-service mapping,
+- fixture suggestions,
+- test skeletons,
+- missing-context questions,
+- warnings about weak selectors or unclear assertions.
+
+Example for UI/POM:
+
+```text
+Detected flow: create Case
+
+Suggested structure:
+pages/salesforce_like/case_page.py
+tests/e2e/test_create_case.py
+testdata/case_data.py
+
+Suggested Page Object methods:
+case_page.open_new_case_form()
+case_page.fill_required_case_fields(...)
+case_page.save_case()
+case_page.current_status()
+
+Human review still needed:
+- confirm stable locators,
+- confirm required fields,
+- confirm expected post-save status,
+- confirm whether this flow is worth E2E coverage.
+```
+
+Example for API/SOM:
+
+```text
+Detected API operation: create customer order
+
+Suggested structure:
+api/customer_service.py
+api/order_service.py
+tests/integration/test_customer_order_flow.py
+
+Suggested Service Object methods:
+customer_service.create_customer(...)
+order_service.create_order(...)
+order_service.get_order_status(...)
+
+Human review still needed:
+- confirm contract shape,
+- confirm authentication,
+- confirm test data strategy,
+- confirm meaningful assertions.
+```
+
+The key difference from simple recording is that the tool should understand the
+target architecture.
+
+It should know that:
+
+- selectors belong in Page Objects, not directly in tests,
+- raw HTTP calls belong under Service Objects, not directly in tests,
+- assertions belong in tests,
+- fixtures should prepare state without hiding scenario meaning,
+- generated code is a draft until reviewed by QA.
+
+This idea is a logical extension of the framework skeleton, but it is not part
+of the current scope.
+
+It should be revisited only after the framework has been tested against a
+realistic UI and API case study.
 
 ---
 
