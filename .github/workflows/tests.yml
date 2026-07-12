@@ -33,6 +33,12 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
 
+      - name: Check Python syntax
+        run: python -m compileall -q api pages components services testdata tests
+
+      - name: Check pytest collection
+        run: python -m pytest --collect-only -q
+
       - name: Initialize local test data
         run: python testdata/testdb.py
 
