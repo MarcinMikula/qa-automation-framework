@@ -5,6 +5,18 @@ decision.
 
 This file tracks work that should not be forgotten. It is not a bug list.
 
+The project now has a stronger framework baseline than before:
+
+- CI syntax check through `compileall`,
+- pytest collection check,
+- unit coverage for the core SOM helpers,
+- integration coverage for local FastAPI services,
+- lightweight CI report artifacts,
+- documented framework consistency gates.
+
+The remaining gaps are mostly about realistic usage, external examples,
+reporting, and final usefulness validation.
+
 ---
 
 ## Gap 1 — Realistic POM case study is not implemented yet
@@ -27,16 +39,18 @@ Why this matters:
 
 - the POM layer should demonstrate business-readable UI automation,
 - Page Objects should model user actions, not just technical selectors,
-- the framework needs one realistic browser flow to prove its structure.
+- the framework needs one realistic browser flow to prove its structure,
+- this is required before claiming that the POM side is practically useful.
 
 Status: planned.
 
 ---
 
-## Gap 2 — Stronger SOM case study needs selection
+## Gap 2 — Stronger SOM case study still needs selection
 
-The SOM layer has useful local FastAPI service examples, but it still needs one
-stronger business scenario that shows multiple Service Objects working together.
+The SOM layer has useful local FastAPI service examples and stronger unit
+coverage now, but it still needs one clearer business scenario that shows
+multiple Service Objects working together.
 
 Candidate directions:
 
@@ -46,7 +60,7 @@ Candidate directions:
 
 Why this matters:
 
-- SOM should represent business operations, not just isolated HTTP calls,
+- SOM should represent business operations, not only isolated HTTP calls,
 - integration tests should protect service contracts and workflow intent,
 - the framework needs one clear API scenario comparable to the future POM case
   study.
@@ -55,70 +69,7 @@ Status: planned.
 
 ---
 
-## Gap 3 — Unit tests do not yet cover the reusable POM/SOM framework core
-
-The current unit test layer verifies the test data/database module well enough
-for the present baseline.
-
-That is useful, but it is not the same as unit-level confidence in the
-framework itself.
-
-Current unit coverage is mainly focused on:
-
-- `testdata/testdb.py`,
-- SQLAlchemy models,
-- schema creation,
-- model defaults,
-- database constraints,
-- seed data,
-- idempotent initialization,
-- session lifecycle.
-
-Missing or weak unit-level coverage:
-
-- `MicroserviceClient`,
-- `InMemoryStore`,
-- `create_crud_router`,
-- Pydantic models in `services/users_service.py`,
-- Pydantic models in `services/orders_service.py`,
-- Pydantic models in `services/products_service.py`,
-- `BaseClient` behavior and HTTP method contracts,
-- `api/swagger_generator.py`.
-
-Current status:
-
-```text
-Unit tests verify the test data layer well enough for now,
-but they do not yet verify the reusable POM/SOM framework core.
-```
-
-Status: needs implementation.
-
----
-
-## Gap 4 — Swagger/OpenAPI generator needs behavior tests and contract alignment
-
-`api/swagger_generator.py` is a lightweight helper for generating first-draft
-Service Object code from OpenAPI/Swagger input.
-
-It should stay a scaffolding aid, not a promise of complete test design.
-
-Known follow-up work:
-
-- add focused unit tests for method name generation,
-- add tests for tag filtering,
-- add tests for generated class names,
-- add tests for generated method bodies,
-- verify that generated methods only call HTTP methods supported by
-  `BaseClient`,
-- decide whether `BaseClient` should support `put()` and `delete()` or whether
-  the generator should restrict/flag unsupported operations.
-
-Status: needs tests and design decision.
-
----
-
-## Gap 5 — External/live examples need cleanup and clear policy
+## Gap 3 — External/live examples need cleanup and clear policy
 
 The repository contains tests and services that appear to belong to an external
 or legacy demo path, such as auth/customer examples and login-related browser
@@ -137,13 +88,14 @@ Rules to preserve:
 
 - external/live tests must be opt-in,
 - default CI must not depend on live third-party systems,
-- external examples must not make the framework look less reusable.
+- external examples must not make the framework look less reusable,
+- tests that require private credentials must never be part of default CI.
 
 Status: partially addressed through markers and CI, but still needs cleanup.
 
 ---
 
-## Gap 6 — Current E2E/POM example is still a technical smoke test
+## Gap 4 — Current E2E/POM example is still a technical smoke test
 
 The current browser example uses Swagger UI to demonstrate Playwright and Page
 Object usage.
@@ -170,51 +122,35 @@ Status: acceptable as smoke, not sufficient as final POM demonstration.
 
 ---
 
-## Gap 7 — Reporting and Allure story should be verified against CI
+## Gap 5 — Reporting and Allure dashboard are still future work
 
-The README mentions reporting, but the exact Allure workflow still needs to be
-checked against the current repository behavior.
+The CI now produces lightweight pytest reports and workflow summaries.
 
-Open questions:
+That improves visibility, but it is not the same as a full Allure dashboard.
 
-- what gets attached on UI failures,
-- what gets attached on API failures,
-- whether CI should publish Allure artifacts,
-- which commands should be documented as the recommended local workflow,
-- whether reporting should stay optional or become part of the default
-  verification path.
+Current lightweight reporting:
 
-Status: needs verification.
+- JUnit XML files,
+- captured pytest output,
+- GitHub Actions step summary,
+- downloadable `pytest-reports` artifact.
 
----
+Future reporting work:
 
-## Gap 8 — Code generation must stay optional and bounded
+- generate Allure results,
+- generate a static Allure HTML report,
+- decide whether to publish it through GitHub Pages,
+- decide which artifacts are useful for UI and API failures,
+- document the local and CI reporting workflow.
 
-`CODEGEN.md` and `api/swagger_generator.py` are useful, but code generation
-should not become the main promise of the repository.
-
-Generated code should remain:
-
-- a starting point,
-- reviewed by QA,
-- refactored into the framework structure,
-- covered by tests before being treated as reliable.
-
-Rules to preserve:
-
-- Playwright Codegen helps discover UI interactions, not define test design,
-- OpenAPI generation can draft Service Objects, not validate business intent,
-- generated selectors and methods must be reviewed before use,
-- assertions must remain human-owned.
-
-Status: documented, but should be reinforced as generator tests are added.
+Status: lightweight reporting added; Allure dashboard deferred.
 
 ---
 
-## Gap 9 — Dependency and runner compatibility should be revisited later
+## Gap 6 — Dependency and runner compatibility should be revisited later
 
-The CI runner is currently pinned for compatibility with the pinned Playwright
-version.
+The CI runner is currently pinned to `ubuntu-22.04` for compatibility with the
+pinned Playwright version.
 
 This is acceptable as a focused fix, but it should not be forgotten.
 
@@ -229,21 +165,184 @@ Status: deferred.
 
 ---
 
-## Gap 10 — Framework confidence should grow beyond green CI
+## Gap 7 — Final framework usefulness validation is still open
 
-The pipeline now checks syntax, pytest collection, and the current test suite.
+This is the most important final project question:
 
-That is a stronger baseline than only running pytest, but it is still not full
-framework confidence.
+```text
+Does this framework skeleton actually help automate a concrete application?
+```
 
-Future confidence should come from:
+The project should not be judged only by:
 
-- unit tests for reusable framework pieces,
-- integration tests that show meaningful SOM workflows,
-- realistic POM case study,
-- clear external-test policy,
-- reporting verification,
-- generator behavior tests,
-- documentation that matches actual behavior.
+- green CI,
+- number of tests,
+- documentation quality,
+- nice folder structure,
+- internal unit/integration coverage.
 
-Status: ongoing.
+The final validation should apply the skeleton to a concrete or realistic
+application context and check whether it actually helps.
+
+Planned validation approach:
+
+```text
+Choose a realistic application context
+→ manually fill the framework with application-specific content
+→ add Page Objects / Service Objects / fixtures / test data
+→ write meaningful tests
+→ observe where the framework helps or gets in the way
+→ document gaps, friction, and improvements
+```
+
+For this validation phase, the framework should be filled manually first.
+
+Reason:
+
+```text
+If LLM-generated filling is used too early,
+we would mix two questions:
+
+1. Is the framework skeleton useful?
+2. Did the LLM fill it correctly?
+```
+
+Manual adaptation gives a cleaner answer to the framework question.
+
+Status: parked for final validation phase.
+
+---
+
+## Gap 8 — Formal framework testing phase should be designed later
+
+After the current development phase, the framework should be tested more
+systematically.
+
+This should be closer to ISTQB-style thinking:
+
+- define framework requirements,
+- separate test levels,
+- define what each level proves,
+- map tests to requirements or risks,
+- identify gaps,
+- execute and summarize results.
+
+Some test levels already exist:
+
+- syntax check,
+- collection check,
+- unit tests,
+- integration tests,
+- E2E smoke tests.
+
+But the final framework testing phase should be more explicit.
+
+Possible questions:
+
+- What are the functional requirements of the framework?
+- What are its non-functional requirements?
+- Which requirements are covered by unit tests?
+- Which require integration tests?
+- Which require a realistic app-context validation?
+- Which parts remain out of scope?
+
+Status: parked for later.
+
+---
+
+## Gap 9 — Context-aware framework filler is parked
+
+A possible future tool could use this framework skeleton together with
+application context to propose project-specific automation artifacts.
+
+This would not be Playwright Codegen 2.0.
+
+It should answer:
+
+```text
+Where should this element, action, endpoint, or flow live in the framework?
+```
+
+not only:
+
+```text
+How can Playwright interact with this element?
+```
+
+Possible future architecture:
+
+- local CLI agent,
+- replaceable LLM backend,
+- repository context,
+- application context,
+- deterministic UI/API collectors,
+- structured JSON output,
+- human QA review loop.
+
+This idea should stay parked until the framework has been manually validated
+against a realistic application context.
+
+Status: future idea, not current scope.
+
+---
+
+## Recently closed or improved gaps
+
+The following gaps were reduced by recent commits:
+
+### Unit coverage for reusable SOM framework pieces
+
+Added or improved unit coverage for:
+
+- `InMemoryStore`,
+- `create_crud_router`,
+- `MicroserviceClient`,
+- local service Pydantic models,
+- `BaseClient`,
+- `api/swagger_generator.py`.
+
+### CRUD create contract
+
+Unit tests exposed that `create_item()` was storing only explicitly provided
+fields, which dropped Pydantic defaults.
+
+The create path now stores full validated payloads, while the update path still
+uses partial updates.
+
+### `BaseClient` HTTP method coverage
+
+`BaseClient` now supports:
+
+- `GET`,
+- `POST`,
+- `PUT`,
+- `PATCH`,
+- `DELETE`.
+
+This aligns it with methods that the OpenAPI/Swagger generator may emit.
+
+### Swagger/OpenAPI generator behavior
+
+`api/swagger_generator.py` now has behavior tests for:
+
+- name normalization,
+- class name generation,
+- tag filtering,
+- method name generation,
+- generated method rendering,
+- unsupported method filtering,
+- empty-tag fallback behavior.
+
+### Framework consistency gates
+
+Testing strategy now explicitly documents:
+
+```text
+syntax check
+→ collection check
+→ unit tests
+→ integration tests
+→ E2E tests
+```
+
+This helps explain what the green pipeline actually proves.
