@@ -11,10 +11,11 @@ The project now has a stronger framework baseline than before:
 - pytest collection check,
 - unit coverage for the core SOM helpers,
 - integration coverage for local FastAPI services,
+- a first multi-service SOM workflow,
 - lightweight CI report artifacts,
 - documented framework consistency gates.
 
-The remaining gaps are mostly about realistic usage, external examples,
+The remaining gaps are mostly about realistic UI usage, external examples,
 reporting, and final usefulness validation.
 
 ---
@@ -46,26 +47,54 @@ Status: planned.
 
 ---
 
-## Gap 2 — Stronger SOM case study still needs selection
+## Gap 2 — SOM case study exists, but is still early
 
-The SOM layer has useful local FastAPI service examples and stronger unit
-coverage now, but it still needs one clearer business scenario that shows
-multiple Service Objects working together.
+The SOM layer now has:
 
-Candidate directions:
+- local FastAPI service examples,
+- unit coverage for reusable SOM helpers,
+- integration coverage for individual services,
+- a first multi-service telco order workflow.
 
-- local FastAPI flow: create customer → create order → verify status,
-- public API flow marked as external,
-- OpenAPI/Swagger-based Service Object draft reviewed by QA.
+The first workflow shows:
 
-Why this matters:
+```text
+customer
+→ product
+→ order
+→ order status change
+```
 
-- SOM should represent business operations, not only isolated HTTP calls,
-- integration tests should protect service contracts and workflow intent,
-- the framework needs one clear API scenario comparable to the future POM case
-  study.
+through:
 
-Status: planned.
+```text
+UserService
+→ ProductService
+→ OrderService
+```
+
+This is an important improvement because the tests no longer exercise only
+isolated CRUD endpoints.
+
+However, this is still not a final SOM case study.
+
+Current limitation:
+
+- the local demo services are intentionally simple,
+- they do not enforce real cross-service referential integrity,
+- the workflow proves expression through Service Objects, not full business
+  consistency,
+- the scenario is still small and local-demo oriented.
+
+Future direction:
+
+- decide whether to extend the local telco workflow,
+- add a clearer business rule around order lifecycle,
+- decide whether a public API example is useful,
+- keep external API tests opt-in,
+- document what the SOM case study proves and what it does not prove.
+
+Status: partially addressed.
 
 ---
 
@@ -332,6 +361,18 @@ This aligns it with methods that the OpenAPI/Swagger generator may emit.
 - generated method rendering,
 - unsupported method filtering,
 - empty-tag fallback behavior.
+
+### First multi-service SOM workflow
+
+The integration suite now includes a small telco order workflow using:
+
+- `UserService`,
+- `ProductService`,
+- `OrderService`.
+
+This demonstrates business-readable API orchestration through the SOM layer,
+while keeping the limitation explicit: the demo services do not yet model full
+cross-service business consistency.
 
 ### Framework consistency gates
 
