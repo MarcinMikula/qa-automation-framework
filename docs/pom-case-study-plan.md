@@ -12,22 +12,38 @@ Can this framework express a realistic UI automation flow through clear Page
 Objects, fixtures, test data, and business-readable assertions?
 ```
 
-This is separate from the final real-application validation. The POM case study
-is still an internal framework demonstration. The final validation should later
-apply the skeleton to a concrete application context.
+This is separate from the final real-application validation.
+
+The POM case study is still an internal framework demonstration. The final
+validation should later apply the skeleton to a concrete application context.
 
 ---
 
 ## Current decision
 
-The first realistic POM case study should use an e-commerce-like flow.
+The first realistic public case study should use an e-commerce-like context.
+
+This does not mean that e-commerce is the hardest possible POM challenge.
+
+The more precise decision is:
+
+```text
+E-commerce is the first public POM/SOM demo context.
+
+It is especially strong for SOM/API automation.
+
+Salesforce/ERP/CRM-style applications remain future hard POM validation targets.
+```
 
 Earlier ideas included CRM/telco-style flows such as customer search, plan
-change, or order creation. Those are still useful, but e-commerce is a better
-first public demonstration because it is easier to understand, easy to model
-locally, and naturally combines UI, API, test data, and business assertions.
+change, or order creation. Those are still useful, especially as future
+enterprise UI validation.
 
-The chosen direction:
+E-commerce is a better first public demonstration because it is easier to
+understand, easy to model locally, and naturally combines UI, API, test data,
+and business assertions.
+
+The chosen public demo direction:
 
 ```text
 Product search
@@ -40,6 +56,96 @@ Product search
 
 This flow is small enough to implement safely, but realistic enough to show why
 POM matters.
+
+---
+
+## POM/SOM nuance
+
+E-commerce is particularly valuable for SOM — Service Object Model.
+
+A typical e-commerce system has many API/service boundaries:
+
+```text
+Catalog
+Search
+Cart
+Order
+Payment
+Inventory
+Pricing
+Promo
+User
+Notification
+Review
+```
+
+These map naturally to Service Objects such as:
+
+```text
+CatalogService
+SearchService
+CartService
+OrderService
+PaymentService
+InventoryService
+PricingService
+PromoService
+UserService
+```
+
+SOM can cover many important e-commerce risks without using the browser:
+
+```text
+search product
+→ create cart
+→ add item
+→ apply promo
+→ create order
+→ simulate payment
+→ verify order status
+```
+
+The POM layer is still valid for e-commerce, but it should focus on a small
+number of critical user-visible journeys rather than trying to verify every
+business rule through the UI.
+
+A future GraphQL-oriented Service Object or Query Object layer may be explored
+later if the tested application groups requests through GraphQL.
+
+That is a future idea, not current scope.
+
+---
+
+## Future hard POM validation
+
+Salesforce/ERP/CRM-style systems remain a stronger future POM validation target.
+
+They are harder UI automation cases because they may include:
+
+- highly dynamic UI,
+- Shadow DOM,
+- complex component trees,
+- iframes or overlays,
+- long asynchronous loading,
+- unstable selectors,
+- complex authentication,
+- bot-detection or login friction,
+- enterprise-specific workflows and permissions.
+
+That kind of application is better for answering:
+
+```text
+Can this framework handle a difficult enterprise UI?
+```
+
+The e-commerce demo is better for answering the first public-repo question:
+
+```text
+Can this framework show a clear, understandable POM/SOM structure on a realistic
+business domain?
+```
+
+Both questions are useful, but they belong to different phases.
 
 ---
 
@@ -103,10 +209,10 @@ It only needs enough UI and state to prove the framework structure.
 
 ---
 
-## Why e-commerce is a good POM case study
+## Why e-commerce is a good first public demo context
 
-E-commerce is useful for POM because it contains recognizable user journeys and
-clear business outcomes:
+E-commerce is useful because it contains recognizable user journeys and clear
+business outcomes:
 
 - search should return relevant products,
 - product details should show price and availability,
@@ -115,8 +221,7 @@ clear business outcomes:
 - checkout should preserve selected products and customer data,
 - order confirmation should expose a meaningful order identifier or status.
 
-These are visible UI behaviors, so they belong naturally in a small number of
-E2E tests.
+These are visible UI behaviors, so they can support a small number of E2E tests.
 
 At the same time, many rules can and should be tested lower:
 
@@ -160,7 +265,10 @@ This case study should not pretend to prove:
 - real logistics integration,
 - event-driven consistency,
 - full checkout risk coverage,
+- Salesforce automation readiness,
+- compatibility with complex enterprise ERP/CRM UIs,
 - Shadow DOM handling,
+- bot-detection handling,
 - self-healing selectors,
 - AI-generated framework adaptation,
 - full production-grade test coverage.
@@ -291,6 +399,10 @@ flow with meaningful assertions.
 POM-REQ-007
 The framework shall keep E2E coverage focused on critical user-facing behavior
 and leave lower-level rules to unit or integration tests.
+
+POM-REQ-008
+The framework shall keep Salesforce/ERP/CRM-style hard UI validation as a
+future phase, not as the first public demo requirement.
 ```
 
 ---
