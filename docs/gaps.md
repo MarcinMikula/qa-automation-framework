@@ -12,38 +12,70 @@ The project now has a stronger framework baseline than before:
 - unit coverage for the core SOM helpers,
 - integration coverage for local FastAPI services,
 - a first multi-service SOM workflow,
+- a first e-commerce POM browser flow,
+- self-starting local E2E services,
 - lightweight CI report artifacts,
 - documented framework consistency gates.
 
-The remaining gaps are mostly about realistic UI usage, external examples,
-reporting, and final usefulness validation.
+The remaining gaps are mostly about deeper business realism, external examples,
+reporting, dependency compatibility, and final usefulness validation.
 
 ---
 
-## Gap 1 — Realistic POM case study is not implemented yet
+## Gap 1 — POM case study exists, but is still early
 
-The framework currently has simple UI examples, but not a realistic
-Salesforce-like or CRM-like business flow.
+The framework now has a first realistic POM slice based on a local e-commerce
+demo UI.
 
-Planned direction:
+Current implemented flow:
 
 ```text
-Login
-→ open Sales or Service area
-→ create Case or Opportunity
-→ fill required fields
-→ save
-→ verify status or confirmation
+product search
+→ product details
+→ add to cart
+→ cart total
+→ checkout
+→ order confirmation
 ```
 
-Why this matters:
+The flow is expressed through Page Objects and a reusable component:
 
-- the POM layer should demonstrate business-readable UI automation,
-- Page Objects should model user actions, not just technical selectors,
-- the framework needs one realistic browser flow to prove its structure,
-- this is required before claiming that the POM side is practically useful.
+```text
+EcommerceSearchPage
+EcommerceProductPage
+EcommerceCartPage
+EcommerceCheckoutPage
+EcommerceOrderConfirmationPage
+PriceSummary
+```
 
-Status: planned.
+This is an important improvement over the earlier Swagger UI smoke test,
+because the browser flow now represents a recognizable business journey.
+
+However, this is still not a final POM validation.
+
+Current limitation:
+
+- the demo shop is intentionally small,
+- there is no login,
+- there is no real payment flow,
+- there is no inventory rule,
+- there is no promotion logic,
+- there is no responsive/mobile coverage,
+- there is no visual regression coverage,
+- the UI is local and deterministic by design,
+- it does not prove readiness for complex enterprise UI.
+
+What it proves:
+
+- Playwright can execute a deterministic browser flow,
+- the test can stay business-readable,
+- raw selectors can stay outside the test body,
+- Page Objects can model user actions,
+- assertions can remain in the test,
+- a replaceable local demo UI can support POM work in CI.
+
+Status: partially addressed.
 
 ---
 
@@ -90,6 +122,7 @@ Future direction:
 
 - decide whether to extend the local telco workflow,
 - add a clearer business rule around order lifecycle,
+- decide whether an e-commerce API workflow should become the main SOM demo,
 - decide whether a public API example is useful,
 - keep external API tests opt-in,
 - document what the SOM case study proves and what it does not prove.
@@ -98,7 +131,42 @@ Status: partially addressed.
 
 ---
 
-## Gap 3 — External/live examples need cleanup and clear policy
+## Gap 3 — E-commerce context is useful, but still simplified
+
+The repository now uses e-commerce as the first public POM/SOM demo direction.
+
+This is useful because e-commerce is recognizable and naturally maps to:
+
+- Product search,
+- Product details,
+- Cart,
+- Checkout,
+- Order confirmation,
+- Catalog/Search/Cart/Order/Payment-style services.
+
+However, the current implementation is still deliberately small.
+
+It should not be confused with production e-commerce readiness.
+
+Not covered yet:
+
+- payment provider sandbox,
+- promo code rules,
+- stock reservation,
+- concurrent cart updates,
+- refund/return flows,
+- event-driven order processing,
+- logistics/tracking,
+- account/order history,
+- authorization and user roles,
+- mobile/responsive flows,
+- accessibility checks.
+
+Status: intentionally simplified.
+
+---
+
+## Gap 4 — External/live examples need cleanup and clear policy
 
 The repository contains tests and services that appear to belong to an external
 or legacy demo path, such as auth/customer examples and login-related browser
@@ -124,34 +192,35 @@ Status: partially addressed through markers and CI, but still needs cleanup.
 
 ---
 
-## Gap 4 — Current E2E/POM example is still a technical smoke test
+## Gap 5 — Swagger UI E2E remains a technical smoke test
 
-The current browser example uses Swagger UI to demonstrate Playwright and Page
-Object usage.
+The Swagger UI E2E tests are now self-starting because the E2E fixtures can
+start the local users service.
 
-That is acceptable as a lightweight smoke test, but it is not a strong POM case
-study.
+This makes the local E2E suite more deterministic.
 
-Known limitations:
+However, Swagger UI is still only a technical smoke test.
 
-- it tests documentation UI rather than a real application screen,
-- selectors are mostly Swagger-specific,
-- assertions are mostly technical,
-- the flow does not yet express business intent.
+It proves:
 
-The future POM case study should show:
+- a browser can open a local service UI,
+- a Page Object can interact with the Swagger UI,
+- the service can answer a basic request.
 
-- screen/page responsibility,
-- user-facing actions,
-- business-readable test names,
-- meaningful assertions,
-- clear separation between Page Object interactions and test assertions.
+It does not prove:
 
-Status: acceptable as smoke, not sufficient as final POM demonstration.
+- realistic POM structure,
+- business UI automation,
+- e-commerce readiness,
+- enterprise UI readiness.
+
+The main POM demonstration should remain the e-commerce flow.
+
+Status: acceptable as technical smoke.
 
 ---
 
-## Gap 5 — Reporting and Allure dashboard are still future work
+## Gap 6 — Reporting and Allure dashboard are still future work
 
 The CI now produces lightweight pytest reports and workflow summaries.
 
@@ -176,7 +245,7 @@ Status: lightweight reporting added; Allure dashboard deferred.
 
 ---
 
-## Gap 6 — Dependency and runner compatibility should be revisited later
+## Gap 7 — Dependency and runner compatibility should be revisited later
 
 The CI runner is currently pinned to `ubuntu-22.04` for compatibility with the
 pinned Playwright version.
@@ -194,7 +263,7 @@ Status: deferred.
 
 ---
 
-## Gap 7 — Final framework usefulness validation is still open
+## Gap 8 — Final framework usefulness validation is still open
 
 This is the most important final project question:
 
@@ -208,7 +277,8 @@ The project should not be judged only by:
 - number of tests,
 - documentation quality,
 - nice folder structure,
-- internal unit/integration coverage.
+- internal unit/integration coverage,
+- local demo applications.
 
 The final validation should apply the skeleton to a concrete or realistic
 application context and check whether it actually helps.
@@ -242,7 +312,7 @@ Status: parked for final validation phase.
 
 ---
 
-## Gap 8 — Formal framework testing phase should be designed later
+## Gap 9 — Formal framework testing phase should be designed later
 
 After the current development phase, the framework should be tested more
 systematically.
@@ -262,7 +332,8 @@ Some test levels already exist:
 - collection check,
 - unit tests,
 - integration tests,
-- E2E smoke tests.
+- E2E smoke tests,
+- first E2E POM flow.
 
 But the final framework testing phase should be more explicit.
 
@@ -279,7 +350,43 @@ Status: parked for later.
 
 ---
 
-## Gap 9 — Context-aware framework filler is parked
+## Gap 10 — Salesforce/ERP/CRM hard POM validation is future work
+
+E-commerce is the first public demo context, but it is not the hardest possible
+POM target.
+
+A future hard POM validation could use Salesforce/ERP/CRM-style UI ideas.
+
+That would be useful because enterprise systems may include:
+
+- highly dynamic UI,
+- Shadow DOM,
+- complex component trees,
+- iframes or overlays,
+- long asynchronous loading,
+- unstable selectors,
+- complex authentication,
+- bot-detection or login friction,
+- enterprise-specific workflows and permissions.
+
+This future validation would answer a different question:
+
+```text
+Can this framework handle a difficult enterprise UI?
+```
+
+The current e-commerce demo answers a simpler public-repo question:
+
+```text
+Can this framework show a clear, understandable POM/SOM structure on a
+realistic business domain?
+```
+
+Status: future hard validation target.
+
+---
+
+## Gap 11 — Context-aware framework filler is parked
 
 A possible future tool could use this framework skeleton together with
 application context to propose project-specific automation artifacts.
@@ -373,6 +480,30 @@ The integration suite now includes a small telco order workflow using:
 This demonstrates business-readable API orchestration through the SOM layer,
 while keeping the limitation explicit: the demo services do not yet model full
 cross-service business consistency.
+
+### First e-commerce POM flow
+
+The E2E suite now includes a local e-commerce browser flow:
+
+```text
+product search
+→ product details
+→ add to cart
+→ cart total
+→ checkout
+→ order confirmation
+```
+
+This demonstrates a business-readable browser flow through Page Objects.
+
+### Self-starting E2E services
+
+E2E fixtures now start local services needed by browser tests, including:
+
+- local demo shop,
+- local users service for Swagger UI smoke tests.
+
+This makes local E2E execution more deterministic.
 
 ### Framework consistency gates
 
