@@ -1,0 +1,335 @@
+# Project map
+
+This document maps the current repository structure and project direction.
+
+It is a high-level orientation document.
+
+It does not replace the root `README.md`, architecture decisions, or detailed
+guides.
+
+---
+
+## Project identity
+
+This repository is a reusable QA automation framework skeleton.
+
+It is focused on:
+
+- Page Object Model,
+- Service Object Model,
+- clear test levels,
+- deterministic local execution,
+- reusable automation structure,
+- future project-specific adaptation.
+
+It is not:
+
+```text
+a demo shop
+a demo CRM
+a demo ERP
+a Salesforce clone
+a plug-and-play enterprise framework
+```
+
+The framework should stay simple, readable, reusable, and ready to be filled
+with project-specific content.
+
+---
+
+## Current stage
+
+Current stage:
+
+```text
+POM/SOM foundation completed for the framework-core phase.
+```
+
+This does not mean the framework is fully validated.
+
+It means the core structure now exists and should not be expanded through fake
+demo-product features.
+
+Next important work is around:
+
+- adaptation workflow,
+- future framework UAT,
+- manual filling instructions,
+- AI-assisted filling instructions,
+- cleanup of external/live examples,
+- reporting improvements,
+- dependency review.
+
+---
+
+## Core framework layers
+
+Current conceptual map:
+
+```text
+POM layer
+├── BasePage
+├── concrete Page Objects
+├── BaseComponent
+├── concrete Components
+└── E2E tests with business assertions
+
+SOM layer
+├── BaseClient
+├── MicroserviceClient
+├── concrete Service Objects
+├── Pydantic request/response models
+└── integration tests with business assertions
+
+Test infrastructure
+├── pytest configuration
+├── fixtures
+├── markers
+├── local deterministic services
+├── E2E service autostart
+└── CI consistency gates
+
+Documentation
+├── architecture decisions
+├── known limitations
+├── gaps
+├── testing strategy
+├── POM guides/checkpoints
+├── SOM guides/checkpoints
+├── adaptation guidance
+└── future filling/UAT plans
+```
+
+---
+
+## POM map
+
+Current POM foundation:
+
+```text
+pages/base_page.py
+→ reusable page-level browser mechanics
+
+components/base_component.py
+→ reusable component-level browser mechanics
+
+pages/ecommerce_*.py
+→ concrete Page Object examples
+
+pages/swagger_users_page.py
+→ technical smoke Page Object
+
+components/price_summary.py
+→ concrete component example
+
+tests/e2e/
+→ browser-level tests through Page Objects
+```
+
+Responsibility split:
+
+```text
+BasePage
+→ page-level mechanics
+
+Concrete Page Objects
+→ application-facing page actions and state
+
+BaseComponent
+→ component-level mechanics
+
+Concrete Components
+→ reusable UI fragment behavior and state
+
+Tests
+→ business assertions
+```
+
+Stop point:
+
+```text
+Do not add more demo UI components now.
+```
+
+Future Page Objects and components should be created during real
+application-context adaptation.
+
+---
+
+## SOM map
+
+Current SOM foundation:
+
+```text
+api/base_client.py
+→ generic low-level HTTP foundation
+
+api/microservice_client.py
+→ convenience client for simple local JSON microservices
+
+api/users_service.py
+api/products_service.py
+api/orders_service.py
+→ concrete Service Object examples
+
+api/swagger_generator.py
+→ OpenAPI/Swagger helper for scaffolding Service Objects
+
+tests/integration/
+→ Service Object integration tests and workflow tests
+```
+
+Responsibility split:
+
+```text
+BaseClient / MicroserviceClient
+→ reusable HTTP mechanics
+
+Concrete Service Objects
+→ application-facing service actions and state
+
+Pydantic models
+→ request/response structure and validation
+
+Tests
+→ business assertions
+```
+
+Client decision guide:
+
+```text
+BaseClient
+→ raw httpx.Response, advanced/external/provider-specific APIs
+
+MicroserviceClient
+→ parsed JSON, simple local/internal CRUD-like APIs
+```
+
+Stop point:
+
+```text
+Do not add more demo microservices now.
+```
+
+Future Service Objects should be created during real application-context
+adaptation.
+
+---
+
+## Demo target boundary
+
+Demo targets exist only to make the framework executable and reviewable.
+
+They are not the product.
+
+The guiding rule:
+
+```text
+The demo target exists to exercise the framework.
+It must not become the framework.
+```
+
+Current local demos are acceptable because they support deterministic tests.
+
+They should not grow into full fake products.
+
+---
+
+## Current test map
+
+Current test levels:
+
+```text
+tests/unit/
+→ reusable framework helpers, models, stores, generators
+
+tests/integration/
+→ Service Object tests and local API workflow tests
+
+tests/e2e/
+→ browser flows through Page Objects
+```
+
+Current consistency gates:
+
+```text
+python -m compileall -q api pages components services testdata tests
+python -m pytest --collect-only -q
+python -m pytest tests/unit/ -v
+python -m pytest tests/integration/ -v -m "not external"
+python -m pytest tests/e2e/ -v -m "not external"
+```
+
+The goal is not only green CI.
+
+The goal is to understand what green CI proves.
+
+---
+
+## Documentation map
+
+Recommended reading order:
+
+1. `docs/architecture-decisions.md`
+2. `docs/known-limitations.md`
+3. `docs/testing-strategy.md`
+4. `docs/project-map.md`
+5. `docs/pom-guide.md`
+6. `docs/pom-base-page.md`
+7. `docs/pom-components.md`
+8. `docs/pom-foundation-checkpoint.md`
+9. `docs/som-guide.md`
+10. `docs/som-foundation-checkpoint.md`
+11. `docs/adaptation-guide.md`
+12. `docs/framework-filling-instructions-plan.md`
+13. `docs/example-cases.md`
+14. `docs/ai-assisted-adaptation.md`
+15. `docs/gaps.md`
+16. `docs/future-ideas.md`
+
+Evergreen automation principles live in:
+
+```text
+AUTOMATION_PRINCIPLES.md
+```
+
+---
+
+## Parked future work
+
+Parked topics:
+
+- manual framework filling guide,
+- AI-assisted framework filling guide,
+- framework UAT plan,
+- context-aware framework filler,
+- Salesforce/ERP/CRM hard POM validation,
+- real e-commerce validation,
+- reporting/Allure dashboard,
+- dependency and runner compatibility review.
+
+These should not pull the project into building richer fake demo applications.
+
+---
+
+## Final validation question
+
+The final validation question remains:
+
+```text
+Does this framework skeleton actually help automate a concrete application?
+```
+
+That should be answered later through framework UAT:
+
+```text
+take a real or realistic application
+fill the skeleton with project-specific content
+write meaningful POM/SOM tests
+observe friction
+improve the framework
+```
+
+This is UAT of the framework as a tool.
+
+It is not UAT of the tested application.

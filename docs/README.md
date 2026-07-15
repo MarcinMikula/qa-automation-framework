@@ -8,10 +8,6 @@ The root `README.md` is the public landing page.
 This directory holds the longer design notes, boundaries, gaps, and adaptation
 guides.
 
-The documentation style intentionally follows the structure used in PhoenixQA:
-separate documents for architecture decisions, gaps, known limitations, testing
-strategy, and future ideas.
-
 ---
 
 ## Recommended reading order
@@ -19,18 +15,19 @@ strategy, and future ideas.
 1. [Architecture decisions](architecture-decisions.md)
 2. [Known limitations](known-limitations.md)
 3. [Testing strategy](testing-strategy.md)
-4. [POM guide](pom-guide.md)
-5. [POM BasePage](pom-base-page.md)
-6. [POM components](pom-components.md)
-7. [POM foundation checkpoint](pom-foundation-checkpoint.md)
-8. [SOM guide](som-guide.md)
-9. [SOM foundation checkpoint](som-foundation-checkpoint.md)
-10. [Adaptation guide](adaptation-guide.md)
-11. [Framework filling instructions plan](framework-filling-instructions-plan.md)
-12. [Example cases](example-cases.md)
-13. [AI-assisted adaptation](ai-assisted-adaptation.md)
-14. [Gaps](gaps.md)
-15. [Future ideas](future-ideas.md)
+4. [Project map](project-map.md)
+5. [POM guide](pom-guide.md)
+6. [POM BasePage](pom-base-page.md)
+7. [POM components](pom-components.md)
+8. [POM foundation checkpoint](pom-foundation-checkpoint.md)
+9. [SOM guide](som-guide.md)
+10. [SOM foundation checkpoint](som-foundation-checkpoint.md)
+11. [Adaptation guide](adaptation-guide.md)
+12. [Framework filling instructions plan](framework-filling-instructions-plan.md)
+13. [Example cases](example-cases.md)
+14. [AI-assisted adaptation](ai-assisted-adaptation.md)
+15. [Gaps](gaps.md)
+16. [Future ideas](future-ideas.md)
 
 ---
 
@@ -39,6 +36,7 @@ strategy, and future ideas.
 | Document | Purpose |
 |---|---|
 | [architecture-decisions.md](architecture-decisions.md) | Key design decisions and why they were made |
+| [project-map.md](project-map.md) | Current map of framework layers, status, and next boundaries |
 | [gaps.md](gaps.md) | Open gaps that are known and intentionally tracked |
 | [known-limitations.md](known-limitations.md) | Current boundaries, non-goals, and demo-only areas |
 | [testing-strategy.md](testing-strategy.md) | Unit, integration, E2E, markers, and CI rules |
@@ -53,6 +51,30 @@ strategy, and future ideas.
 | [framework-filling-instructions-plan.md](framework-filling-instructions-plan.md) | Parked plan for manual and AI-assisted framework filling instructions |
 | [example-cases.md](example-cases.md) | Planned UI and API case studies |
 | [ai-assisted-adaptation.md](ai-assisted-adaptation.md) | Safe workflow for using AI to adapt the framework |
+
+---
+
+## Current project status
+
+The framework-core POM/SOM foundation is completed for the current stage.
+
+Current status:
+
+```text
+POM foundation
+→ BasePage, BaseComponent, Page Objects, component example, E2E flow
+
+SOM foundation
+→ BaseClient, MicroserviceClient, Service Objects, models, workflow
+
+Demo targets
+→ minimal deterministic execution targets only
+
+Future validation
+→ framework UAT on real or realistic applications
+```
+
+The repository should not evolve into a rich demo product.
 
 ---
 
