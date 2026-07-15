@@ -1,13 +1,16 @@
 # Documentation index
 
-This directory contains project-specific documentation for the `qa-automation-framework`
-repository.
+This directory contains project-specific documentation for the
+`qa-automation-framework` repository.
 
-The root `README.md` is the public landing page. This directory holds the longer design notes,
-boundaries, gaps, and adaptation guides.
+The root `README.md` is the public landing page.
 
-The documentation style intentionally follows the structure used in PhoenixQA: separate documents
-for architecture decisions, gaps, known limitations, testing strategy, and future ideas.
+This directory holds the longer design notes, boundaries, gaps, and adaptation
+guides.
+
+The documentation style intentionally follows the structure used in PhoenixQA:
+separate documents for architecture decisions, gaps, known limitations, testing
+strategy, and future ideas.
 
 ---
 
@@ -17,12 +20,13 @@ for architecture decisions, gaps, known limitations, testing strategy, and futur
 2. [Known limitations](known-limitations.md)
 3. [Testing strategy](testing-strategy.md)
 4. [POM guide](pom-guide.md)
-5. [SOM guide](som-guide.md)
-6. [Adaptation guide](adaptation-guide.md)
-7. [Example cases](example-cases.md)
-8. [AI-assisted adaptation](ai-assisted-adaptation.md)
-9. [Gaps](gaps.md)
-10. [Future ideas](future-ideas.md)
+5. [POM BasePage](pom-base-page.md)
+6. [SOM guide](som-guide.md)
+7. [Adaptation guide](adaptation-guide.md)
+8. [Example cases](example-cases.md)
+9. [AI-assisted adaptation](ai-assisted-adaptation.md)
+10. [Gaps](gaps.md)
+11. [Future ideas](future-ideas.md)
 
 ---
 
@@ -36,6 +40,7 @@ for architecture decisions, gaps, known limitations, testing strategy, and futur
 | [testing-strategy.md](testing-strategy.md) | Unit, integration, E2E, markers, and CI rules |
 | [future-ideas.md](future-ideas.md) | Ideas worth keeping, but not part of the current scope |
 | [pom-guide.md](pom-guide.md) | Page Object Model rules for UI automation |
+| [pom-base-page.md](pom-base-page.md) | BasePage boundary and reusable POM mechanics |
 | [som-guide.md](som-guide.md) | Service Object Model rules for API automation |
 | [adaptation-guide.md](adaptation-guide.md) | How to adapt the skeleton to a real project |
 | [example-cases.md](example-cases.md) | Planned UI and API case studies |

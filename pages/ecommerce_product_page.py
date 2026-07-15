@@ -2,21 +2,23 @@
 
 from playwright.sync_api import Page
 
+from pages.base_page import BasePage
 
-class EcommerceProductPage:
+
+class EcommerceProductPage(BasePage):
     """Product details page for the local e-commerce POM case study."""
 
     def __init__(self, page: Page) -> None:
-        self.page = page
+        super().__init__(page)
 
     def product_name(self) -> str:
-        return self.page.get_by_test_id("product-name").inner_text()
+        return self.text_by_test_id("product-name")
 
     def price(self) -> str:
-        return self.page.get_by_test_id("product-price").inner_text()
+        return self.text_by_test_id("product-price")
 
     def availability(self) -> str:
-        return self.page.get_by_test_id("product-availability").inner_text()
+        return self.text_by_test_id("product-availability")
 
     def add_to_cart(self) -> None:
-        self.page.get_by_test_id("add-to-cart").click()
+        self.click_by_test_id("add-to-cart")

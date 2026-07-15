@@ -59,6 +59,14 @@ class FakePage:
 
 
 class TestBasePageNavigation:
+    def test_open_without_path_uses_base_url(self):
+        page = FakePage()
+        base_page = BasePage(page, base_url="http://example.test/app")
+
+        base_page.open()
+
+        assert page.navigated_to == "http://example.test/app"
+
     def test_open_uses_path_relative_to_base_url(self):
         page = FakePage()
         base_page = BasePage(page, base_url="http://example.test/app")

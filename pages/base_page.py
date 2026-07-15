@@ -75,4 +75,7 @@ class BasePage:
         if not self.base_url:
             return path
 
+        if not path:
+            return self.base_url
+
         return urljoin(f"{self.base_url}/", path.lstrip("/"))
