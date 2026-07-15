@@ -21,12 +21,13 @@ strategy, and future ideas.
 3. [Testing strategy](testing-strategy.md)
 4. [POM guide](pom-guide.md)
 5. [POM BasePage](pom-base-page.md)
-6. [SOM guide](som-guide.md)
-7. [Adaptation guide](adaptation-guide.md)
-8. [Example cases](example-cases.md)
-9. [AI-assisted adaptation](ai-assisted-adaptation.md)
-10. [Gaps](gaps.md)
-11. [Future ideas](future-ideas.md)
+6. [POM components](pom-components.md)
+7. [SOM guide](som-guide.md)
+8. [Adaptation guide](adaptation-guide.md)
+9. [Example cases](example-cases.md)
+10. [AI-assisted adaptation](ai-assisted-adaptation.md)
+11. [Gaps](gaps.md)
+12. [Future ideas](future-ideas.md)
 
 ---
 
@@ -41,6 +42,7 @@ strategy, and future ideas.
 | [future-ideas.md](future-ideas.md) | Ideas worth keeping, but not part of the current scope |
 | [pom-guide.md](pom-guide.md) | Page Object Model rules for UI automation |
 | [pom-base-page.md](pom-base-page.md) | BasePage boundary and reusable POM mechanics |
+| [pom-components.md](pom-components.md) | Component Object boundary and reusable UI fragment mechanics |
 | [som-guide.md](som-guide.md) | Service Object Model rules for API automation |
 | [adaptation-guide.md](adaptation-guide.md) | How to adapt the skeleton to a real project |
 | [example-cases.md](example-cases.md) | Planned UI and API case studies |
