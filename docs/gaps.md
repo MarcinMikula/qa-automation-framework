@@ -17,12 +17,24 @@ The project now has a stronger framework baseline than before:
 - lightweight CI report artifacts,
 - documented framework consistency gates.
 
-The remaining gaps are mostly about deeper business realism, external examples,
-reporting, dependency compatibility, and final usefulness validation.
+Important boundary:
+
+```text
+The project should not evolve into a demo shop, demo CRM, demo ERP, or demo
+Salesforce clone.
+```
+
+The repository should remain a reusable POM/SOM framework skeleton.
+
+Demo targets may exist only to make the framework executable and reviewable.
+
+The remaining gaps are mostly about framework structure, adaptation workflow,
+documentation clarity, external examples, reporting, dependency compatibility,
+and final usefulness validation.
 
 ---
 
-## Gap 1 — POM case study exists, but is still early
+## Gap 1 — POM case study exists, but must stay minimal
 
 The framework now has a first realistic POM slice based on a local e-commerce
 demo UI.
@@ -54,6 +66,8 @@ because the browser flow now represents a recognizable business journey.
 
 However, this is still not a final POM validation.
 
+It is also not a product roadmap for the local demo shop.
+
 Current limitation:
 
 - the demo shop is intentionally small,
@@ -66,7 +80,11 @@ Current limitation:
 - the UI is local and deterministic by design,
 - it does not prove readiness for complex enterprise UI.
 
-What it proves:
+These are not necessarily features to add to the local demo.
+
+Most of them should remain out of scope for the repository's demo target.
+
+What the current POM flow proves:
 
 - Playwright can execute a deterministic browser flow,
 - the test can stay business-readable,
@@ -75,11 +93,17 @@ What it proves:
 - assertions can remain in the test,
 - a replaceable local demo UI can support POM work in CI.
 
-Status: partially addressed.
+What it does not prove:
+
+- that the framework is ready for Salesforce,
+- that the framework is ready for a production e-commerce platform,
+- that the local demo should be expanded into a realistic shop.
+
+Status: partially addressed and intentionally capped.
 
 ---
 
-## Gap 2 — SOM case study exists, but is still early
+## Gap 2 — SOM case study exists, but should remain framework-focused
 
 The SOM layer now has:
 
@@ -108,7 +132,7 @@ UserService
 This is an important improvement because the tests no longer exercise only
 isolated CRUD endpoints.
 
-However, this is still not a final SOM case study.
+However, this is still not a final SOM validation.
 
 Current limitation:
 
@@ -118,22 +142,32 @@ Current limitation:
   consistency,
 - the scenario is still small and local-demo oriented.
 
-Future direction:
+Future direction should focus on framework usefulness, not on building richer
+fake services.
 
-- decide whether to extend the local telco workflow,
-- add a clearer business rule around order lifecycle,
-- decide whether an e-commerce API workflow should become the main SOM demo,
-- decide whether a public API example is useful,
-- keep external API tests opt-in,
-- document what the SOM case study proves and what it does not prove.
+Useful next work:
 
-Status: partially addressed.
+- clarify Service Object conventions,
+- clarify API fixture patterns,
+- clarify test data boundaries,
+- document what SOM examples prove and do not prove,
+- keep external/live API tests opt-in,
+- validate against a real or realistic API later.
+
+Avoid:
+
+- building a complex fake microservice platform,
+- adding realistic payment/inventory/order engines only for the demo,
+- turning the repository into a sample application.
+
+Status: partially addressed and intentionally bounded.
 
 ---
 
-## Gap 3 — E-commerce context is useful, but still simplified
+## Gap 3 — Demo target boundary must be protected
 
-The repository now uses e-commerce as the first public POM/SOM demo direction.
+The repository now uses a local e-commerce-like target for the first public POM
+example.
 
 This is useful because e-commerce is recognizable and naturally maps to:
 
@@ -144,11 +178,11 @@ This is useful because e-commerce is recognizable and naturally maps to:
 - Order confirmation,
 - Catalog/Search/Cart/Order/Payment-style services.
 
-However, the current implementation is still deliberately small.
+However, this does not mean the repository should become an e-commerce demo
+application.
 
-It should not be confused with production e-commerce readiness.
-
-Not covered yet:
+The following are out of scope for the local demo target unless a future
+architecture decision explicitly changes this:
 
 - payment provider sandbox,
 - promo code rules,
@@ -160,9 +194,17 @@ Not covered yet:
 - account/order history,
 - authorization and user roles,
 - mobile/responsive flows,
-- accessibility checks.
+- accessibility suite,
+- realistic product catalog,
+- realistic checkout engine.
 
-Status: intentionally simplified.
+Those topics may be valuable during final validation against a real or
+realistic application.
+
+They should not be implemented as local demo-product features just to make the
+demo look richer.
+
+Status: boundary needs discipline.
 
 ---
 
@@ -214,7 +256,8 @@ It does not prove:
 - e-commerce readiness,
 - enterprise UI readiness.
 
-The main POM demonstration should remain the e-commerce flow.
+The main POM demonstration should remain the small e-commerce flow, but that
+flow should also stay bounded as a framework example.
 
 Status: acceptable as technical smoke.
 
@@ -283,6 +326,12 @@ The project should not be judged only by:
 The final validation should apply the skeleton to a concrete or realistic
 application context and check whether it actually helps.
 
+This should be treated as a specific UAT-like phase for the framework itself.
+
+It is not UAT of the tested application.
+
+It is acceptance validation of the framework as a tool for an automation tester.
+
 Planned validation approach:
 
 ```text
@@ -307,6 +356,8 @@ we would mix two questions:
 ```
 
 Manual adaptation gives a cleaner answer to the framework question.
+
+AI-powered adaptation can be tested later as a separate capability.
 
 Status: parked for final validation phase.
 
@@ -381,6 +432,12 @@ The current e-commerce demo answers a simpler public-repo question:
 Can this framework show a clear, understandable POM/SOM structure on a
 realistic business domain?
 ```
+
+This should happen later by applying the framework to a real or realistic
+application context.
+
+It should not be done by building a fake Salesforce, fake ERP, or fake CRM
+inside this repository.
 
 Status: future hard validation target.
 
@@ -495,6 +552,9 @@ product search
 ```
 
 This demonstrates a business-readable browser flow through Page Objects.
+
+It does not justify expanding the local demo shop beyond what is needed to
+exercise the framework.
 
 ### Self-starting E2E services
 
