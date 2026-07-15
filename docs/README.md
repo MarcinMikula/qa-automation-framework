@@ -24,12 +24,13 @@ strategy, and future ideas.
 6. [POM components](pom-components.md)
 7. [POM foundation checkpoint](pom-foundation-checkpoint.md)
 8. [SOM guide](som-guide.md)
-9. [Adaptation guide](adaptation-guide.md)
-10. [Framework filling instructions plan](framework-filling-instructions-plan.md)
-11. [Example cases](example-cases.md)
-12. [AI-assisted adaptation](ai-assisted-adaptation.md)
-13. [Gaps](gaps.md)
-14. [Future ideas](future-ideas.md)
+9. [SOM foundation checkpoint](som-foundation-checkpoint.md)
+10. [Adaptation guide](adaptation-guide.md)
+11. [Framework filling instructions plan](framework-filling-instructions-plan.md)
+12. [Example cases](example-cases.md)
+13. [AI-assisted adaptation](ai-assisted-adaptation.md)
+14. [Gaps](gaps.md)
+15. [Future ideas](future-ideas.md)
 
 ---
 
@@ -47,6 +48,7 @@ strategy, and future ideas.
 | [pom-components.md](pom-components.md) | Component Object boundary and reusable UI fragment mechanics |
 | [pom-foundation-checkpoint.md](pom-foundation-checkpoint.md) | Current POM foundation status and stop point |
 | [som-guide.md](som-guide.md) | Service Object Model rules for API automation |
+| [som-foundation-checkpoint.md](som-foundation-checkpoint.md) | Current SOM foundation status and BaseClient vs MicroserviceClient boundary |
 | [adaptation-guide.md](adaptation-guide.md) | How to adapt the skeleton to a real project |
 | [framework-filling-instructions-plan.md](framework-filling-instructions-plan.md) | Parked plan for manual and AI-assisted framework filling instructions |
 | [example-cases.md](example-cases.md) | Planned UI and API case studies |
