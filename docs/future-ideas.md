@@ -42,6 +42,98 @@ This can use local FastAPI services or a public API marked as external.
 
 ---
 
+## Parallel filled reference implementations
+
+After the neutral skeleton is completed and successfully validated through
+framework acceptance, consider two separate e-commerce reference
+implementations.
+
+### Quasi-manual filled version
+
+Working concept:
+
+```text
+qa-automation-framework-ecommerce-demo
+```
+
+"Manual" does not mean avoiding normal automation tools.
+
+The adaptation may use:
+
+- Playwright Codegen for locator discovery,
+- browser developer tools,
+- OpenAPI/Swagger documentation,
+- IDE refactoring,
+- deterministic generators.
+
+A human still owns:
+
+- Page Object and Service Object boundaries,
+- test-level decisions,
+- business meaning,
+- risk selection,
+- assertions,
+- final review.
+
+### AI-filled version
+
+A second repository may use AI to fill the same neutral skeleton.
+
+It should use:
+
+- the same target application,
+- the same scope,
+- the same acceptance criteria,
+- the same quality gates.
+
+This creates a useful comparison:
+
+```text
+quasi-manual adaptation
+vs
+AI-assisted adaptation
+```
+
+The final repository name is not decided yet.
+
+Do not create either reference implementation before framework acceptance has
+stabilized the skeleton.
+
+---
+
+## Conditional frontend exploratory-testing agent
+
+Park a possible separate repository for an AI agent that:
+
+- explores a frontend application,
+- records observed screens and flows,
+- proposes Page Objects and components,
+- suggests test scenarios and risks,
+- fills or drafts the POM part of this skeleton,
+- asks for missing business context,
+- leaves final correctness decisions to a human.
+
+This idea is conditional.
+
+First evaluate the AI-filled reference implementation.
+
+If general LLM-assisted tooling already fills the skeleton well enough, a
+dedicated agent may add unnecessary complexity.
+
+Build the agent only if the comparison reveals a concrete gap, such as:
+
+- weak exploration coverage,
+- poor mapping from UI observations to framework structure,
+- missing-context handling,
+- unstable locator choices,
+- weak risk-based scenario selection,
+- inability to maintain a coherent repository over multiple iterations.
+
+The agent should be a response to validated friction, not only to an
+interesting architecture idea.
+
+---
+
 ## Context-aware framework filler
 
 A possible future tool that uses this framework skeleton together with
