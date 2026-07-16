@@ -257,6 +257,35 @@ Status: boundary documented; keep enforcing it.
 
 ## Recently closed or improved gaps
 
+### Active SOM examples made domain-neutral
+
+The active SOM example chain now uses readable neutral concepts:
+
+```text
+User
+Product
+Order
+external_id
+external_reference
+```
+
+Removed assumptions include:
+
+- MSISDN,
+- prepaid/postpaid contract types,
+- tariff plans,
+- mobile-plan product data,
+- invoice-specific references,
+- telco workflow and parameter names,
+- billing-oriented SQLAlchemy seed data.
+
+The neutralization was not a blind search-and-replace.
+
+Readable business nouns were kept, while fields and scenarios that belonged to
+one industry were renamed or removed.
+
+Project-specific domain models remain the responsibility of adaptation.
+
 ### Legacy external placeholders removed
 
 The inactive telco-style auth/customer/login/dashboard chain was removed from

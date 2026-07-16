@@ -1,10 +1,5 @@
-"""
-test_testdb.py
-Unit testy modułu testdata/testdb.py — modele, constrainty, seed, idempotentność.
+"""Unit tests for the domain-neutral SQLAlchemy test-data example."""
 
-Uruchomienie (bez ładowania tests/conftest.py z Playwright/API):
-    pytest tests/unit/ --confcutdir=tests/unit -v
-"""
 import datetime
 from unittest.mock import MagicMock
 
@@ -13,200 +8,290 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import IntegrityError
 
 import testdata.testdb as testdb
-from testdata.testdb import Customer, Invoice, init_db
+from testdata.testdb import Order, User, init_db
 
 
 class TestSchema:
-    def test_customer_table_is_created(self, seeded_db):
-        assert "customers" in inspect(seeded_db).get_table_names()
+    def test_user_table_is_created(self, seeded_db) -> None:
+        assert "users" in inspect(seeded_db).get_table_names()
 
-    def test_invoice_table_is_created(self, seeded_db):
-        assert "invoices" in inspect(seeded_db).get_table_names()
+    def test_order_table_is_created(self, seeded_db) -> None:
+        assert "orders" in inspect(seeded_db).get_table_names()
 
 
 class TestModelDefaults:
-    def test_customer_default_account_status_is_active(self, empty_db, db_session):
-        customer = Customer(msisdn="48999000001", full_name="Test User")
-        db_session.add(customer)
-        db_session.commit()
-        db_session.refresh(customer)
-        assert customer.account_status == "ACTIVE"
-
-    def test_invoice_default_status_is_unpaid(self, empty_db, db_session):
-        customer = Customer(msisdn="48999000002", full_name="Invoice Owner")
-        db_session.add(customer)
-        db_session.flush()
-        invoice = Invoice(
-            customer_id=customer.id,
-            amount=50.0,
-            due_date=datetime.date(2025, 1, 1),
+    def test_user_default_status_is_active(
+        self,
+        empty_db,
+        db_session,
+    ) -> None:
+        user = User(
+            external_id="USR-DEFAULT",
+            full_name="Test User",
         )
-        db_session.add(invoice)
+        db_session.add(user)
         db_session.commit()
-        db_session.refresh(invoice)
-        assert invoice.status == "UNPAID"
+        db_session.refresh(user)
+
+        assert user.status == "ACTIVE"
+
+    def test_order_default_status_is_new(
+        self,
+        empty_db,
+        db_session,
+    ) -> None:
+        user = User(
+            external_id="USR-ORDER-OWNER",
+            full_name="Order Owner",
+        )
+        db_session.add(user)
+        db_session.flush()
+
+        order = Order(
+            user_id=user.id,
+            total_amount=50.0,
+            created_date=datetime.date(2026, 1, 1),
+        )
+        db_session.add(order)
+        db_session.commit()
+        db_session.refresh(order)
+
+        assert order.status == "NEW"
 
 
 class TestModelConstraints:
-    def test_customer_msisdn_must_be_unique(self, empty_db, db_session):
-        db_session.add(Customer(msisdn="48111111111", full_name="First"))
-        db_session.add(Customer(msisdn="48111111111", full_name="Second"))
+    def test_user_external_id_must_be_unique(
+        self,
+        empty_db,
+        db_session,
+    ) -> None:
+        db_session.add(
+            User(
+                external_id="USR-DUPLICATE",
+                full_name="First User",
+            )
+        )
+        db_session.add(
+            User(
+                external_id="USR-DUPLICATE",
+                full_name="Second User",
+            )
+        )
+
         with pytest.raises(IntegrityError):
             db_session.commit()
+
         db_session.rollback()
 
-    def test_customer_msisdn_cannot_be_null(self, empty_db, db_session):
-        db_session.add(Customer(full_name="No MSISDN"))
+    def test_user_external_id_cannot_be_null(
+        self,
+        empty_db,
+        db_session,
+    ) -> None:
+        db_session.add(User(full_name="No External ID"))
+
         with pytest.raises(IntegrityError):
             db_session.commit()
+
         db_session.rollback()
 
-    def test_customer_full_name_cannot_be_null(self, empty_db, db_session):
-        db_session.add(Customer(msisdn="48122222222"))
+    def test_user_full_name_cannot_be_null(
+        self,
+        empty_db,
+        db_session,
+    ) -> None:
+        db_session.add(User(external_id="USR-NO-NAME"))
+
         with pytest.raises(IntegrityError):
             db_session.commit()
+
         db_session.rollback()
 
-    def test_invoice_amount_cannot_be_null(self, empty_db, db_session):
-        customer = Customer(msisdn="48133333333", full_name="Owner")
-        db_session.add(customer)
+    def test_order_total_amount_cannot_be_null(
+        self,
+        empty_db,
+        db_session,
+    ) -> None:
+        user = User(
+            external_id="USR-AMOUNT",
+            full_name="Order Owner",
+        )
+        db_session.add(user)
         db_session.flush()
         db_session.add(
-            Invoice(customer_id=customer.id, due_date=datetime.date(2025, 1, 1))
+            Order(
+                user_id=user.id,
+                created_date=datetime.date(2026, 1, 1),
+            )
         )
+
         with pytest.raises(IntegrityError):
             db_session.commit()
+
         db_session.rollback()
 
-    def test_invoice_due_date_cannot_be_null(self, empty_db, db_session):
-        customer = Customer(msisdn="48144444444", full_name="Owner")
-        db_session.add(customer)
+    def test_order_created_date_cannot_be_null(
+        self,
+        empty_db,
+        db_session,
+    ) -> None:
+        user = User(
+            external_id="USR-DATE",
+            full_name="Order Owner",
+        )
+        db_session.add(user)
         db_session.flush()
-        db_session.add(Invoice(customer_id=customer.id, amount=10.0))
+        db_session.add(
+            Order(
+                user_id=user.id,
+                total_amount=10.0,
+            )
+        )
+
         with pytest.raises(IntegrityError):
             db_session.commit()
+
         db_session.rollback()
 
 
 class TestInitDbSeed:
-    def test_init_db_seeds_exactly_three_customers(self, seeded_db):
+    def test_init_db_seeds_exactly_three_users(self, seeded_db) -> None:
         session = testdb.Session()
         try:
-            assert session.query(Customer).count() == 3
+            assert session.query(User).count() == 3
         finally:
             session.close()
 
-    def test_init_db_seeds_exactly_three_invoices(self, seeded_db):
+    def test_init_db_seeds_exactly_three_orders(self, seeded_db) -> None:
         session = testdb.Session()
         try:
-            assert session.query(Invoice).count() == 3
+            assert session.query(Order).count() == 3
         finally:
             session.close()
 
-    def test_seeded_customer_jan_kowalski_attributes(self, seeded_db):
+    def test_seeded_active_user_attributes(self, seeded_db) -> None:
         session = testdb.Session()
         try:
-            customer = session.query(Customer).filter_by(msisdn="48100200301").one()
-            assert customer.full_name == "Jan Kowalski"
-            assert customer.contract_type == "POSTPAID"
-            assert customer.plan == "BiznesMAX_50GB"
-            assert customer.account_status == "ACTIVE"
-        finally:
-            session.close()
-
-    def test_seeded_customer_anna_nowak_is_prepaid(self, seeded_db):
-        session = testdb.Session()
-        try:
-            customer = session.query(Customer).filter_by(msisdn="48100200302").one()
-            assert customer.contract_type == "PREPAID"
-            assert customer.plan == "StartGO_10GB"
-        finally:
-            session.close()
-
-    def test_seeded_customer_piotr_is_suspended(self, seeded_db):
-        session = testdb.Session()
-        try:
-            customer = session.query(Customer).filter_by(msisdn="48100200303").one()
-            assert customer.account_status == "SUSPENDED"
-        finally:
-            session.close()
-
-    def test_seeded_invoice_unpaid_for_customer_1(self, seeded_db):
-        session = testdb.Session()
-        try:
-            invoice = (
-                session.query(Invoice)
-                .filter_by(customer_id=1, status="UNPAID")
+            user = (
+                session.query(User)
+                .filter_by(external_id="USR-001")
                 .one()
             )
-            assert invoice.amount == 129.99
-            assert invoice.due_date == datetime.date(2025, 8, 15)
+            assert user.full_name == "Alex Morgan"
+            assert user.email == "alex@example.com"
+            assert user.status == "ACTIVE"
         finally:
             session.close()
 
-    def test_seeded_invoice_paid_for_customer_1(self, seeded_db):
+    def test_seeded_user_can_be_inactive(self, seeded_db) -> None:
         session = testdb.Session()
         try:
-            invoice = (
-                session.query(Invoice)
-                .filter_by(customer_id=1, status="PAID")
+            user = (
+                session.query(User)
+                .filter_by(external_id="USR-002")
                 .one()
             )
-            assert invoice.amount == 129.99
-            assert invoice.due_date == datetime.date(2025, 7, 15)
+            assert user.status == "INACTIVE"
+            assert user.email is None
         finally:
             session.close()
 
-    def test_seeded_invoice_overdue_for_customer_3(self, seeded_db):
+    def test_seeded_user_can_be_suspended(self, seeded_db) -> None:
         session = testdb.Session()
         try:
-            invoice = (
-                session.query(Invoice)
-                .filter_by(customer_id=3, status="OVERDUE")
+            user = (
+                session.query(User)
+                .filter_by(external_id="USR-003")
                 .one()
             )
-            assert invoice.amount == 249.99
-            assert invoice.due_date == datetime.date(2025, 6, 15)
+            assert user.status == "SUSPENDED"
         finally:
             session.close()
 
-    def test_customer_2_has_no_invoices(self, seeded_db):
+    def test_seeded_new_order_for_user_1(self, seeded_db) -> None:
         session = testdb.Session()
         try:
-            assert session.query(Invoice).filter_by(customer_id=2).count() == 0
+            order = (
+                session.query(Order)
+                .filter_by(user_id=1, status="NEW")
+                .one()
+            )
+            assert order.total_amount == 49.99
+            assert order.created_date == datetime.date(2026, 1, 15)
+            assert order.external_reference is None
         finally:
             session.close()
 
-    def test_customer_1_has_two_invoices(self, seeded_db):
+    def test_seeded_completed_order_for_user_1(self, seeded_db) -> None:
         session = testdb.Session()
         try:
-            assert session.query(Invoice).filter_by(customer_id=1).count() == 2
+            order = (
+                session.query(Order)
+                .filter_by(user_id=1, status="COMPLETED")
+                .one()
+            )
+            assert order.total_amount == 99.99
+            assert order.external_reference == "EXT-ORDER-001"
+        finally:
+            session.close()
+
+    def test_seeded_cancelled_order_for_user_3(self, seeded_db) -> None:
+        session = testdb.Session()
+        try:
+            order = (
+                session.query(Order)
+                .filter_by(user_id=3, status="CANCELLED")
+                .one()
+            )
+            assert order.total_amount == 24.99
+            assert order.external_reference == "EXT-ORDER-002"
+        finally:
+            session.close()
+
+    def test_user_2_has_no_orders(self, seeded_db) -> None:
+        session = testdb.Session()
+        try:
+            assert session.query(Order).filter_by(user_id=2).count() == 0
+        finally:
+            session.close()
+
+    def test_user_1_has_two_orders(self, seeded_db) -> None:
+        session = testdb.Session()
+        try:
+            assert session.query(Order).filter_by(user_id=1).count() == 2
         finally:
             session.close()
 
 
 class TestInitDbIdempotency:
-    def test_init_db_is_idempotent_for_customers(self, seeded_db):
+    def test_init_db_is_idempotent_for_users(self, seeded_db) -> None:
         init_db()
         session = testdb.Session()
         try:
-            assert session.query(Customer).count() == 3
+            assert session.query(User).count() == 3
         finally:
             session.close()
 
-    def test_init_db_is_idempotent_for_invoices(self, seeded_db):
+    def test_init_db_is_idempotent_for_orders(self, seeded_db) -> None:
         init_db()
         session = testdb.Session()
         try:
-            assert session.query(Invoice).count() == 3
+            assert session.query(Order).count() == 3
         finally:
             session.close()
 
-    def test_init_db_does_not_modify_existing_customer_data(self, seeded_db):
+    def test_init_db_does_not_modify_existing_user_data(
+        self,
+        seeded_db,
+    ) -> None:
         session = testdb.Session()
         try:
-            customer = session.query(Customer).filter_by(msisdn="48100200301").one()
-            customer.full_name = "Zmienione Imie"
+            user = (
+                session.query(User)
+                .filter_by(external_id="USR-001")
+                .one()
+            )
+            user.full_name = "Changed Name"
             session.commit()
         finally:
             session.close()
@@ -215,42 +300,60 @@ class TestInitDbIdempotency:
 
         session = testdb.Session()
         try:
-            customer = session.query(Customer).filter_by(msisdn="48100200301").one()
-            assert customer.full_name == "Zmienione Imie"
-            assert session.query(Customer).count() == 3
+            user = (
+                session.query(User)
+                .filter_by(external_id="USR-001")
+                .one()
+            )
+            assert user.full_name == "Changed Name"
+            assert session.query(User).count() == 3
         finally:
             session.close()
 
 
 class TestDataIntegrity:
-    def test_all_seeded_invoices_reference_existing_customers(self, seeded_db):
+    def test_all_seeded_orders_reference_existing_users(
+        self,
+        seeded_db,
+    ) -> None:
         session = testdb.Session()
         try:
-            customer_ids = {c.id for c in session.query(Customer).all()}
-            for invoice in session.query(Invoice).all():
-                assert invoice.customer_id in customer_ids
+            user_ids = {user.id for user in session.query(User).all()}
+            for order in session.query(Order).all():
+                assert order.user_id in user_ids
         finally:
             session.close()
 
-    def test_seeded_msisdns_are_unique(self, seeded_db):
+    def test_seeded_external_ids_are_unique(self, seeded_db) -> None:
         session = testdb.Session()
         try:
-            msisdns = [c.msisdn for c in session.query(Customer).all()]
-            assert len(msisdns) == len(set(msisdns))
+            external_ids = [
+                user.external_id for user in session.query(User).all()
+            ]
+            assert len(external_ids) == len(set(external_ids))
         finally:
             session.close()
 
-    def test_seeded_invoice_statuses_cover_unpaid_paid_overdue(self, seeded_db):
+    def test_seeded_order_statuses_cover_main_variants(
+        self,
+        seeded_db,
+    ) -> None:
         session = testdb.Session()
         try:
-            statuses = {i.status for i in session.query(Invoice).all()}
-            assert statuses == {"UNPAID", "PAID", "OVERDUE"}
+            statuses = {
+                order.status for order in session.query(Order).all()
+            }
+            assert statuses == {"NEW", "COMPLETED", "CANCELLED"}
         finally:
             session.close()
 
 
 class TestSessionLifecycle:
-    def test_init_db_closes_session(self, memory_engine, monkeypatch):
+    def test_init_db_closes_session(
+        self,
+        memory_engine,
+        monkeypatch,
+    ) -> None:
         mock_session = MagicMock()
         mock_session.query.return_value.count.return_value = 0
         mock_session_factory = MagicMock(return_value=mock_session)

@@ -1,61 +1,59 @@
-"""
-products/main.py
-Mikroserwis produktów — port 8003.
+"""Deterministic local products service used by SOM examples."""
 
-Uruchomienie:
-    python -m services.products.main
-"""
+from __future__ import annotations
+
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from services.common.crud import create_crud_router
 from services.common.store import InMemoryStore
 
+
 PORT = 8003
 SERVICE_NAME = "products"
 
 app = FastAPI(
     title="Products Service",
-    description="Mikroserwis katalogu produktów",
+    description="Domain-neutral local product catalog for framework tests",
     version="1.0.0",
 )
 
 store = InMemoryStore()
 
 
-# --- Modele Pydantic ----------------------------------------------------------
-
 class ProductBase(BaseModel):
-    # [DOMAIN: GENERIC] — uniwersalny katalog produktów
-    name: str = Field(..., description="Nazwa produktu")
-    sku: str = Field(..., description="Kod SKU")
-    price: float = Field(..., ge=0, description="Cena jednostkowa")
-    category: str | None = Field(None, description="Kategoria produktu")
-    description: str | None = Field(None, description="Opis produktu")
+    """Fields shared by create and response models."""
+
+    name: str = Field(..., min_length=1)
+    sku: str = Field(..., min_length=1)
+    price: float = Field(..., ge=0)
+    category: str | None = None
+    description: str | None = None
 
 
 class ProductCreate(ProductBase):
-    pass
+    """Create-product payload."""
 
 
 class ProductUpdate(BaseModel):
-    # [DOMAIN: GENERIC]
-    name: str | None = None
-    sku: str | None = None
+    """Partial update-product payload."""
+
+    name: str | None = Field(None, min_length=1)
+    sku: str | None = Field(None, min_length=1)
     price: float | None = Field(None, ge=0)
     category: str | None = None
     description: str | None = None
 
 
 class ProductResponse(ProductBase):
+    """Products-service response."""
+
     id: int
 
 
 def _to_response(data: dict) -> ProductResponse:
     return ProductResponse(**data)
 
-
-# --- Router CRUD --------------------------------------------------------------
 
 app.include_router(
     create_crud_router(
@@ -72,7 +70,7 @@ app.include_router(
 
 @app.get("/health")
 def health() -> dict:
-    """Sprawdzenie żywotności serwisu."""
+    """Return deterministic service health information."""
     return {
         "status": "ok",
         "service": SERVICE_NAME,
@@ -84,4 +82,9 @@ def health() -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("services.products.main:app", host="0.0.0.0", port=PORT, reload=False)
+    uvicorn.run(
+        "services.products.main:app",
+        host="0.0.0.0",
+        port=PORT,
+        reload=False,
+    )

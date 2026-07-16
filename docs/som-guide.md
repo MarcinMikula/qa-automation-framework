@@ -2,7 +2,8 @@
 
 Service Object Model is the API adapter layer of the framework.
 
-Its purpose is to hide HTTP mechanics from tests and expose meaningful service operations.
+Its purpose is to hide HTTP mechanics from tests and expose meaningful service
+operations.
 
 ---
 
@@ -19,13 +20,13 @@ A Service Object should know:
 - response parsing,
 - service-specific error handling.
 
-It should expose business operations:
+It should expose readable operations:
 
 ```python
-customer_service.get_customer_by_msisdn(msisdn)
-customer_service.change_plan(customer_id, new_plan)
-order_service.create_order(customer_id, product_id)
-billing_service.get_invoice_status(invoice_id)
+user_service.get(user_id)
+product_service.get(product_id)
+order_service.create(order_payload)
+order_service.update(order_id, status_update)
 ```
 
 ---
@@ -37,31 +38,105 @@ A test should know:
 - the API behavior being verified,
 - the input data,
 - the expected outcome,
-- the business risk.
+- the business or technical risk.
 
 It should not repeatedly build raw URLs, headers, and payloads.
 
 ---
 
-## Weak vs strong Service Objects
+## Weak vs stronger Service Objects
 
 Weak:
 
 ```python
-response = api_client.post("/customers/123/change-plan", json={"plan": "premium"})
-assert response.status_code == 200
+response = api_client.post(
+    "/orders",
+    json={
+        "user_id": 123,
+        "product_id": 456,
+        "total_amount": 49.99,
+    },
+)
+assert response.status_code == 201
 ```
 
 Stronger:
 
 ```python
-customer_service.change_plan(customer_id=123, new_plan="premium")
-customer = customer_service.get_customer(customer_id=123)
+order = order_service.create(
+    OrderCreate(
+        user_id=user.id,
+        product_id=product.id,
+        total_amount=product.price,
+    )
+)
 
-assert customer["plan"] == "premium"
+assert order.status == "NEW"
 ```
 
-The second version communicates intent.
+The second version communicates intent and keeps HTTP mechanics below the test.
+
+---
+
+## Domain-neutral example vocabulary
+
+Domain-neutral does not mean abstract.
+
+The skeleton intentionally uses:
+
+```text
+User
+Product
+Order
+
+UserService
+ProductService
+OrderService
+```
+
+These names are understandable to automation engineers, test analysts, and
+people who know the project architecture but have less programming experience.
+
+The skeleton avoids generic names such as:
+
+```text
+Entity
+Resource
+Object
+GenericManager
+```
+
+It also avoids embedding one industry's assumptions.
+
+For example, the core SOM does not define:
+
+```text
+MSISDN
+PREPAID / POSTPAID
+tariff plan
+billing invoice reference
+mobile plan
+```
+
+A real adaptation may replace or extend the neutral vocabulary:
+
+```text
+Telco:
+User → Subscriber
+external_id → MSISDN
+
+CRM:
+User → Customer or Contact
+external_id → CRM record identifier
+
+E-commerce:
+User → Customer
+external_reference → payment or fulfilment reference
+```
+
+The project supplies the domain meaning.
+
+The framework supplies the structure.
 
 ---
 
@@ -79,6 +154,40 @@ The base client should hold shared mechanics:
 Service Objects should build on top of it.
 
 Tests should use Service Objects directly.
+
+The repository documents two client styles:
+
+```text
+BaseClient
+→ raw httpx.Response and explicit response handling
+
+MicroserviceClient
+→ parsed JSON for simple deterministic services
+```
+
+See `som-foundation-checkpoint.md` for the decision guide.
+
+---
+
+## Typed payloads and responses
+
+Pydantic models make request and response contracts explicit.
+
+Example:
+
+```python
+user = user_service.create(
+    UserCreate(
+        full_name="Alex Morgan",
+        external_id="USR-001",
+        status="ACTIVE",
+    )
+)
+```
+
+Project adaptations may add their own fields and models.
+
+The skeleton models are examples, not universal business contracts.
 
 ---
 

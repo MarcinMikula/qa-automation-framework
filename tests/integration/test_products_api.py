@@ -1,21 +1,20 @@
-"""
-test_products_api.py
-Testy integracyjne ProductService — mikroserwis products (port 8003).
+"""Integration tests for ProductService."""
 
-Uruchomienie:
-    pytest tests/integration/test_products_api.py -v
-"""
 import httpx
 import pytest
 
-from api.products_service import ProductCreate, ProductService, ProductUpdate
+from api.products_service import (
+    ProductCreate,
+    ProductService,
+    ProductUpdate,
+)
 
 
 class TestProductServiceHealth:
-    """Testy endpointu /health."""
-
-    def test_health_check_returns_ok(self, product_service: ProductService):
-        """health_check zwraca status ok i nazwę serwisu products."""
+    def test_health_check_returns_ok(
+        self,
+        product_service: ProductService,
+    ) -> None:
         health = product_service.health_check()
 
         assert health.status == "ok"
@@ -24,76 +23,109 @@ class TestProductServiceHealth:
 
 
 class TestProductServiceCrud:
-    """[DOMAIN: GENERIC] Testy pełnego cyklu CRUD przez SOM."""
-
-    def test_create_returns_product_with_id(self, clean_products, product_service: ProductService):
-        """create dodaje produkt i zwraca model z nadanym id."""
+    def test_create_returns_product_with_id(
+        self,
+        clean_products,
+        product_service: ProductService,
+    ) -> None:
         product = product_service.create(
-            ProductCreate(name="Plan StartGO", sku="SKU-START-10", price=29.99)
+            ProductCreate(
+                name="Standard Product",
+                sku="SKU-STANDARD-001",
+                price=49.99,
+            )
         )
 
         assert product.id > 0
-        assert product.name == "Plan StartGO"
-        assert product.sku == "SKU-START-10"
-        assert product.price == 29.99
+        assert product.name == "Standard Product"
+        assert product.sku == "SKU-STANDARD-001"
+        assert product.price == 49.99
         assert len(product_service.get_all()) == 1
 
-    def test_get_returns_existing_product(self, clean_products, product_service: ProductService):
-        """get pobiera produkt po id."""
+    def test_get_returns_existing_product(
+        self,
+        clean_products,
+        product_service: ProductService,
+    ) -> None:
         created = product_service.create(
             ProductCreate(
-                name="Router 5G",
-                sku="SKU-HW-5G",
-                price=499.0,
-                category="hardware",
+                name="Physical Product",
+                sku="SKU-PHYSICAL-001",
+                price=79.99,
+                category="physical",
             )
         )
 
         fetched = product_service.get(created.id)
 
         assert fetched.id == created.id
-        assert fetched.category == "hardware"
+        assert fetched.category == "physical"
 
-    def test_get_all_returns_all_products(self, clean_products, product_service: ProductService):
-        """get_all zwraca listę wszystkich produktów."""
+    def test_get_all_returns_all_products(
+        self,
+        clean_products,
+        product_service: ProductService,
+    ) -> None:
         product_service.create(
-            ProductCreate(name="Produkt A", sku="SKU-A", price=10.0)
+            ProductCreate(
+                name="Product A",
+                sku="SKU-A",
+                price=10.0,
+            )
         )
         product_service.create(
-            ProductCreate(name="Produkt B", sku="SKU-B", price=20.0)
+            ProductCreate(
+                name="Product B",
+                sku="SKU-B",
+                price=20.0,
+            )
         )
 
         products = product_service.get_all()
 
         assert len(products) == 2
-        skus = {p.sku for p in products}
+        skus = {product.sku for product in products}
         assert skus == {"SKU-A", "SKU-B"}
 
-    def test_update_changes_product_fields(self, clean_products, product_service: ProductService):
-        """update modyfikuje pola produktu (PUT)."""
+    def test_update_changes_product_fields(
+        self,
+        clean_products,
+        product_service: ProductService,
+    ) -> None:
         created = product_service.create(
             ProductCreate(
-                name="Plan BiznesMAX",
-                sku="SKU-BIZ-50",
-                price=129.99,
-                category="mobile",
+                name="Service Product",
+                sku="SKU-SERVICE-001",
+                price=99.99,
+                category="service",
             )
         )
 
         updated = product_service.update(
             created.id,
-            ProductUpdate(name="Plan BiznesMAX 100GB", price=199.99, category="business"),
+            ProductUpdate(
+                name="Premium Service Product",
+                price=149.99,
+                category="premium-service",
+            ),
         )
 
-        assert updated.name == "Plan BiznesMAX 100GB"
-        assert updated.price == 199.99
-        assert updated.category == "business"
-        assert updated.sku == "SKU-BIZ-50"
+        assert updated.name == "Premium Service Product"
+        assert updated.price == 149.99
+        assert updated.category == "premium-service"
+        assert updated.sku == "SKU-SERVICE-001"
 
-    def test_delete_removes_product(self, clean_products, product_service: ProductService):
-        """delete usuwa produkt — get_all jest puste po usunięciu."""
+    def test_delete_removes_product(
+        self,
+        clean_products,
+        product_service: ProductService,
+    ) -> None:
         created = product_service.create(
-            ProductCreate(name="Do usunięcia", sku="SKU-DEL", price=1.0)
+            ProductCreate(
+                name="Temporary Product",
+                sku="SKU-DELETE",
+                price=1.0,
+            )
         )
 
         product_service.delete(created.id)
@@ -102,36 +134,60 @@ class TestProductServiceCrud:
 
 
 class TestProductServiceNegative:
-    """[DOMAIN: GENERIC] Scenariusze negatywne — nieistniejące zasoby."""
-
-    def test_get_nonexistent_id_raises_404(self, clean_products, product_service: ProductService):
-        """get nieistniejącego id zwraca HTTP 404."""
+    def test_get_nonexistent_id_raises_404(
+        self,
+        clean_products,
+        product_service: ProductService,
+    ) -> None:
         with pytest.raises(httpx.HTTPStatusError) as exc_info:
             product_service.get(9999)
 
         assert exc_info.value.response.status_code == 404
 
-    def test_delete_nonexistent_id_raises_404(self, clean_products, product_service: ProductService):
-        """delete nieistniejącego id zwraca HTTP 404."""
+    def test_delete_nonexistent_id_raises_404(
+        self,
+        clean_products,
+        product_service: ProductService,
+    ) -> None:
         with pytest.raises(httpx.HTTPStatusError) as exc_info:
             product_service.delete(9999)
 
         assert exc_info.value.response.status_code == 404
 
 
-class TestProductCatalogVariants:
-    """[DOMAIN: GENERIC] Warianty katalogu produktów — kategorie i ceny."""
-
+class TestProductPayloadVariants:
     @pytest.mark.parametrize(
         "name,sku,price,category,description",
         [
-            ("Plan StartGO 10GB", "SKU-START-10", 29.99, "mobile", "Pakiet prepaid 10GB"),
-            ("Plan BiznesMAX 50GB", "SKU-BIZ-50", 129.99, "business", "Pakiet postpaid dla firm"),
-            ("Router 5G Pro", "SKU-HW-5G", 499.0, "hardware", None),
+            (
+                "Physical Product",
+                "SKU-PHYSICAL",
+                49.99,
+                "physical",
+                "A product delivered in physical form",
+            ),
+            (
+                "Digital Product",
+                "SKU-DIGITAL",
+                19.99,
+                "digital",
+                "A product delivered digitally",
+            ),
+            (
+                "Service Product",
+                "SKU-SERVICE",
+                99.0,
+                "service",
+                None,
+            ),
         ],
-        ids=["mobile_prepaid", "business_postpaid", "hardware_no_description"],
+        ids=[
+            "physical_with_description",
+            "digital_with_description",
+            "service_without_description",
+        ],
     )
-    def test_create_product_catalog_variant(
+    def test_create_product_payload_variant(
         self,
         clean_products,
         product_service: ProductService,
@@ -140,8 +196,7 @@ class TestProductCatalogVariants:
         price: float,
         category: str,
         description: str | None,
-    ):
-        """[DOMAIN: GENERIC] Tworzenie produktu z różnymi kategoriami i atrybutami katalogowymi."""
+    ) -> None:
         product = product_service.create(
             ProductCreate(
                 name=name,

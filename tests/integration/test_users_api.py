@@ -1,10 +1,5 @@
-"""
-test_users_api.py
-Testy integracyjne UserService — mikroserwis users (port 8001).
+"""Integration tests for UserService."""
 
-Uruchomienie:
-    pytest tests/integration/test_users_api.py -v
-"""
 import httpx
 import pytest
 
@@ -12,10 +7,10 @@ from api.users_service import UserCreate, UserService, UserUpdate
 
 
 class TestUserServiceHealth:
-    """Testy endpointu /health."""
-
-    def test_health_check_returns_ok(self, user_service: UserService):
-        """health_check zwraca status ok i nazwę serwisu users."""
+    def test_health_check_returns_ok(
+        self,
+        user_service: UserService,
+    ) -> None:
         health = user_service.health_check()
 
         assert health.status == "ok"
@@ -24,64 +19,102 @@ class TestUserServiceHealth:
 
 
 class TestUserServiceCrud:
-    """[DOMAIN: GENERIC] Testy pełnego cyklu CRUD przez SOM."""
-
-    def test_create_returns_user_with_id(self, clean_users, user_service: UserService):
-        """create dodaje użytkownika i zwraca model z nadanym id."""
+    def test_create_returns_user_with_id(
+        self,
+        clean_users,
+        user_service: UserService,
+    ) -> None:
         user = user_service.create(
-            UserCreate(full_name="Jan Kowalski", msisdn="48100200301")
+            UserCreate(
+                full_name="Alex Morgan",
+                external_id="USR-1001",
+            )
         )
 
         assert user.id > 0
-        assert user.full_name == "Jan Kowalski"
-        assert user.msisdn == "48100200301"
+        assert user.full_name == "Alex Morgan"
+        assert user.external_id == "USR-1001"
+        assert user.status == "ACTIVE"
         assert len(user_service.get_all()) == 1
 
-    def test_get_returns_existing_user(self, clean_users, user_service: UserService):
-        """get pobiera użytkownika po id."""
+    def test_get_returns_existing_user(
+        self,
+        clean_users,
+        user_service: UserService,
+    ) -> None:
         created = user_service.create(
-            UserCreate(full_name="Anna Nowak", msisdn="48100200302")
+            UserCreate(
+                full_name="Taylor Reed",
+                external_id="USR-1002",
+            )
         )
 
         fetched = user_service.get(created.id)
 
         assert fetched.id == created.id
-        assert fetched.full_name == "Anna Nowak"
+        assert fetched.full_name == "Taylor Reed"
+        assert fetched.external_id == "USR-1002"
 
-    def test_get_all_returns_all_users(self, clean_users, user_service: UserService):
-        """get_all zwraca listę wszystkich użytkowników."""
-        user_service.create(UserCreate(full_name="User A", msisdn="48100111111"))
-        user_service.create(UserCreate(full_name="User B", msisdn="48100222222"))
+    def test_get_all_returns_all_users(
+        self,
+        clean_users,
+        user_service: UserService,
+    ) -> None:
+        user_service.create(
+            UserCreate(
+                full_name="User A",
+                external_id="USR-A",
+            )
+        )
+        user_service.create(
+            UserCreate(
+                full_name="User B",
+                external_id="USR-B",
+            )
+        )
 
         users = user_service.get_all()
 
         assert len(users) == 2
-        msisdns = {u.msisdn for u in users}
-        assert msisdns == {"48100111111", "48100222222"}
+        external_ids = {user.external_id for user in users}
+        assert external_ids == {"USR-A", "USR-B"}
 
-    def test_update_changes_user_fields(self, clean_users, user_service: UserService):
-        """update modyfikuje pola użytkownika (PUT)."""
+    def test_update_changes_user_fields(
+        self,
+        clean_users,
+        user_service: UserService,
+    ) -> None:
         created = user_service.create(
             UserCreate(
-                full_name="Jan Kowalski",
-                msisdn="48100200301",
-                plan="StartGO_10GB",
+                full_name="Alex Morgan",
+                external_id="USR-1001",
             )
         )
 
         updated = user_service.update(
             created.id,
-            UserUpdate(full_name="Jan Kowalski Zmieniony", plan="BiznesMAX_50GB"),
+            UserUpdate(
+                full_name="Alex Morgan Updated",
+                email="alex.updated@example.com",
+                status="INACTIVE",
+            ),
         )
 
-        assert updated.full_name == "Jan Kowalski Zmieniony"
-        assert updated.plan == "BiznesMAX_50GB"
-        assert updated.msisdn == "48100200301"
+        assert updated.full_name == "Alex Morgan Updated"
+        assert updated.email == "alex.updated@example.com"
+        assert updated.status == "INACTIVE"
+        assert updated.external_id == "USR-1001"
 
-    def test_delete_removes_user(self, clean_users, user_service: UserService):
-        """delete usuwa użytkownika — get_all jest puste po usunięciu."""
+    def test_delete_removes_user(
+        self,
+        clean_users,
+        user_service: UserService,
+    ) -> None:
         created = user_service.create(
-            UserCreate(full_name="Do usunięcia", msisdn="48100999999")
+            UserCreate(
+                full_name="Temporary User",
+                external_id="USR-DELETE",
+            )
         )
 
         user_service.delete(created.id)
@@ -90,60 +123,78 @@ class TestUserServiceCrud:
 
 
 class TestUserServiceNegative:
-    """[DOMAIN: GENERIC] Scenariusze negatywne — nieistniejące zasoby."""
-
-    def test_get_nonexistent_id_raises_404(self, clean_users, user_service: UserService):
-        """get nieistniejącego id zwraca HTTP 404."""
+    def test_get_nonexistent_id_raises_404(
+        self,
+        clean_users,
+        user_service: UserService,
+    ) -> None:
         with pytest.raises(httpx.HTTPStatusError) as exc_info:
             user_service.get(9999)
 
         assert exc_info.value.response.status_code == 404
 
-    def test_delete_nonexistent_id_raises_404(self, clean_users, user_service: UserService):
-        """delete nieistniejącego id zwraca HTTP 404."""
+    def test_delete_nonexistent_id_raises_404(
+        self,
+        clean_users,
+        user_service: UserService,
+    ) -> None:
         with pytest.raises(httpx.HTTPStatusError) as exc_info:
             user_service.delete(9999)
 
         assert exc_info.value.response.status_code == 404
 
 
-class TestTelcoUserProfiles:
-    """[DOMAIN: TELCO] Profile abonentów — prepaid/postpaid, plany, status konta."""
-
+class TestUserPayloadVariants:
     @pytest.mark.parametrize(
-        "full_name,msisdn,contract_type,plan,account_status",
+        "full_name,external_id,email,status",
         [
-            ("Jan Kowalski", "48100200301", "POSTPAID", "BiznesMAX_50GB", "ACTIVE"),
-            ("Anna Nowak", "48100200302", "PREPAID", "StartGO_10GB", "ACTIVE"),
-            ("Piotr Wisniewski", "48100200303", "POSTPAID", "BiznesMAX_100GB", "SUSPENDED"),
+            (
+                "Alex Morgan",
+                "USR-ACTIVE",
+                "alex@example.com",
+                "ACTIVE",
+            ),
+            (
+                "Taylor Reed",
+                "USR-INACTIVE",
+                None,
+                "INACTIVE",
+            ),
+            (
+                "Jordan Lee",
+                "USR-SUSPENDED",
+                "jordan@example.com",
+                "SUSPENDED",
+            ),
         ],
-        ids=["postpaid_active", "prepaid_active", "postpaid_suspended"],
+        ids=[
+            "active_with_email",
+            "inactive_without_email",
+            "suspended_with_email",
+        ],
     )
-    def test_create_telco_user_profile(
+    def test_create_user_payload_variant(
         self,
         clean_users,
         user_service: UserService,
         full_name: str,
-        msisdn: str,
-        contract_type: str,
-        plan: str,
-        account_status: str,
-    ):
-        """[DOMAIN: TELCO] Tworzenie abonenta z polami MSISDN, planem i statusem konta."""
+        external_id: str,
+        email: str | None,
+        status: str,
+    ) -> None:
         user = user_service.create(
             UserCreate(
                 full_name=full_name,
-                msisdn=msisdn,
-                contract_type=contract_type,
-                plan=plan,
-                account_status=account_status,
+                external_id=external_id,
+                email=email,
+                status=status,
             )
         )
 
-        assert user.contract_type == contract_type
-        assert user.plan == plan
-        assert user.account_status == account_status
-        assert user.msisdn == msisdn
+        assert user.full_name == full_name
+        assert user.external_id == external_id
+        assert user.email == email
+        assert user.status == status
 
         fetched = user_service.get(user.id)
-        assert fetched.full_name == full_name
+        assert fetched.external_id == external_id

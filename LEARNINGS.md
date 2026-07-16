@@ -316,6 +316,68 @@ to run explicitly configured external tests.
 
 ---
 
+## Lesson 10 — Reusable examples must not hide one domain
+
+A framework may be technically reusable while its examples quietly teach one
+industry's assumptions.
+
+The active SOM examples previously used:
+
+```text
+MSISDN
+PREPAID / POSTPAID
+tariff plans
+mobile products
+invoice references
+telco workflow names
+```
+
+Those fields were executable, but they made the skeleton look like a partially
+filled telco project.
+
+The better boundary is:
+
+```text
+Framework core:
+User
+Product
+Order
+external_id
+external_reference
+
+Project adaptation:
+Subscriber
+MSISDN
+TariffPlan
+BillingAccount
+Invoice
+```
+
+Neutral does not mean replacing readable nouns with `Entity`, `Resource`, or
+`Object`.
+
+Readable examples matter because the future user may be:
+
+- an automation engineer,
+- a test analyst,
+- a test methodologist,
+- a domain expert,
+- a person who understands architecture and risk better than programming.
+
+The skeleton should help that person map project knowledge into automation
+artifacts.
+
+The project therefore keeps understandable `UserService`, `ProductService`, and
+`OrderService` examples while removing telco-specific fields, data, parameter
+IDs, workflow names, and database records.
+
+The rule is:
+
+> The framework supplies reusable structure and mechanics.
+> The user supplies application and project meaning.
+
+---
+
 ## Future learning area: real application adaptation
 
 The most valuable future learnings will appear when this framework is used

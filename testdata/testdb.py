@@ -1,11 +1,12 @@
-"""
-testdb.py
-Plikowa baza danych SQLAlchemy z przykładowymi danymi testowymi.
-Kontekst: system billingowy telco — klienci, kontrakty, faktury.
-"""
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date
-from sqlalchemy.orm import declarative_base, sessionmaker
+"""Small domain-neutral SQLAlchemy test-data example."""
+
+from __future__ import annotations
+
 import datetime
+
+from sqlalchemy import Column, Date, Float, Integer, String, create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
 
 DATABASE_URL = "sqlite:///testdata/testdb.db"
 
@@ -14,58 +15,86 @@ Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
 
-class Customer(Base):
-    __tablename__ = "customers"
+class User(Base):
+    """Example user record used by test-data unit tests."""
+
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    msisdn = Column(String, unique=True, nullable=False)   # np. 48100200300
+    external_id = Column(String, unique=True, nullable=False)
     full_name = Column(String, nullable=False)
-    contract_type = Column(String)                          # PREPAID / POSTPAID
-    plan = Column(String)                                   # np. "BiznesMAX_50GB"
-    account_status = Column(String, default="ACTIVE")       # ACTIVE / SUSPENDED
+    email = Column(String)
+    status = Column(String, default="ACTIVE")
 
 
-class Invoice(Base):
-    __tablename__ = "invoices"
+class Order(Base):
+    """Example order record related to a user."""
+
+    __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True)
-    customer_id = Column(Integer, nullable=False)
-    amount = Column(Float, nullable=False)
-    due_date = Column(Date, nullable=False)
-    status = Column(String, default="UNPAID")               # UNPAID / PAID / OVERDUE
+    user_id = Column(Integer, nullable=False)
+    total_amount = Column(Float, nullable=False)
+    created_date = Column(Date, nullable=False)
+    status = Column(String, default="NEW")
+    external_reference = Column(String)
 
 
-def init_db():
-    """Tworzy tabele i wstawia przykładowe dane testowe."""
+def init_db() -> None:
+    """Create tables and seed deterministic example data once."""
     Base.metadata.create_all(engine)
     session = Session()
 
-    if session.query(Customer).count() == 0:
-        customers = [
-            Customer(msisdn="48100200301", full_name="Jan Kowalski",
-                     contract_type="POSTPAID", plan="BiznesMAX_50GB"),
-            Customer(msisdn="48100200302", full_name="Anna Nowak",
-                     contract_type="PREPAID", plan="StartGO_10GB"),
-            Customer(msisdn="48100200303", full_name="Piotr Wisniewski",
-                     contract_type="POSTPAID", plan="BiznesMAX_100GB",
-                     account_status="SUSPENDED"),
-        ]
-        session.add_all(customers)
+    try:
+        if session.query(User).count() == 0:
+            users = [
+                User(
+                    external_id="USR-001",
+                    full_name="Alex Morgan",
+                    email="alex@example.com",
+                ),
+                User(
+                    external_id="USR-002",
+                    full_name="Taylor Reed",
+                    status="INACTIVE",
+                ),
+                User(
+                    external_id="USR-003",
+                    full_name="Jordan Lee",
+                    email="jordan@example.com",
+                    status="SUSPENDED",
+                ),
+            ]
+            session.add_all(users)
 
-        invoices = [
-            Invoice(customer_id=1, amount=129.99,
-                    due_date=datetime.date(2025, 8, 15), status="UNPAID"),
-            Invoice(customer_id=1, amount=129.99,
-                    due_date=datetime.date(2025, 7, 15), status="PAID"),
-            Invoice(customer_id=3, amount=249.99,
-                    due_date=datetime.date(2025, 6, 15), status="OVERDUE"),
-        ]
-        session.add_all(invoices)
-        session.commit()
-
-    session.close()
+            orders = [
+                Order(
+                    user_id=1,
+                    total_amount=49.99,
+                    created_date=datetime.date(2026, 1, 15),
+                    status="NEW",
+                ),
+                Order(
+                    user_id=1,
+                    total_amount=99.99,
+                    created_date=datetime.date(2026, 1, 10),
+                    status="COMPLETED",
+                    external_reference="EXT-ORDER-001",
+                ),
+                Order(
+                    user_id=3,
+                    total_amount=24.99,
+                    created_date=datetime.date(2026, 1, 5),
+                    status="CANCELLED",
+                    external_reference="EXT-ORDER-002",
+                ),
+            ]
+            session.add_all(orders)
+            session.commit()
+    finally:
+        session.close()
 
 
 if __name__ == "__main__":
     init_db()
-    print("Baza danych zainicjalizowana.")
+    print("Test database initialized.")

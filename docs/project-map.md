@@ -216,6 +216,40 @@ adaptation.
 
 ---
 
+## Domain-neutral example vocabulary
+
+The framework core uses readable neutral nouns:
+
+```text
+User
+Product
+Order
+```
+
+It intentionally avoids two extremes:
+
+```text
+hidden industry assumptions
+and
+unhelpful abstractions such as Entity or Resource
+```
+
+Project-specific adaptation owns the domain vocabulary.
+
+Examples:
+
+```text
+User → Customer, Subscriber, Employee, Contact
+external_id → CRM ID, customer number, MSISDN
+external_reference → payment, billing, shipping, or ERP reference
+```
+
+This keeps the skeleton understandable for automation engineers and for test
+analysts or methodologists with strong project knowledge but less programming
+experience.
+
+---
+
 ## Demo target boundary
 
 Demo targets exist only to make the framework executable and reviewable.
