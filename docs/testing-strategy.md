@@ -144,7 +144,7 @@ services.
 Command:
 
 ```bash
-python -m pytest tests/integration/ -v -m "not external"
+python -m pytest tests/integration/ -v
 ```
 
 Question answered:
@@ -181,7 +181,7 @@ test
 Command:
 
 ```bash
-python -m pytest tests/e2e/ -v -m "not external"
+python -m pytest tests/e2e/ -v
 ```
 
 Question answered:
@@ -249,7 +249,7 @@ contain:
 - adapters,
 - generators,
 - examples,
-- external-test placeholders,
+- optional external integrations,
 - code intended for future case studies.
 
 Without hygiene checks, these areas can silently rot while the visible test
@@ -268,7 +268,7 @@ Recommended marker policy:
 @pytest.mark.external
 ```
 
-External tests should be opt-in.
+External tests should be opt-in when a real project adds them.
 
 Default local and CI runs should avoid tests that require:
 
@@ -300,7 +300,7 @@ python -m pytest --collect-only -q
 Run everything deterministic:
 
 ```bash
-python -m pytest tests/ -v -m "not external"
+python -m pytest tests/ -v
 ```
 
 Run only unit tests:
@@ -312,13 +312,13 @@ python -m pytest tests/unit/ -v
 Run only integration tests:
 
 ```bash
-python -m pytest tests/integration/ -v -m "not external"
+python -m pytest tests/integration/ -v
 ```
 
 Run only E2E tests:
 
 ```bash
-python -m pytest tests/e2e/ -v -m "not external"
+python -m pytest tests/e2e/ -v
 ```
 
 Run external tests deliberately:

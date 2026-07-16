@@ -114,7 +114,6 @@ pages/        Page Object Model layer for UI automation
 components/   Reusable UI component abstractions
 api/          Service Object Model layer for API automation
 testdata/     Test data models, seed data, and settings
-mocks/        Mocked responses and isolated test inputs
 tests/        Unit, integration, and E2E test structure
 .github/      CI workflow
 docs/         Project documentation and adaptation guides
@@ -146,34 +145,41 @@ qa-automation-framework/
 │       └── tests.yml
 ├── api/
 │   ├── base_client.py
-│   ├── customer_service.py
-│   ├── order_service.py
-│   ├── product_service.py
-│   ├── user_service.py
+│   ├── microservice_client.py
+│   ├── orders_service.py
+│   ├── products_service.py
+│   ├── users_service.py
 │   └── swagger_generator.py
 ├── components/
-│   └── ...
+│   ├── base_component.py
+│   └── price_summary.py
 ├── docs/
 │   ├── README.md
 │   ├── architecture-decisions.md
+│   ├── project-map.md
 │   ├── gaps.md
 │   ├── known-limitations.md
 │   ├── testing-strategy.md
-│   ├── future-ideas.md
 │   ├── pom-guide.md
+│   ├── pom-base-page.md
+│   ├── pom-components.md
+│   ├── pom-foundation-checkpoint.md
 │   ├── som-guide.md
+│   ├── som-foundation-checkpoint.md
 │   ├── adaptation-guide.md
-│   ├── example-cases.md
-│   └── ai-assisted-adaptation.md
-├── mocks/
-│   └── ...
+│   ├── framework-filling-instructions-plan.md
+│   └── future-ideas.md
 ├── pages/
 │   ├── base_page.py
-│   ├── dashboard_page.py
-│   ├── login_page.py
+│   ├── ecommerce_search_page.py
+│   ├── ecommerce_product_page.py
+│   ├── ecommerce_cart_page.py
+│   ├── ecommerce_checkout_page.py
+│   ├── ecommerce_order_confirmation_page.py
 │   └── swagger_users_page.py
 ├── services/
 │   ├── common/
+│   ├── demo_shop/
 │   ├── orders/
 │   ├── products/
 │   └── users/
@@ -205,15 +211,14 @@ Tests should not know CSS selectors, XPath expressions, or Playwright mechanics 
 Instead of this:
 
 ```python
-page.locator("[data-testid='username']").fill("admin")
-page.locator("[data-testid='password']").fill("secret")
-page.locator("[data-testid='login-button']").click()
+page.get_by_test_id("search-input").fill("laptop")
+page.get_by_test_id("search-submit").click()
 ```
 
-A test should speak through a page object:
+A test should speak through a Page Object:
 
 ```python
-login_page.login(username="admin", password="secret")
+search_page.search_for("laptop")
 ```
 
 The responsibility of a Page Object is to expose meaningful user actions.
@@ -229,17 +234,14 @@ Tests should not build raw URLs, headers, payloads, and status-code handling rep
 Instead of this:
 
 ```python
-response = client.post(
-    "/customers/123/change-plan",
-    json={"plan": "premium"}
-)
-assert response.status_code == 200
+response = client.post("/orders", json=order_payload)
+assert response.status_code == 201
 ```
 
-A test should speak through a service object:
+A test should speak through a Service Object:
 
 ```python
-customer_service.change_plan(customer_id=123, new_plan="premium")
+order = order_service.create(order_payload)
 ```
 
 The responsibility of a Service Object is to expose meaningful API operations.
@@ -301,7 +303,7 @@ The example implementation is intentionally small.
 
 Its purpose is to demonstrate structure, not to simulate a full enterprise system.
 
-Tests marked as external should not block normal CI execution.
+All committed examples are local and deterministic. A real project may add external/live tests later, but they must remain explicit and opt-in.
 
 ---
 
@@ -338,14 +340,14 @@ python -m services.products.main &
 ### 5. Run tests
 
 ```bash
-python -m pytest tests/ -v -m "not external"
+python -m pytest tests/ -v
 ```
 
 Run selected levels:
 
 ```bash
 python -m pytest tests/unit/ -v
-python -m pytest tests/integration/ -v -m "not external"
+python -m pytest tests/integration/ -v
 python -m pytest tests/e2e/ -v
 ```
 
@@ -364,10 +366,10 @@ The short version:
 
 1. Replace or extend Page Objects in `pages/` and `components/`.
 2. Replace or extend Service Objects in `api/`.
-3. Replace demo data in `testdata/` and `mocks/`.
+3. Replace demo data in `testdata/`.
 4. Move environment-specific values into settings or environment variables.
 5. Add tests at the correct level: unit, integration, or E2E.
-6. Keep external/live tests opt-in.
+6. When the project adds external/live tests, mark them explicitly and keep them out of default CI.
 
 For the full process, see [Adaptation Guide](docs/adaptation-guide.md).
 
@@ -381,12 +383,15 @@ Detailed project documentation lives in [`docs/`](docs/).
 |---|---|
 | [Documentation index](docs/README.md) | Entry point for the full documentation set |
 | [Architecture decisions](docs/architecture-decisions.md) | Key design decisions and boundaries |
+| [Project map](docs/project-map.md) | Current framework layers, status, and boundaries |
 | [Gaps](docs/gaps.md) | Known open gaps and follow-up work |
 | [Known limitations](docs/known-limitations.md) | Current boundaries and intentional non-goals |
 | [Testing strategy](docs/testing-strategy.md) | Unit, integration, E2E, markers, and CI scope |
 | [Future ideas](docs/future-ideas.md) | Ideas intentionally not in the current scope |
 | [POM guide](docs/pom-guide.md) | How to structure UI automation with Page Objects |
+| [POM foundation checkpoint](docs/pom-foundation-checkpoint.md) | Current POM foundation and stop point |
 | [SOM guide](docs/som-guide.md) | How to structure API automation with Service Objects |
+| [SOM foundation checkpoint](docs/som-foundation-checkpoint.md) | Current SOM foundation and client boundary |
 | [Adaptation guide](docs/adaptation-guide.md) | How to adapt the skeleton to a real project |
 | [Example cases](docs/example-cases.md) | Planned Salesforce-like UI and API/SOM examples |
 | [AI-assisted adaptation](docs/ai-assisted-adaptation.md) | How to use AI safely with this skeleton |

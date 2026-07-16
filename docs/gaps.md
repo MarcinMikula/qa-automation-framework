@@ -116,33 +116,7 @@ Status: parked for final validation phase.
 
 ---
 
-## Gap 3 — External/live examples need cleanup and clear policy
-
-The repository contains tests and services that appear to belong to an external
-or legacy demo path, such as auth/customer examples and login-related browser
-tests.
-
-These examples may still be useful, but their role must stay explicit.
-
-They should be one of:
-
-- documented external examples,
-- moved into an examples area,
-- rewritten against local deterministic services,
-- or removed if they no longer support the framework story.
-
-Rules to preserve:
-
-- external/live tests must be opt-in,
-- default CI must not depend on live third-party systems,
-- external examples must not make the framework look less reusable,
-- tests that require private credentials must never be part of default CI.
-
-Status: partially addressed through markers and CI, but still needs cleanup.
-
----
-
-## Gap 4 — Reporting and Allure dashboard are still future work
+## Gap 3 — Reporting and Allure dashboard are still future work
 
 The CI now produces lightweight pytest reports and workflow summaries.
 
@@ -167,7 +141,7 @@ Status: lightweight reporting added; Allure dashboard deferred.
 
 ---
 
-## Gap 5 — Dependency and runner compatibility should be revisited later
+## Gap 4 — Dependency and runner compatibility should be revisited later
 
 The CI runner is currently pinned to `ubuntu-22.04` for compatibility with the
 pinned Playwright version.
@@ -183,7 +157,7 @@ Status: deferred.
 
 ---
 
-## Gap 6 — Formal framework testing phase should be designed later
+## Gap 5 — Formal framework testing phase should be designed later
 
 After the current development phase, the framework should be tested more
 systematically.
@@ -211,7 +185,7 @@ Status: parked for later.
 
 ---
 
-## Gap 7 — Salesforce/ERP/CRM hard POM validation is future work
+## Gap 6 — Salesforce/ERP/CRM hard POM validation is future work
 
 E-commerce is the first public demo context, but it is not the hardest possible
 POM target.
@@ -228,7 +202,7 @@ Status: future hard validation target.
 
 ---
 
-## Gap 8 — Context-aware framework filler is parked
+## Gap 7 — Context-aware framework filler is parked
 
 A possible future tool could use this framework skeleton together with
 application context to propose project-specific automation artifacts.
@@ -251,7 +225,7 @@ Status: future idea, not current scope.
 
 ---
 
-## Gap 9 — Demo target boundary must continue to be protected
+## Gap 8 — Demo target boundary must continue to be protected
 
 The repository currently has minimal deterministic demo targets that make the
 framework executable.
@@ -282,6 +256,32 @@ Status: boundary documented; keep enforcing it.
 ---
 
 ## Recently closed or improved gaps
+
+### Legacy external placeholders removed
+
+The inactive telco-style auth/customer/login/dashboard chain was removed from
+the framework instead of being quarantined as a legacy example.
+
+Removed areas included:
+
+- unvalidated auth and customer Service Objects,
+- login and dashboard Page Objects tied to an unavailable application contract,
+- external placeholder tests,
+- the root fixture chain used only by those tests,
+- unrelated default external URLs and demo credentials,
+- unused static telco mock payloads.
+
+The decision was intentional:
+
+```text
+Git history preserves the implementation history.
+LEARNINGS.md preserves the reasoning.
+The active repository keeps only maintained framework code.
+```
+
+The generic `external` pytest marker remains available for future real-project
+adaptation. The repository no longer ships unvalidated external placeholder
+tests.
 
 ### POM foundation closed for current framework-core stage
 

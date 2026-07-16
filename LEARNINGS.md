@@ -264,6 +264,58 @@ because the architecture could theoretically become more impressive.
 
 ---
 
+## Lesson 9 — Git history is the archive; runtime code must earn its place
+
+A reusable framework is not a research notebook.
+
+Earlier versions contained telco-flavoured login, dashboard, authentication,
+customer, and static mock examples that were no longer connected to a real or
+local application target.
+
+They created several kinds of ambiguity:
+
+- public default URLs pointed to applications that did not implement the
+  described telco flows,
+- Page Objects depended on browser helpers that were no longer part of the
+  current `BasePage` contract,
+- API Service Objects described endpoints that were not provided by the local
+  example services,
+- static mock payloads had no active consumer,
+- tests could still be collected or excluded with an `external` marker even
+  though the underlying application contract was not validated.
+
+The important lesson is:
+
+> Importable code is not automatically usable framework code.
+
+Keeping those files in a legacy or examples directory would preserve the same
+ambiguity for the next user. It would suggest that they are supported
+adaptation templates even though they are not maintained or executable.
+
+The better rule for this repository is:
+
+```text
+Keep code when it is runnable, aligned with the current architecture,
+covered by meaningful checks, and useful as an implementation example.
+
+Keep historical reasoning in Git history and LEARNINGS.md.
+```
+
+This is different from a research-heavy project such as PhoenixQA, where
+discarded experiments can still be valuable evidence. Here, the target is a
+small reusable tool that should be relatively easy to implement in a real
+project.
+
+The cleanup therefore removed the inactive auth/customer/login/dashboard chain,
+its tests and fixtures, and the unused static mock payloads instead of
+quarantining them.
+
+The general `external` marker policy remains useful for future real-project
+adaptation. What was removed was unvalidated placeholder code, not the ability
+to run explicitly configured external tests.
+
+---
+
 ## Future learning area: real application adaptation
 
 The most valuable future learnings will appear when this framework is used
@@ -331,11 +383,14 @@ The documentation has been reorganized around a more realistic scope.
 Current shape:
 
 - the repository is a POM/SOM framework skeleton,
-- POM and SOM are separate adapter layers,
-- demo services are replaceable examples,
+- POM and SOM foundations are closed for the current framework-core stage,
+- POM and SOM remain separate adapter layers,
+- demo services are replaceable execution targets,
+- inactive legacy placeholders have been removed rather than archived in code,
 - evergreen principles are preserved separately,
 - project-specific docs live in `docs/`,
+- future application-specific filling will need manual and AI-assisted guides,
 - the next major source of learning should be real-world adaptation.
 
-The project is now ready to move from documentation cleanup toward code review,
-test verification, and realistic case studies.
+The project is now ready for further framework cleanup, adaptation guidance,
+and later acceptance validation against a real or realistic application.

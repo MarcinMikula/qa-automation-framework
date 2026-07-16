@@ -2,8 +2,11 @@
 
 `BaseClient` is the generic SOM counterpart to `BasePage`.
 
-It returns raw `httpx.Response` objects so higher-level service objects can
+It returns raw `httpx.Response` objects so higher-level Service Objects can
 choose how much parsing, validation, or assertion responsibility they own.
+
+The base URL is intentionally explicit. A reusable framework client should not
+silently inherit an unrelated application URL from global settings.
 """
 
 from __future__ import annotations
@@ -12,7 +15,7 @@ from typing import Any
 
 import httpx
 
-from testdata.settings import API_BASE_URL, API_TIMEOUT
+from testdata.settings import API_TIMEOUT
 
 
 class BaseClient:
@@ -20,12 +23,17 @@ class BaseClient:
 
     def __init__(
         self,
+        base_url: str,
         token: str | None = None,
-        base_url: str | None = None,
         timeout: float | None = None,
     ) -> None:
-        self.base_url = (base_url or API_BASE_URL).rstrip("/")
-        self.timeout = timeout or API_TIMEOUT
+        normalized_base_url = base_url.strip().rstrip("/")
+
+        if not normalized_base_url:
+            raise ValueError("base_url must not be empty")
+
+        self.base_url = normalized_base_url
+        self.timeout = timeout if timeout is not None else API_TIMEOUT
         self.headers = {"Content-Type": "application/json"}
 
         if token:
@@ -33,7 +41,9 @@ class BaseClient:
 
     def _url(self, endpoint: str) -> str:
         """Build a full URL from the configured base URL and endpoint path."""
-        normalized_endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
+        normalized_endpoint = (
+            endpoint if endpoint.startswith("/") else f"/{endpoint}"
+        )
         return f"{self.base_url}{normalized_endpoint}"
 
     def get(
@@ -49,7 +59,11 @@ class BaseClient:
                 params=params,
             )
 
-    def post(self, endpoint: str, payload: dict[str, Any]) -> httpx.Response:
+    def post(
+        self,
+        endpoint: str,
+        payload: dict[str, Any],
+    ) -> httpx.Response:
         """Send a POST request and return the raw response."""
         with httpx.Client(timeout=self.timeout) as client:
             return client.post(
@@ -58,7 +72,11 @@ class BaseClient:
                 json=payload,
             )
 
-    def put(self, endpoint: str, payload: dict[str, Any]) -> httpx.Response:
+    def put(
+        self,
+        endpoint: str,
+        payload: dict[str, Any],
+    ) -> httpx.Response:
         """Send a PUT request and return the raw response."""
         with httpx.Client(timeout=self.timeout) as client:
             return client.put(
@@ -67,7 +85,11 @@ class BaseClient:
                 json=payload,
             )
 
-    def patch(self, endpoint: str, payload: dict[str, Any]) -> httpx.Response:
+    def patch(
+        self,
+        endpoint: str,
+        payload: dict[str, Any],
+    ) -> httpx.Response:
         """Send a PATCH request and return the raw response."""
         with httpx.Client(timeout=self.timeout) as client:
             return client.patch(

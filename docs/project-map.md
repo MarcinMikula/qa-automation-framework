@@ -42,7 +42,8 @@ with project-specific content.
 Current stage:
 
 ```text
-POM/SOM foundation completed for the framework-core phase.
+POM/SOM foundation completed and inactive legacy placeholders removed for the
+framework-core phase.
 ```
 
 This does not mean the framework is fully validated.
@@ -56,7 +57,6 @@ Next important work is around:
 - future framework UAT,
 - manual filling instructions,
 - AI-assisted filling instructions,
-- cleanup of external/live examples,
 - reporting improvements,
 - dependency review.
 
@@ -235,6 +235,26 @@ They should not grow into full fake products.
 
 ---
 
+## Repository hygiene
+
+The active repository should contain only code that supports the current
+framework story.
+
+Current rule:
+
+```text
+Runnable and maintained examples stay in the repository.
+Historical attempts stay in Git history and LEARNINGS.md.
+```
+
+The earlier unvalidated auth/customer/login/dashboard placeholders and static
+telco mocks were removed instead of being moved into a legacy directory.
+
+The `external` pytest marker remains available for future real-project tests,
+but the framework does not ship inactive external placeholders.
+
+---
+
 ## Current test map
 
 Current test levels:
@@ -256,8 +276,8 @@ Current consistency gates:
 python -m compileall -q api pages components services testdata tests
 python -m pytest --collect-only -q
 python -m pytest tests/unit/ -v
-python -m pytest tests/integration/ -v -m "not external"
-python -m pytest tests/e2e/ -v -m "not external"
+python -m pytest tests/integration/ -v
+python -m pytest tests/e2e/ -v
 ```
 
 The goal is not only green CI.
