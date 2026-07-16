@@ -42,61 +42,64 @@ This can use local FastAPI services or a public API marked as external.
 
 ---
 
-## Parallel filled reference implementations
+## Controlled adaptation comparison in one reference repository
 
 After the neutral skeleton is completed and successfully validated through
-framework acceptance, consider two separate e-commerce reference
-implementations.
-
-### Quasi-manual filled version
-
-Working concept:
+framework acceptance, create one separate e-commerce reference repository:
 
 ```text
 qa-automation-framework-ecommerce-demo
 ```
 
-"Manual" does not mean avoiding normal automation tools.
+The repository should contain a controlled comparison of two filling
+approaches.
+
+### Human-led adaptation
+
+Human-led does not mean avoiding modern tools.
 
 The adaptation may use:
 
-- Playwright Codegen for locator discovery,
+- Playwright Codegen,
 - browser developer tools,
-- OpenAPI/Swagger documentation,
+- OpenAPI/Swagger,
 - IDE refactoring,
-- deterministic generators.
+- deterministic generators,
+- LLM assistance.
 
-A human still owns:
+A human owns:
 
+- the project need,
 - Page Object and Service Object boundaries,
 - test-level decisions,
 - business meaning,
 - risk selection,
 - assertions,
-- final review.
+- final acceptance.
 
-### AI-filled version
+### AI-assisted adaptation
 
-A second repository may use AI to fill the same neutral skeleton.
+AI may draft and organize framework content from the same supplied context.
 
-It should use:
+A human still reviews and accepts the result.
 
-- the same target application,
+### Comparison rules
+
+Both approaches should use:
+
+- the same target shop,
+- the same starting skeleton,
 - the same scope,
+- the same flows,
 - the same acceptance criteria,
 - the same quality gates.
 
-This creates a useful comparison:
+The purpose is not to maintain two competing demo products.
 
-```text
-quasi-manual adaptation
-vs
-AI-assisted adaptation
-```
+The purpose is to compare two adaptation processes under one controlled
+reference implementation.
 
-The final repository name is not decided yet.
-
-Do not create either reference implementation before framework acceptance has
+Do not create the reference repository before framework acceptance has
 stabilized the skeleton.
 
 ---
@@ -115,7 +118,7 @@ Park a possible separate repository for an AI agent that:
 
 This idea is conditional.
 
-First evaluate the AI-filled reference implementation.
+First evaluate the AI-assisted path in the shared e-commerce reference implementation.
 
 If general LLM-assisted tooling already fills the skeleton well enough, a
 dedicated agent may add unnecessary complexity.

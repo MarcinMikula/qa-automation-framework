@@ -378,6 +378,66 @@ The rule is:
 
 ---
 
+## Lesson 11 — Adaptation should start from a real need
+
+A framework should not be filled because its folders exist.
+
+It should be filled because a project has:
+
+- a risk that needs verification,
+- a repeated test-support task,
+- a data or environment need,
+- a diagnostic or reproduction problem.
+
+This creates an important distinction:
+
+```text
+Verification automation
+→ produces a meaningful PASS/FAIL verdict
+
+Test-support automation
+→ prepares state, performs repeated work, or returns useful identifiers
+```
+
+POM and SOM are reusable adapters that may serve both.
+
+A workflow should not pretend to be a test when it does not verify product
+behavior.
+
+Human-led also does not mean typing everything manually.
+
+Tools such as Playwright Codegen, DevTools, OpenAPI/Swagger, generators, IDE
+refactoring, and LLMs may accelerate discovery and drafting.
+
+A human still owns:
+
+- purpose,
+- architecture,
+- risk selection,
+- test level,
+- assertions,
+- final acceptance.
+
+A useful challenge for larger decisions is:
+
+```text
+1. What problem are we really solving?
+2. What is the simplest useful solution?
+3. What could make this idea a bad solution?
+4. What result or evidence would make us abandon it?
+```
+
+These questions help keep the skeleton evidence-driven instead of
+architecture-driven.
+
+The detailed process now lives in:
+
+```text
+docs/human-led-adaptation.md
+```
+
+---
+
 ## Future learning area: real application adaptation
 
 The most valuable future learnings will appear when this framework is used
@@ -451,7 +511,8 @@ Current shape:
 - inactive legacy placeholders have been removed rather than archived in code,
 - evergreen principles are preserved separately,
 - project-specific docs live in `docs/`,
-- future application-specific filling will need manual and AI-assisted guides,
+- an initial purpose-first human-led adaptation guide now exists,
+- AI-assisted filling guidance and framework acceptance still remain future work,
 - the next major source of learning should be real-world adaptation.
 
 The project is now ready for further framework cleanup, adaptation guidance,

@@ -2,128 +2,187 @@
 
 How to adapt this framework skeleton to a real project.
 
----
+This is the short orientation guide.
 
-## Step 1 — Identify the application layers
-
-List what you need to test:
-
-- UI flows,
-- APIs,
-- database/state,
-- background jobs,
-- external integrations,
-- reports,
-- permission models.
-
-Then decide which layer each scenario belongs to:
-
-- unit,
-- integration/API,
-- E2E/UI.
-
----
-
-## Step 2 — Replace the UI layer
-
-Update or add Page Objects in:
+For the detailed purpose-first workflow, use:
 
 ```text
-pages/
-components/
+docs/human-led-adaptation.md
 ```
-
-Replace demo locators and actions with real application behavior.
-
-Do not put raw selectors directly into tests.
 
 ---
 
-## Step 3 — Replace the API layer
+## Start with the need
 
-Update or add Service Objects in:
+Do not begin by creating files only because the skeleton contains folders.
+
+Begin with:
 
 ```text
-api/
+What project problem or testing need are we trying to solve?
 ```
 
-Replace demo endpoints with real project APIs.
+Typical needs include:
 
-Service methods should describe business operations, not just HTTP calls.
+- regression protection,
+- smoke verification,
+- API contract checking,
+- repeated test-data setup,
+- environment preparation,
+- defect reproduction,
+- diagnostic evidence collection,
+- cleanup after testing.
 
----
+Not every useful automation is a test.
 
-## Step 4 — Replace test data
-
-Update:
+POM and SOM can support:
 
 ```text
-testdata/
-mocks/
+verification tests
+and
+test-support workflows
 ```
 
-Define:
-
-- required users,
-- roles,
-- permissions,
-- reference data,
-- cleanup strategy,
-- generated values,
-- environment-specific constraints.
+A workflow should not pretend to be a test when it does not verify product
+behavior.
 
 ---
 
-## Step 5 — Configure environments
+## Use the decision sequence
 
-Move environment-specific values into settings or environment variables.
-
-Examples:
-
-```bash
-BASE_URL=https://your-app.example.com
-API_BASE_URL=https://your-api.example.com
+```text
+project need
+→ automation intent
+→ smallest useful scope
+→ required context
+→ POM / SOM / workflow / fixture
+→ expected result or output
+→ implementation
+→ quality gates
+→ human acceptance
 ```
 
-Tests should not hardcode environment URLs or credentials.
+For larger decisions, ask:
 
----
-
-## Step 6 — Add tests gradually
-
-Start with the safest layer.
-
-Recommended order:
-
-1. unit tests for local logic and models,
-2. API tests through Service Objects,
-3. only then E2E tests for critical user flows.
-
-Do not use E2E tests for everything.
-
----
-
-## Step 7 — Mark external tests
-
-Any test requiring live external systems should be explicitly marked:
-
-```python
-@pytest.mark.external
+```text
+1. What problem are we really solving?
+2. What is the simplest useful solution?
+3. What could make this idea a bad solution?
+4. What result or evidence would make us abandon it?
 ```
 
-Default local and CI runs should exclude external tests unless deliberately enabled.
+---
+
+## Map project concepts to the framework
+
+| Project concept | Framework location |
+|---|---|
+| screen or view | `pages/` |
+| reusable UI fragment | `components/` |
+| API/service operations | `api/` |
+| request/response contract | Pydantic model |
+| reusable precondition | pytest fixture |
+| repeated test-support process | optional project `workflows/` |
+| deterministic data | `testdata/` |
+| verification | appropriate `tests/` level |
+| project configuration | settings/environment variables |
+
+Do not create an empty layer without a real need.
 
 ---
 
-## Step 8 — Review with QA judgment
+## Keep responsibilities explicit
 
-Before accepting new automation, check:
+```text
+BasePage / BaseComponent
+→ reusable browser mechanics
 
-- Is the scenario worth automating?
-- Is this the right test level?
-- Is the assertion meaningful?
-- Is the data controlled?
-- Will the failure be diagnostic?
-- Can the test be maintained under change?
+Concrete Page Objects / Components
+→ application-facing UI actions and state
 
-The skeleton helps with structure. QA still owns the testing decision.
+BaseClient / MicroserviceClient
+→ reusable HTTP mechanics
+
+Concrete Service Objects
+→ application-facing API operations
+
+Tests
+→ expected behavior and assertions
+
+Workflows
+→ repeated orchestration for test support
+```
+
+---
+
+## Add project-specific tests intentionally
+
+Add unit tests for non-trivial:
+
+- transformations,
+- validation,
+- parsing,
+- payload building,
+- mapping,
+- branching,
+- retry or polling behavior.
+
+Add integration tests for:
+
+- service contracts,
+- Service Object behavior,
+- multi-service flows,
+- status and error handling.
+
+Add E2E tests for:
+
+- critical user-facing flows,
+- browser-specific risks,
+- outcomes that cannot be trusted at a lower level.
+
+Do not require a unit test for every trivial wrapper.
+
+Do not use E2E for everything.
+
+---
+
+## Use tools, keep human ownership
+
+Allowed and useful aids include:
+
+- Playwright Codegen,
+- DevTools,
+- OpenAPI/Swagger,
+- IDE refactoring,
+- deterministic generators,
+- LLM assistance.
+
+These tools may discover or draft.
+
+A human still owns:
+
+- the project need,
+- architecture,
+- POM/SOM boundaries,
+- test level,
+- risk selection,
+- assertions,
+- final acceptance.
+
+---
+
+## Validate the adaptation
+
+Run the relevant checks and review the result against the original need.
+
+The skeleton helps with structure.
+
+The project supplies:
+
+- application truth,
+- domain meaning,
+- environment rules,
+- risks,
+- expected results.
+
+See `human-led-adaptation.md` for the full checklist and examples.

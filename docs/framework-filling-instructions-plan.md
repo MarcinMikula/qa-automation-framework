@@ -1,24 +1,20 @@
 # Framework filling instructions plan
 
-This document parks a future documentation task.
+This document tracks the documentation paths for filling the neutral framework
+skeleton with application-specific and project-specific content.
 
-The framework will eventually need simple instructions for filling the skeleton
-with application-specific and project-specific content.
-
-This is not current implementation scope.
-
-It belongs near the final validation phase, when the framework is tested
-against real or realistic applications.
+The plan is now partially implemented.
 
 ---
 
 ## Purpose
 
-The repository is a reusable POM/SOM framework skeleton.
+The repository provides reusable POM/SOM structure.
 
-By itself, it does not know:
+It does not know:
 
 - the tested application,
+- the real project need,
 - business flows,
 - selectors,
 - API endpoints,
@@ -27,197 +23,248 @@ By itself, it does not know:
 - permissions,
 - environment rules,
 - project conventions,
-- domain risks.
+- domain risks,
+- meaningful expected results.
 
-A user must fill the framework with project-specific content.
+A user supplies that context during adaptation.
 
-That filling process needs clear instructions.
+The adaptation must begin from a real project need, not from an empty framework
+folder.
 
 ---
 
-## Two instruction paths
+## Two adaptation paths
 
-The project should eventually provide two versions of the instructions:
+The project should support two comparable paths:
 
 ```text
-manual filling
-AI-assisted filling
+human-led adaptation
+AI-assisted adaptation
 ```
 
-These two paths should share the same framework principles, but they should be
-written for different user profiles.
+They share the same framework principles.
+
+They differ in who drafts and structures the implementation.
+
+In both paths, a human owns correctness and final acceptance.
 
 ---
 
-## Version 1 — Manual filling
+## Path 1 — Human-led adaptation
+
+Status:
+
+```text
+Initial guide implemented:
+docs/human-led-adaptation.md
+```
 
 Target user:
 
 ```text
-A person with minimal automation experience.
+A person who understands the application, testing, architecture, or business
+context but may have limited automation-programming confidence.
 ```
 
-Assumption:
+Human-led does not mean avoiding tools.
 
-The person may know testing, business flows, or the application, but may not be
-very confident with automation architecture.
+The user may use:
 
-The manual guide should be simple, explicit, and step-by-step.
+- Playwright Codegen,
+- DevTools,
+- OpenAPI/Swagger,
+- IDE refactoring,
+- deterministic generators,
+- LLM assistance.
 
-It should explain how to:
+A human still decides:
 
-1. choose one small application flow,
-2. decide whether the flow belongs to POM, SOM, or both,
-3. identify pages, components, services, fixtures, and test data,
-4. create Page Objects,
-5. create Service Objects,
-6. keep selectors out of tests,
-7. keep assertions in tests,
-8. keep business logic out of `BasePage` and `BaseComponent`,
-9. configure environments safely,
-10. run local checks,
-11. understand what a green pipeline proves,
-12. document remaining gaps.
+- what problem should be solved,
+- whether the result is a test or a support workflow,
+- the correct test level,
+- POM/SOM boundaries,
+- scenario and risk selection,
+- expected results and assertions,
+- final acceptance.
 
-The manual version should avoid assuming strong programming experience.
+The guide is purpose-first:
 
-It should use short examples and clear file placement rules.
+```text
+project need
+→ automation intent
+→ artifact selection
+→ implementation
+→ evidence
+→ human acceptance
+```
+
+It must be validated during framework acceptance.
 
 ---
 
-## Version 2 — AI-assisted filling
+## Path 2 — AI-assisted adaptation
+
+Status:
+
+```text
+Future guide still required.
+```
 
 Target user:
 
 ```text
-A person stronger in business, project context, ISTQB-style thinking, and risk
-analysis, but weaker in programming.
+A person stronger in business, project context, test analysis, architecture,
+and risk thinking than in programming.
 ```
 
-Assumption:
-
-The person can explain:
-
-- what the system does,
-- what the user flow is,
-- what is risky,
-- what should be tested,
-- what data matters,
-- what business rules should hold.
-
-But the person may need AI help to translate that knowledge into framework
-files.
-
-The AI-assisted guide should explain how to provide AI with:
+The user should provide AI with:
 
 - repository structure,
+- project need,
 - target application description,
 - business flow,
-- pages/screens,
-- API endpoints,
-- selectors or locator candidates,
+- pages and screens,
+- API contracts,
+- locator candidates,
 - test data,
 - roles and permissions,
 - known risks,
-- examples of expected assertions,
+- expected results,
 - constraints and non-goals.
 
-AI may help generate:
+AI may draft:
 
-- Page Object drafts,
-- Service Object drafts,
+- Page Objects,
+- Service Objects,
+- workflows,
 - fixtures,
 - test skeletons,
 - selector candidates,
-- documentation updates,
+- documentation,
 - gap notes.
 
-But AI output must be reviewed.
-
-The guide should strongly preserve this rule:
+Core rule:
 
 ```text
 AI can help fill the framework.
-QA owns correctness.
+A human owns correctness.
 ```
 
 ---
 
-## Manual-first validation rule
+## Human-led-first validation rule
 
-Before AI-assisted filling is treated as a capability, the framework should be
-validated manually.
+The framework should first be adapted and accepted through a human-led process.
 
 Reason:
 
 ```text
-If AI fills the framework too early, we mix two questions:
+If AI fills the framework first, two questions are mixed:
 
 1. Is the framework skeleton useful?
 2. Did AI fill it correctly?
 ```
 
-Manual filling gives a cleaner answer to the framework question.
+The human-led path provides a cleaner baseline.
 
-AI-assisted filling can be tested later as a separate capability.
+The AI-assisted path can later be compared against the same target and
+acceptance criteria.
 
 ---
 
-## Future deliverables
+## Reference implementation plan
 
-The future documentation set may include:
+After the neutral skeleton passes framework acceptance, create one separate
+reference repository:
 
 ```text
-docs/filling-manual.md
-docs/filling-ai-assisted.md
+qa-automation-framework-ecommerce-demo
+```
+
+The repository should contain a controlled comparison of:
+
+```text
+human-led adaptation
+vs
+AI-assisted adaptation
+```
+
+Both approaches should use:
+
+- the same target shop,
+- the same starting skeleton,
+- the same scope,
+- the same flows,
+- the same acceptance criteria,
+- the same quality gates.
+
+Do not create two long-lived repositories for this comparison.
+
+The comparison belongs in one reference implementation so that drift and
+maintenance cost remain controlled.
+
+---
+
+## Deliverables
+
+Current:
+
+```text
+docs/human-led-adaptation.md
+```
+
+Future:
+
+```text
+docs/ai-assisted-adaptation-guide.md
 docs/framework-uat-plan.md
 ```
 
 Possible supporting checklists:
 
 ```text
-manual filling checklist
-AI prompt checklist
+project-need checklist
 POM placement checklist
 SOM placement checklist
-test data checklist
+workflow-vs-test checklist
+test-data checklist
 environment checklist
-review checklist
+AI context checklist
+human review checklist
 ```
-
-These documents should be created later, not during the current framework-core
-phase.
 
 ---
 
-## Framework UAT connection
+## Framework acceptance connection
 
-The filling instructions should be validated during framework UAT.
+The guides should be validated as part of framework acceptance.
 
-Framework UAT means:
+Framework acceptance means:
 
 ```text
-Take a real or realistic application
+take a real or realistic application
+start from a real testing or test-support need
 fill the framework with project-specific content
-check whether the framework helps the automation tester
+check whether the framework helps the user
 document friction and improvements
 ```
 
-This is UAT of the framework as a tool.
+This is acceptance of the framework as a tool.
 
 It is not UAT of the tested application.
 
 ---
 
-## Parked decision
+## Boundary
 
-Do not build rich demo apps to simulate this process.
+Do not build rich local demo applications to simulate adaptation.
 
 Instead:
 
 ```text
-finish the framework skeleton
-prepare simple filling instructions
-validate on real or realistic applications
-then improve the framework based on friction
+finish the neutral skeleton
+prepare purpose-first filling guidance
+validate it against real or realistic systems
+improve the skeleton based on evidence
+create the separate e-commerce reference implementation
 ```

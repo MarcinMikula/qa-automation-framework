@@ -55,7 +55,7 @@ Next important work is around:
 
 - adaptation workflow,
 - future framework UAT,
-- manual filling instructions,
+- human-led adaptation guide validation,
 - AI-assisted filling instructions,
 - reporting improvements,
 - dependency review.
@@ -250,6 +250,45 @@ experience.
 
 ---
 
+## Purpose-first adaptation
+
+The framework should be filled because a project has a real testing or
+test-support need.
+
+It should not be filled only because folders exist.
+
+Current adaptation model:
+
+```text
+project need
+→ automation intent
+→ smallest useful scope
+→ POM / SOM / workflow / fixture
+→ expected result or output
+→ implementation
+→ evidence
+→ human acceptance
+```
+
+POM and SOM may support:
+
+```text
+verification tests
+and
+test-support workflows
+```
+
+The initial detailed guide lives in:
+
+```text
+docs/human-led-adaptation.md
+```
+
+Human-led means that tools may help with discovery and drafting, while a human
+owns architecture, risk, assertions, and acceptance.
+
+---
+
 ## Demo target boundary
 
 Demo targets exist only to make the framework executable and reviewable.
@@ -335,11 +374,12 @@ Recommended reading order:
 9. `docs/som-guide.md`
 10. `docs/som-foundation-checkpoint.md`
 11. `docs/adaptation-guide.md`
-12. `docs/framework-filling-instructions-plan.md`
-13. `docs/example-cases.md`
-14. `docs/ai-assisted-adaptation.md`
-15. `docs/gaps.md`
-16. `docs/future-ideas.md`
+12. `docs/human-led-adaptation.md`
+13. `docs/framework-filling-instructions-plan.md`
+14. `docs/example-cases.md`
+15. `docs/ai-assisted-adaptation.md`
+16. `docs/gaps.md`
+17. `docs/future-ideas.md`
 
 Evergreen automation principles live in:
 
@@ -353,7 +393,7 @@ AUTOMATION_PRINCIPLES.md
 
 Parked topics:
 
-- manual framework filling guide,
+- validation of the human-led adaptation guide,
 - AI-assisted framework filling guide,
 - framework UAT plan,
 - context-aware framework filler,

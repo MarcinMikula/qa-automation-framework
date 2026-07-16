@@ -23,11 +23,12 @@ guides.
 9. [SOM guide](som-guide.md)
 10. [SOM foundation checkpoint](som-foundation-checkpoint.md)
 11. [Adaptation guide](adaptation-guide.md)
-12. [Framework filling instructions plan](framework-filling-instructions-plan.md)
-13. [Example cases](example-cases.md)
-14. [AI-assisted adaptation](ai-assisted-adaptation.md)
-15. [Gaps](gaps.md)
-16. [Future ideas](future-ideas.md)
+12. [Human-led adaptation guide](human-led-adaptation.md)
+13. [Framework filling instructions plan](framework-filling-instructions-plan.md)
+14. [Example cases](example-cases.md)
+15. [AI-assisted adaptation](ai-assisted-adaptation.md)
+16. [Gaps](gaps.md)
+17. [Future ideas](future-ideas.md)
 
 ---
 
@@ -47,8 +48,9 @@ guides.
 | [pom-foundation-checkpoint.md](pom-foundation-checkpoint.md) | Current POM foundation status and stop point |
 | [som-guide.md](som-guide.md) | Service Object Model rules for API automation |
 | [som-foundation-checkpoint.md](som-foundation-checkpoint.md) | Current SOM foundation status and BaseClient vs MicroserviceClient boundary |
-| [adaptation-guide.md](adaptation-guide.md) | How to adapt the skeleton to a real project |
-| [framework-filling-instructions-plan.md](framework-filling-instructions-plan.md) | Parked plan for manual and AI-assisted framework filling instructions |
+| [adaptation-guide.md](adaptation-guide.md) | Short purpose-first orientation for adapting the skeleton |
+| [human-led-adaptation.md](human-led-adaptation.md) | Detailed guide from project need to human acceptance |
+| [framework-filling-instructions-plan.md](framework-filling-instructions-plan.md) | Status and plan for human-led and AI-assisted filling guidance |
 | [example-cases.md](example-cases.md) | Planned UI and API case studies |
 | [ai-assisted-adaptation.md](ai-assisted-adaptation.md) | Safe workflow for using AI to adapt the framework |
 
@@ -70,8 +72,11 @@ SOM foundation
 Demo targets
 → minimal deterministic execution targets only
 
+Adaptation guidance
+→ initial human-led purpose-first guide
+
 Future validation
-→ framework UAT on real or realistic applications
+→ framework acceptance on real or realistic applications
 ```
 
 The repository should not evolve into a rich demo product.

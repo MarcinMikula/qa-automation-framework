@@ -23,7 +23,7 @@ Current framework baseline:
 - documented POM foundation checkpoint,
 - documented SOM foundation checkpoint,
 - documented demo-target boundary,
-- documented future manual and AI-assisted filling plan.
+- documented human-led adaptation guide and future AI-assisted filling plan.
 
 Important boundary:
 
@@ -38,38 +38,42 @@ Demo targets may exist only to make the framework executable and reviewable.
 
 ---
 
-## Gap 1 — Adaptation workflow still needs final practical instructions
+## Gap 1 — Adaptation guidance still needs validation and AI path
 
-The framework has the core POM/SOM structure, but a future user still needs a
-clear path for filling it with application-specific content.
-
-Future instructions should explain how to add:
-
-- application-specific Page Objects,
-- application-specific components,
-- application-specific Service Objects,
-- fixtures,
-- configuration,
-- test data,
-- environment rules,
-- business assertions,
-- project-specific gaps and limitations.
-
-This should eventually exist in two versions:
+The first detailed human-led adaptation guide now exists:
 
 ```text
-manual filling
-AI-assisted filling
+docs/human-led-adaptation.md
 ```
 
-Manual filling should be written for a person with minimal automation
-experience.
+It starts from a real project need and helps the user decide whether the
+solution should be:
 
-AI-assisted filling should be written for a person stronger in business,
-project context, ISTQB-style thinking, and risk analysis, but weaker in
-programming.
+- a verification test,
+- a test-support workflow,
+- data/environment automation,
+- diagnostic or reproduction automation.
 
-Status: parked, documented in `framework-filling-instructions-plan.md`.
+It then maps the need to:
+
+- Page Objects,
+- Components,
+- Service Objects,
+- Pydantic models,
+- fixtures,
+- project workflows,
+- test data,
+- the correct test level.
+
+Remaining work:
+
+- validate the human-led guide during framework acceptance,
+- record where a lower-programming-skills user gets blocked,
+- create the AI-assisted adaptation guide,
+- prepare the framework acceptance plan,
+- define the controlled comparison in the future reference repository.
+
+Status: human-led guide implemented; validation and AI path remain open.
 
 ---
 
@@ -101,14 +105,14 @@ Planned validation approach:
 
 ```text
 Choose a realistic application context
-→ manually fill the framework with application-specific content
+→ fill the framework through a human-led adaptation
 → add Page Objects / Service Objects / fixtures / test data
 → write meaningful tests
 → observe where the framework helps or gets in the way
 → document gaps, friction, and improvements
 ```
 
-Manual adaptation should happen before AI-assisted adaptation, so that the
+Human-led adaptation should happen before AI-assisted adaptation, so that the
 framework question is not mixed with the question of whether AI filled it
 correctly.
 
@@ -256,6 +260,31 @@ Status: boundary documented; keep enforcing it.
 ---
 
 ## Recently closed or improved gaps
+
+### Purpose-first human-led adaptation guide added
+
+The first practical filling guide now begins with the project need rather than
+with framework folders.
+
+It distinguishes:
+
+```text
+verification test
+test-support workflow
+data/environment automation
+diagnostic or reproduction automation
+```
+
+It also records the decision challenge:
+
+```text
+1. What problem are we really solving?
+2. What is the simplest useful solution?
+3. What could make this idea a bad solution?
+4. What result or evidence would make us abandon it?
+```
+
+The guide still needs to be validated during framework acceptance.
 
 ### Active SOM examples made domain-neutral
 
