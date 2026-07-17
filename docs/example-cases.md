@@ -1,96 +1,206 @@
-# Example cases
+# Example cases and validation boundaries
 
-Planned realistic case studies for the framework skeleton.
+This document separates three things that should not be confused:
 
-These examples should demonstrate the structure without pretending to automate a private
-enterprise system out of the box.
+```text
+current local examples
+framework acceptance
+future reference implementation
+```
+
+The local examples make the skeleton executable.
+
+Framework acceptance will evaluate whether the skeleton helps on a real or
+realistic need.
+
+The future reference repository will show one complete adaptation.
 
 ---
 
-## Case 1 — Salesforce-like UI flow with POM
+## Current local POM example
 
-Purpose: demonstrate how the POM layer can model a heavy CRM-style UI flow.
-
-Candidate flow:
+Current flow:
 
 ```text
-Login
-→ open Sales or Service area
-→ create Case or Opportunity
-→ fill required fields
-→ save
-→ verify record status or confirmation
+product search
+→ product details
+→ add to cart
+→ cart summary
+→ checkout
+→ order confirmation
 ```
 
-Expected framework elements:
+Current artifacts include:
 
 ```text
-pages/
-├── login_page.py
-├── dashboard_page.py
-└── salesforce_like/
-    ├── case_page.py
-    └── opportunity_page.py
-
-tests/e2e/
-└── test_salesforce_like_case.py
+pages/ecommerce_*.py
+components/price_summary.py
+tests/e2e/test_ecommerce_checkout_flow.py
+services/demo_shop/
 ```
 
-Rules:
+Purpose:
 
-- no real corporate data,
-- no private selectors,
-- no credentials,
-- no claim that this automates real Salesforce out of the box,
-- focus on structure and maintainability.
+- exercise `BasePage`,
+- exercise concrete Page Objects,
+- exercise a Component Object,
+- keep business assertions in the test,
+- provide deterministic local E2E execution.
+
+Boundary:
+
+This is a minimal execution target.
+
+It is not the final e-commerce reference implementation and should not grow
+into a feature-rich shop.
 
 ---
 
-## Case 2 — API / SOM flow
+## Current local SOM example
 
-Purpose: demonstrate how the SOM layer can model business API operations.
-
-Candidate flow:
+Current concepts:
 
 ```text
-Create customer
+User
+Product
+Order
+```
+
+Current workflow:
+
+```text
+create user
+→ create product
 → create order
-→ verify order status
-→ fetch related customer data
-→ validate response contract
+→ change order status
+→ attach optional external reference
 ```
 
-Expected framework elements:
+Current artifacts include:
 
 ```text
-api/
-├── customer_service.py
-├── order_service.py
-└── product_service.py
-
+api/users_service.py
+api/products_service.py
+api/orders_service.py
+services/users/
+services/products/
+services/orders/
 tests/integration/
-└── test_customer_order_flow.py
 ```
 
-Rules:
+Purpose:
 
-- prefer deterministic local services for CI,
-- mark live public APIs as `external`,
-- keep raw HTTP details inside Service Objects,
-- make tests describe business behavior.
+- exercise `BaseClient` and `MicroserviceClient`,
+- demonstrate concrete Service Objects,
+- demonstrate typed request and response models,
+- demonstrate a readable multi-service workflow,
+- keep HTTP details outside business-facing tests.
+
+Boundary:
+
+The concepts are readable neutral examples.
+
+They are not a universal domain model.
 
 ---
 
-## Case 3 — AI-assisted adaptation demo
+## Framework acceptance case
 
-Purpose: show how this skeleton can be provided to AI together with project context to generate
-first-draft Page Objects or Service Objects.
+The next major validation should start from a real project need.
 
-The demo should include:
+Possible need types:
 
-- safe prompt template,
-- required project context,
-- review checklist,
-- example of correcting hallucinated assumptions.
+```text
+regression protection
+test-support workflow
+data or environment preparation
+diagnostic or defect-reproduction automation
+```
 
-This should stay documentation-first until the framework code is stable.
+The acceptance case should verify whether a user can:
+
+- identify the real need,
+- choose the smallest useful scope,
+- collect the required context,
+- select POM, SOM, fixtures, workflow, and test level,
+- implement project-specific artifacts,
+- define meaningful assertions or workflow output,
+- run the quality gates,
+- document friction and limitations.
+
+The acceptance target and requirements should be defined in the dedicated
+framework-acceptance plan.
+
+Do not prejudge the result.
+
+The acceptance phase may reveal that:
+
+- the structure helps,
+- the instructions are unclear,
+- a base class is too broad or too weak,
+- a proposed abstraction is unnecessary,
+- the skeleton needs revision.
+
+That evidence is the point of the phase.
+
+---
+
+## Future reference implementation
+
+After framework acceptance stabilizes the skeleton, create one separate
+repository:
+
+```text
+qa-automation-framework-ecommerce-demo
+```
+
+It should show a complete e-commerce adaptation and contain a controlled
+comparison of:
+
+```text
+human-led adaptation
+vs
+AI-assisted adaptation
+```
+
+Both paths should use:
+
+- the same target application,
+- the same starting skeleton,
+- the same scope,
+- the same flows,
+- the same acceptance criteria,
+- the same quality gates.
+
+The goal is to compare adaptation processes, not maintain two competing demo
+products.
+
+---
+
+## Complex enterprise UI validation
+
+A future validation may use a more difficult enterprise UI with:
+
+- dynamic rendering,
+- overlays or frames,
+- asynchronous loading,
+- complex permissions,
+- unstable locator candidates,
+- advanced component trees,
+- Shadow DOM.
+
+That work should use a real or realistic application context.
+
+It should not be implemented by expanding this repository into a fake CRM,
+ERP, or other domain product.
+
+---
+
+## AI exploratory agent boundary
+
+A dedicated AI frontend exploratory-testing agent remains conditional.
+
+First evaluate the AI-assisted adaptation path.
+
+Build a separate agent only if evidence shows a repeatable gap that normal LLM
+assistance and Playwright tooling do not solve well enough.

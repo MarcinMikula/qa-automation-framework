@@ -77,7 +77,7 @@ Status: human-led guide implemented; validation and AI path remain open.
 
 ---
 
-## Gap 2 — Framework UAT is still open
+## Gap 2 — Framework acceptance is still open
 
 The final validation question remains:
 
@@ -97,9 +97,9 @@ The project should not be judged only by:
 The final validation should apply the skeleton to a concrete or realistic
 application context and check whether it actually helps.
 
-This should be treated as UAT of the framework as a tool.
+This should be treated as acceptance of the framework as a tool.
 
-It is not UAT of the tested application.
+It is not acceptance testing of the target application.
 
 Planned validation approach:
 
@@ -161,7 +161,7 @@ Status: deferred.
 
 ---
 
-## Gap 5 — Formal framework testing phase should be designed later
+## Gap 5 — Formal framework acceptance phase is the next major stage
 
 After the current development phase, the framework should be tested more
 systematically.
@@ -185,22 +185,21 @@ Some test levels already exist:
 - first E2E POM flow,
 - first multi-service SOM workflow.
 
-Status: parked for later.
+Status: next major phase after repository cleanup.
 
 ---
 
-## Gap 6 — Salesforce/ERP/CRM hard POM validation is future work
+## Gap 6 — Complex enterprise UI validation is future work
 
 E-commerce is the first public demo context, but it is not the hardest possible
 POM target.
 
-A future hard POM validation could use Salesforce/ERP/CRM-style UI ideas.
+A future hard POM validation could use a real or realistic complex enterprise UI.
 
 That should happen later by applying the framework to a real or realistic
 application context.
 
-It should not be done by building a fake Salesforce, fake ERP, or fake CRM
-inside this repository.
+It should not be done by building a fake domain product inside this repository.
 
 Status: future hard validation target.
 
@@ -260,6 +259,33 @@ Status: boundary documented; keep enforcing it.
 ---
 
 ## Recently closed or improved gaps
+
+### Public repository surface aligned before framework acceptance
+
+The public documentation now reflects the current project direction.
+
+Updated areas include:
+
+- root README,
+- framework philosophy,
+- architecture decisions,
+- testing strategy,
+- example cases,
+- known limitations,
+- AI-assisted adaptation guardrails,
+- documentation index.
+
+Removed or corrected:
+
+- stale domain-marker guidance,
+- obsolete Salesforce-like example-file plans,
+- outdated manual-only terminology,
+- the suggestion of two separate reference repositories,
+- the claim that green local examples prove framework usefulness,
+- the implication that the test pyramid is an ISTQB requirement.
+
+Status: documentation cleanup completed; GitHub metadata and tracked IDE files
+are handled as separate repository-maintenance actions.
 
 ### Purpose-first human-led adaptation guide added
 

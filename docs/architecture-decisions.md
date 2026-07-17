@@ -2,320 +2,148 @@
 
 This file records the main design decisions behind the framework.
 
-It is not a complete architecture specification. It is a map of the decisions
-that future maintainers should not have to rediscover from code or commit
-history.
+It is not a complete architecture specification.
 
 ---
 
-## Decision 1 — Treat the repository as a framework skeleton, not a product
+## Decision 1 — Treat the repository as a skeleton, not a product
 
-Decision:
+**Decision**
 
-This repository is positioned as a reusable QA automation framework skeleton.
+The repository is a reusable POM/SOM framework skeleton.
 
-It is not a plug-and-play automation solution.
+**Reasoning**
 
-Reasoning:
+A real project needs verified application and domain context that a neutral
+public repository cannot supply honestly.
 
-Real enterprise applications require project-specific context:
+**Consequence**
 
-- locators,
-- authentication,
-- test data,
-- API contracts,
-- roles,
-- permissions,
-- business rules,
-- environment configuration.
+The repository provides structure, mechanics, examples, and guidance.
 
-A public repository cannot provide those safely or honestly.
-
-Consequence:
-
-The repository provides structure and examples, but the user must adapt it to
-the application under test.
+The user supplies project truth.
 
 ---
 
-## Decision 2 — Keep POM and SOM in one repository, but in separate layers
+## Decision 2 — Start adaptation from a real project need
 
-Decision:
+**Decision**
 
-Page Object Model and Service Object Model live in the same repository.
+Framework filling begins with a testing or test-support need, not with an empty
+folder.
 
-They are not merged into one abstraction.
+**Reasoning**
 
-Reasoning:
+Creating classes without a real need produces speculative architecture and
+low-value automation.
 
-Enterprise QA automation often needs both UI and API coverage.
+**Consequence**
 
-A single framework skeleton can provide shared configuration, fixtures,
-reporting, and test structure while keeping UI and API responsibilities
-separate.
-
-Consequence:
-
-- `pages/` contains UI-facing Page Objects.
-- `api/` contains API-facing Service Objects.
-- `tests/e2e/` should use POM.
-- `tests/integration/` should use SOM.
-- shared fixtures and settings may support both layers.
-
----
-
-## Decision 3 — Treat `services/` as replaceable example implementation
-
-Decision:
-
-The FastAPI services under `services/` are demo infrastructure, not framework
-core.
-
-Reasoning:
-
-They make the skeleton executable and reviewable without access to a private
-enterprise system.
-
-Consequence:
-
-Real users may remove or replace `services/` with their actual application,
-public test API, or internal test environment.
-
----
-
-## Decision 4 — Keep tests organized by level
-
-Decision:
-
-Tests are grouped into:
+The adaptation sequence is:
 
 ```text
-tests/unit/
-tests/integration/
-tests/e2e/
+need
+→ intent
+→ scope
+→ context
+→ artifacts
+→ expected result or output
+→ evidence
+→ acceptance
 ```
 
-Reasoning:
-
-The test pyramid is a maintenance strategy.
-
-Different test levels answer different questions and have different costs.
-
-Consequence:
-
-New tests should be added to the level that matches the risk being tested.
-
 ---
 
-## Decision 5 — CI should run deterministic tests by default
+## Decision 3 — Keep POM and SOM together but separate
 
-Decision:
+**Decision**
 
-CI should prefer deterministic tests that do not depend on private or unstable
-live systems.
+POM and SOM live in one repository as separate adapter layers.
 
-Reasoning:
-
-A public skeleton should be runnable and understandable without secrets, VPN
-access, or corporate environments.
-
-Consequence:
-
-External/live tests should be marked explicitly and excluded from default CI
-unless deliberately enabled.
-
----
-
-## Decision 6 — AI may assist adaptation, but QA owns correctness
-
-Decision:
-
-The repository may be used with AI-assisted development, but AI output is not
-treated as correct by default.
-
-Reasoning:
-
-AI can generate useful structure, but it cannot safely infer project truth,
-production risk, or business meaning without review.
-
-Consequence:
-
-Generated Page Objects, Service Objects, fixtures, and tests require manual QA
-review before being trusted.
-
----
-
-## Decision 7 — Keep evergreen principles outside project documentation
-
-Decision:
-
-General testing principles live in `AUTOMATION_PRINCIPLES.md`.
-
-Reasoning:
-
-Principles such as deterministic data, business-readable tests, and QA
-ownership of AI-generated output apply beyond this repository.
-
-Consequence:
-
-Project documentation can stay focused on this framework, while broader
-testing rules remain preserved separately.
-
----
-
-## Decision 8 — Use e-commerce as the first public POM/SOM demo context
-
-Decision:
-
-Use an e-commerce-like system as the first public demonstration context for the
-framework, while keeping Salesforce/ERP/CRM-style systems as future hard POM
-validation targets.
-
-Reasoning:
-
-E-commerce is a strong public demonstration context because it is recognizable,
-business-readable, and naturally maps to both UI and API automation.
-
-It is especially strong for SOM — Service Object Model — because typical
-e-commerce systems expose many service boundaries, for example:
-
-- `Catalog`,
-- `Search`,
-- `Cart`,
-- `Order`,
-- `Payment`,
-- `Inventory`,
-- `Pricing`,
-- `Promo`,
-- `User`,
-- `Notification`,
-- `Review`.
-
-These boundaries can be represented as Service Objects and tested through
-business workflows such as:
+**Consequence**
 
 ```text
-search product
-→ create cart
-→ add item
-→ apply promo
-→ create order
-→ simulate payment
-→ verify order status
+pages/ and components/
+→ UI mechanics
+
+api/
+→ API/service mechanics
+
+tests/
+→ verification and assertions
+
+optional project workflows
+→ repeated test-support orchestration
 ```
 
-E-commerce can also support a useful POM demonstration, for example:
-
-```text
-product search
-→ product details
-→ add to cart
-→ cart summary
-→ checkout
-→ order confirmation
-```
-
-However, e-commerce should not be treated as the hardest possible POM
-validation target.
-
-Large enterprise ERP/CRM systems, especially Salesforce-like applications, are
-a stronger future POM challenge because they may include:
-
-- highly dynamic UI,
-- Shadow DOM,
-- complex component trees,
-- iframes or overlays,
-- long asynchronous loading,
-- unstable selectors,
-- complex authentication,
-- bot-detection or login friction,
-- enterprise-specific workflows and permissions.
-
-Consequence:
-
-The first public demo can stay e-commerce-oriented because it is practical,
-understandable, and safe to run locally or in CI.
-
-The final hard POM validation may still use Salesforce/ERP/CRM-style ideas, but
-that should be treated as a later phase, not as the first public demo.
-
-Future GraphQL-based Service Objects or Query Objects may be considered later,
-especially if an application groups service requests through GraphQL. This is
-not current scope.
+Shared configuration, fixtures, reporting, and test structure may support both
+layers.
 
 ---
 
-## Decision 9 — Demo targets are not framework core
+## Decision 4 — Support tests and test-support workflows
 
-Decision:
+**Decision**
 
-Demo applications are replaceable execution targets.
+POM and SOM may be consumed by executable tests and by non-test workflows.
 
-They are not the product of this repository.
+**Reasoning**
 
-This repository should not grow into:
+Projects automate both verification and repeated work such as setup, cleanup,
+record creation, reproduction, and evidence collection.
+
+**Consequence**
+
+A workflow must not pretend to be a test when it does not verify product
+behavior.
+
+Tests own PASS/FAIL assertions.
+
+Support workflows own useful outputs and diagnostic failures.
+
+---
+
+## Decision 5 — Keep examples neutral but readable
+
+**Decision**
+
+Use understandable examples such as `User`, `Product`, and `Order`.
+
+Remove assumptions tied to one industry.
+
+**Reasoning**
+
+Names such as `Entity` and `GenericResource` are formally neutral but difficult
+for users with stronger testing or domain skills than programming skills.
+
+**Consequence**
+
+The skeleton teaches the pattern with readable nouns.
+
+Project adaptation owns real domain vocabulary.
+
+---
+
+## Decision 6 — Treat local applications as replaceable targets
+
+**Decision**
+
+`services/` and the demo shop are execution targets, not framework core.
+
+**Consequence**
+
+They may be removed or replaced in a real adaptation.
+
+They should not grow into:
 
 ```text
-demo shop
-demo Salesforce
-demo ERP
-demo CRM
+a full shop
+a fake CRM
+a fake ERP
+a domain product
 ```
 
-The product is the reusable POM/SOM automation framework skeleton.
-
-Reasoning:
-
-A local demo target can be useful because it makes the framework executable in
-CI and gives Page Objects or Service Objects something deterministic to
-exercise.
-
-However, building rich demo applications would move the project away from its
-purpose.
-
-Large demos would:
-
-- take significant time to build,
-- duplicate simplified versions of real products,
-- still differ from real enterprise systems,
-- create maintenance burden,
-- make the repository harder to understand,
-- blur the boundary between framework and application under test.
-
-The framework should remain:
-
-- simple,
-- reusable,
-- readable,
-- aligned with POM,
-- aligned with SOM,
-- aligned with good automation principles,
-- helpful for an automation tester,
-- ready to be filled with project-specific context.
-
-Consequence:
-
-Demo targets may exist only as minimal fixtures that make the framework
-executable and reviewable.
-
-They should not grow into feature-rich applications.
-
-Do not add demo-only features such as:
-
-- realistic payments,
-- promo engines,
-- inventory reservation,
-- full account management,
-- logistics flows,
-- full CRM lifecycle,
-- ERP-like modules,
-- Salesforce clones.
-
-If a future scenario requires those behaviors, validate the framework against a
-real or realistic application during the acceptance phase instead of expanding
-the local demo.
-
-The guiding rule is:
+Guiding rule:
 
 ```text
 The demo target exists to exercise the framework.
@@ -324,59 +152,151 @@ It must not become the framework.
 
 ---
 
-## Decision 10 — Validate the framework through framework UAT
+## Decision 7 — Separate consistency gates and behavioral tests
 
-Decision:
+**Decision**
 
-Before treating the framework as complete, validate it through a specific
-acceptance phase focused on the framework itself.
+Run syntax and collection checks before unit, integration, and E2E tests.
 
-This is not UAT of the tested application.
+**Reasoning**
 
-It is UAT of the framework skeleton as a tool for an automation tester.
+A framework repository can contain stale imports, broken optional modules, or
+uncollectable tests even when a smaller visible subset is green.
 
-Reasoning:
+**Consequence**
 
-Green CI and internal examples prove only that the repository is executable.
-
-They do not prove that the skeleton helps a tester automate a real application.
-
-The meaningful validation question is:
+Current order:
 
 ```text
-Does this framework skeleton actually help automate a concrete application?
+syntax
+→ collection
+→ unit
+→ integration
+→ E2E
 ```
 
-Consequence:
+The test pyramid remains a maintenance heuristic, not a mandatory ratio or an
+ISTQB requirement.
 
-Near the end of development, choose one or more real or realistic applications,
-for example:
+---
 
-- Salesforce or CRM-style enterprise UI,
-- a real online shop,
-- a real or public API,
-- an internal project context where permitted.
+## Decision 8 — Keep default CI deterministic
 
-Then fill the framework with project-specific content:
+**Decision**
 
-- Page Objects,
-- Service Objects,
-- fixtures,
-- configuration,
-- test data,
-- business assertions,
-- environment rules.
+Default CI runs local, self-contained checks.
 
-The first validation should be manual.
+**Reasoning**
 
-Reason:
+The public skeleton should not require private credentials, VPN access, or
+unstable third-party systems.
+
+**Consequence**
+
+Live and external tests must be explicit and opt-in.
+
+---
+
+## Decision 9 — Use human-led adaptation as the first baseline
+
+**Decision**
+
+Framework acceptance should begin with a human-led adaptation.
+
+**Reasoning**
+
+A human-led path separates:
 
 ```text
-If AI fills the framework too early, we mix two questions:
-
-1. Is the framework useful?
-2. Did AI fill it correctly?
+Is the skeleton useful?
 ```
 
-AI-assisted adaptation may be tested later as a separate capability, after the
-framework itself has been validated.
+from:
+
+```text
+Did AI fill it correctly?
+```
+
+Human-led does not mean tool-free.
+
+Playwright Codegen, DevTools, Swagger/OpenAPI, IDE tools, generators, and LLM
+assistance may still be used.
+
+**Consequence**
+
+A human owns architecture, risk selection, assertions, and acceptance.
+
+---
+
+## Decision 10 — Treat AI assistance as a capability to evaluate
+
+**Decision**
+
+AI output is not correct by default.
+
+**Consequence**
+
+AI may draft artifacts, but project facts, test-level decisions, assertions,
+and final acceptance remain human-owned.
+
+The detailed AI-assisted process stays preliminary until the human-led
+framework baseline is validated.
+
+---
+
+## Decision 11 — Use one future reference repository
+
+**Decision**
+
+After framework acceptance, create one separate reference repository:
+
+```text
+qa-automation-framework-ecommerce-demo
+```
+
+**Reasoning**
+
+One repository reduces drift and supports a controlled comparison.
+
+**Consequence**
+
+The repository may compare:
+
+```text
+human-led adaptation
+vs
+AI-assisted adaptation
+```
+
+under the same target, scope, acceptance criteria, and quality gates.
+
+This core repository remains neutral.
+
+---
+
+## Decision 12 — Require framework acceptance before stronger claims
+
+**Decision**
+
+Green CI and local examples are not sufficient evidence of framework
+usefulness.
+
+**Reasoning**
+
+Internal consistency does not prove that a user can adapt the skeleton to a
+concrete project need.
+
+**Consequence**
+
+The next major phase should define:
+
+- framework requirements,
+- acceptance risks,
+- test conditions and cases,
+- evidence,
+- entry and exit criteria,
+- defects and improvements,
+- acceptance conclusions.
+
+The phase should be incremental, risk-based, and transparent about what each
+test proves.

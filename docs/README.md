@@ -5,8 +5,8 @@ This directory contains project-specific documentation for the
 
 The root `README.md` is the public landing page.
 
-This directory holds the longer design notes, boundaries, gaps, and adaptation
-guides.
+This directory contains longer design notes, boundaries, gaps, testing rules,
+and adaptation guidance.
 
 ---
 
@@ -36,47 +36,47 @@ guides.
 
 | Document | Purpose |
 |---|---|
-| [architecture-decisions.md](architecture-decisions.md) | Key design decisions and why they were made |
-| [project-map.md](project-map.md) | Current map of framework layers, status, and next boundaries |
-| [gaps.md](gaps.md) | Open gaps that are known and intentionally tracked |
-| [known-limitations.md](known-limitations.md) | Current boundaries, non-goals, and demo-only areas |
-| [testing-strategy.md](testing-strategy.md) | Unit, integration, E2E, markers, and CI rules |
-| [future-ideas.md](future-ideas.md) | Ideas worth keeping, but not part of the current scope |
-| [pom-guide.md](pom-guide.md) | Page Object Model rules for UI automation |
-| [pom-base-page.md](pom-base-page.md) | BasePage boundary and reusable POM mechanics |
-| [pom-components.md](pom-components.md) | Component Object boundary and reusable UI fragment mechanics |
-| [pom-foundation-checkpoint.md](pom-foundation-checkpoint.md) | Current POM foundation status and stop point |
-| [som-guide.md](som-guide.md) | Service Object Model rules for API automation |
-| [som-foundation-checkpoint.md](som-foundation-checkpoint.md) | Current SOM foundation status and BaseClient vs MicroserviceClient boundary |
-| [adaptation-guide.md](adaptation-guide.md) | Short purpose-first orientation for adapting the skeleton |
-| [human-led-adaptation.md](human-led-adaptation.md) | Detailed guide from project need to human acceptance |
-| [framework-filling-instructions-plan.md](framework-filling-instructions-plan.md) | Status and plan for human-led and AI-assisted filling guidance |
-| [example-cases.md](example-cases.md) | Planned UI and API case studies |
-| [ai-assisted-adaptation.md](ai-assisted-adaptation.md) | Safe workflow for using AI to adapt the framework |
+| [architecture-decisions.md](architecture-decisions.md) | Current design decisions and why they were made |
+| [project-map.md](project-map.md) | Framework layers, status, and next boundaries |
+| [gaps.md](gaps.md) | Open work, deferred validation, and recently closed gaps |
+| [known-limitations.md](known-limitations.md) | Current boundaries and evidence limits |
+| [testing-strategy.md](testing-strategy.md) | Consistency gates, test levels, markers, and CI |
+| [future-ideas.md](future-ideas.md) | Ideas worth keeping outside current scope |
+| [pom-guide.md](pom-guide.md) | Page Object Model rules |
+| [pom-base-page.md](pom-base-page.md) | BasePage boundary and reusable mechanics |
+| [pom-components.md](pom-components.md) | Component Object boundary |
+| [pom-foundation-checkpoint.md](pom-foundation-checkpoint.md) | Current POM status and stop point |
+| [som-guide.md](som-guide.md) | Service Object Model rules |
+| [som-foundation-checkpoint.md](som-foundation-checkpoint.md) | Current SOM status and client boundary |
+| [adaptation-guide.md](adaptation-guide.md) | Short purpose-first adaptation path |
+| [human-led-adaptation.md](human-led-adaptation.md) | Detailed path from project need to human acceptance |
+| [framework-filling-instructions-plan.md](framework-filling-instructions-plan.md) | Human-led and AI-assisted guidance plan |
+| [example-cases.md](example-cases.md) | Current examples, acceptance boundary, and future reference repository |
+| [ai-assisted-adaptation.md](ai-assisted-adaptation.md) | Preliminary AI guardrails and comparison boundary |
 
 ---
 
 ## Current project status
 
-The framework-core POM/SOM foundation is completed for the current stage.
-
-Current status:
-
 ```text
-POM foundation
-→ BasePage, BaseComponent, Page Objects, component example, E2E flow
+Framework-core POM/SOM foundation
+→ completed for the current stage
 
-SOM foundation
-→ BaseClient, MicroserviceClient, Service Objects, models, workflow
+Local execution targets
+→ intentionally minimal and deterministic
 
-Demo targets
-→ minimal deterministic execution targets only
+Human-led adaptation guidance
+→ initial guide implemented
 
-Adaptation guidance
-→ initial human-led purpose-first guide
+Public documentation
+→ aligned before framework acceptance
 
-Future validation
-→ framework acceptance on real or realistic applications
+Next major phase
+→ agile, risk-based framework acceptance with explicit requirements,
+  test planning, execution, and evidence
+
+AI-assisted adaptation
+→ guarded future comparison after the human-led baseline
 ```
 
 The repository should not evolve into a rich demo product.
@@ -85,20 +85,19 @@ The repository should not evolve into a rich demo product.
 
 ## What belongs here
 
-This directory should contain documentation that explains the project itself:
+This directory should explain:
 
 - architecture choices,
 - current scope,
 - known limitations,
 - framework adaptation,
-- test strategy,
-- example case studies,
-- project-specific gaps.
+- testing strategy,
+- current examples,
+- acceptance gaps,
+- future ideas.
 
-Evergreen testing principles live one level above, in:
+Evergreen testing principles live in:
 
 ```text
 AUTOMATION_PRINCIPLES.md
 ```
-
-That file is intentionally broader than this repository.

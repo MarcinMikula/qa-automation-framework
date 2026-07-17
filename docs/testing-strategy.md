@@ -1,22 +1,15 @@
 # Testing strategy
 
-This project follows a practical test pyramid, but the pipeline does not start
-with behavioral tests immediately.
+This document describes the current repository checks and test levels.
 
-Before the framework checks whether behavior is correct, it first checks whether
-the repository is technically consistent.
-
-This is useful for learning and for real framework work: a test framework can
-have passing tests and still contain broken files, stale imports, or code that
-pytest cannot even collect.
+The formal framework-acceptance strategy will be defined in the next project
+phase.
 
 ---
 
-## Framework consistency gates
+## Evidence layers
 
-These checks run before the main test suites.
-
-They are not a replacement for the test pyramid. They are a foundation under it.
+The current pipeline uses five layers:
 
 ```text
 0. Python syntax check
@@ -26,234 +19,178 @@ They are not a replacement for the test pyramid. They are a foundation under it.
 4. E2E tests
 ```
 
-The first two steps are especially important in framework repositories, because
-framework code often contains helpers, generators, examples, adapters, and
-future-facing modules that may not be executed by the normal test suite yet.
+The first two are framework consistency gates.
+
+The remaining layers verify executable behavior at different boundaries.
 
 ---
 
-## Gate 0 — Python syntax check
-
-Command:
+## Gate 0 — Python syntax
 
 ```bash
 python -m compileall -q api pages components services testdata tests
 ```
 
-Question answered:
+Question:
 
 ```text
-Can Python compile all project files?
+Can Python compile the active project files?
 ```
 
-This check catches:
+This can expose broken files that normal test imports do not reach.
 
-- invalid Python syntax,
-- broken files that are not imported by normal tests,
-- stale helper modules,
-- partially edited files,
-- generator/helper code that has no direct test coverage yet.
-
-Example from this project:
-
-`compileall` exposed a syntax error in `api/swagger_generator.py`. The regular
-pytest suite had not executed that file, so the issue stayed hidden until the
-hygiene check was added.
-
-This is not a unit test. It does not verify behavior. It verifies that the code
-can be parsed and compiled.
+It does not prove behavior.
 
 ---
 
-## Gate 1 — Pytest collection check
-
-Command:
+## Gate 1 — Pytest collection
 
 ```bash
 python -m pytest --collect-only -q
 ```
 
-Question answered:
+Question:
 
 ```text
 Can pytest discover and import the test suite?
 ```
 
-This check catches:
+This can expose:
 
-- broken test imports,
-- missing modules,
+- stale imports,
 - missing fixtures,
-- invalid pytest markers or parametrization,
-- tests that exist but cannot be collected,
-- stale references after file renames or package changes.
+- broken parametrization,
+- invalid markers,
+- references left after file renames.
 
-This is also not a behavioral test. It proves that the test suite is
-importable, discoverable, and structurally valid.
-
-It is valuable because a repository can have good individual tests, but still
-fail before running them if collection is broken.
+It does not prove behavior.
 
 ---
 
-## Gate 2 — Unit tests
-
-Command:
+## Unit tests
 
 ```bash
 python -m pytest tests/unit/ -v
 ```
 
-Question answered:
+Question:
 
 ```text
-Do small framework elements behave according to their contracts?
+Do small deterministic elements satisfy their local contracts?
 ```
 
 Typical scope:
 
-- model defaults,
-- validation rules,
-- constraints,
-- deterministic data generation,
-- helper functions,
-- small domain rules,
-- reusable in-memory stores,
-- router factories,
-- Service Object helpers,
-- request/response parsing.
+- base-class mechanics,
+- Pydantic validation,
+- response parsing,
+- stores and router factories,
+- payload builders,
+- transformations,
+- configuration rules,
+- non-trivial reusable helpers.
 
-In this project, unit tests should not only verify `testdata/testdb.py`.
+A filled project should add unit tests for meaningful logic.
 
-They should also grow around reusable framework pieces such as:
-
-- `InMemoryStore`,
-- `create_crud_router`,
-- `MicroserviceClient`,
-- Pydantic service models,
-- `BaseClient`,
-- `api/swagger_generator.py`.
-
-Unit tests should be fast, deterministic, and independent from browsers or live
-services.
+It does not need a separate unit test for every trivial locator wrapper.
 
 ---
 
 ## Integration tests
 
-Command:
-
 ```bash
-python -m pytest tests/integration/ -v
+python -m pytest tests/integration/ -v -m "not external"
 ```
 
-Question answered:
+Question:
 
 ```text
-Do components or services work together through their intended boundaries?
+Do Service Objects and service boundaries work together as intended?
 ```
 
 Typical scope:
 
-- API response structure,
-- status codes,
-- required fields,
-- error handling,
-- Service Object behavior,
-- contract assumptions,
-- local service workflows.
+- API behavior,
+- request and response contracts,
+- status and error handling,
+- Service Object mapping,
+- local multi-service workflows,
+- setup through APIs.
 
-Integration tests should usually go through Service Objects instead of raw HTTP
-calls from the test body.
-
-This keeps tests aligned with the SOM pattern:
-
-```text
-test
-→ Service Object
-→ service/API boundary
-```
+Business-facing tests should normally use Service Objects rather than repeat
+raw HTTP mechanics.
 
 ---
 
 ## E2E tests
 
-Command:
-
 ```bash
-python -m pytest tests/e2e/ -v
+python -m pytest tests/e2e/ -v -m "not external"
 ```
 
-Question answered:
+Question:
 
 ```text
-Does a critical user-visible flow work through the browser?
+Does a selected user-visible flow work through the browser?
 ```
 
 Typical scope:
 
-- login,
-- search,
-- create entity,
-- submit form,
-- verify visible result or status change.
+- critical UI flows,
+- browser-specific risks,
+- visible outcomes,
+- cross-layer scenarios that cannot be trusted at a lower level.
 
-E2E tests should be fewer than lower-level tests. They are valuable, but more
-expensive to maintain.
+Tests should use Page Objects rather than raw selectors in the test body.
 
-They should go through Page Objects instead of raw Playwright calls directly in
-the test body.
-
-This keeps tests aligned with the POM pattern:
-
-```text
-test
-→ Page Object
-→ browser/UI boundary
-```
-
-The current E2E layer is still a lightweight smoke example. A stronger
-Salesforce-like or CRM-like POM case study is planned separately.
+E2E tests should be selected for value, not added to satisfy a fixed pyramid
+shape.
 
 ---
 
-## How this extends the test pyramid
+## Test pyramid boundary
 
-The classic test pyramid focuses on behavioral confidence:
-
-```text
-        E2E
-   Integration
-      Unit
-```
-
-This project adds consistency checks underneath that pyramid:
+The test pyramid is a useful maintenance heuristic:
 
 ```text
-        E2E
-   Integration
-      Unit
- Collection check
- Syntax check
+more fast and focused checks
+fewer slow and broad checks
 ```
 
-The lower gates do not prove that business behavior is correct.
+It is not:
 
-They prove that the project is structurally healthy enough for meaningful tests
-to run.
+- a fixed percentage,
+- an ISTQB requirement,
+- a substitute for risk analysis,
+- proof that every system needs the same test distribution.
 
-That matters in automation framework work, because framework repositories often
-contain:
+Choose the fastest level that can provide trustworthy evidence for the risk.
 
-- reusable helpers,
-- adapters,
-- generators,
-- examples,
-- optional external integrations,
-- code intended for future case studies.
+---
 
-Without hygiene checks, these areas can silently rot while the visible test
-suite remains green.
+## Verification tests vs support workflows
+
+A verification test has:
+
+- an expected behavior,
+- meaningful assertions,
+- a PASS/FAIL verdict linked to a risk.
+
+A support workflow primarily:
+
+- prepares data,
+- changes state,
+- returns identifiers,
+- cleans records,
+- reproduces a condition,
+- collects evidence.
+
+Support workflows may check that their task succeeded.
+
+That does not automatically make them product-behavior tests.
+
+They should be evaluated for usefulness, repeatability, safety, and diagnostic
+output.
 
 ---
 
@@ -268,60 +205,29 @@ Recommended marker policy:
 @pytest.mark.external
 ```
 
-External tests should be opt-in when a real project adds them.
+External tests should be opt-in.
 
-Default local and CI runs should avoid tests that require:
+Default CI should avoid tests requiring:
 
-- live third-party systems,
 - private credentials,
-- unstable environments,
-- private application data,
-- NDA-protected systems.
-
-External tests may exist, but they should not block the default pipeline unless
-explicitly configured for a trusted environment.
+- VPN access,
+- unstable third parties,
+- NDA-protected systems,
+- destructive real-environment operations.
 
 ---
 
-## Recommended local commands
-
-Run syntax check:
+## Current local commands
 
 ```bash
 python -m compileall -q api pages components services testdata tests
-```
-
-Run collection check:
-
-```bash
 python -m pytest --collect-only -q
-```
-
-Run everything deterministic:
-
-```bash
-python -m pytest tests/ -v
-```
-
-Run only unit tests:
-
-```bash
 python -m pytest tests/unit/ -v
+python -m pytest tests/integration/ -v -m "not external"
+python -m pytest tests/e2e/ -v -m "not external"
 ```
 
-Run only integration tests:
-
-```bash
-python -m pytest tests/integration/ -v
-```
-
-Run only E2E tests:
-
-```bash
-python -m pytest tests/e2e/ -v
-```
-
-Run external tests deliberately:
+Run deliberately marked external tests separately:
 
 ```bash
 python -m pytest tests/ -v -m external
@@ -329,32 +235,72 @@ python -m pytest tests/ -v -m external
 
 ---
 
-## CI rule
-
-CI should run checks in this order:
+## CI order
 
 ```text
-1. install dependencies
-2. prepare reports directory
-3. compile Python files
-4. collect pytest tests
-5. initialize local test data
-6. start local services
-7. smoke-check local services
-8. run unit tests
-9. run integration tests
-10. run E2E tests
-11. upload lightweight reports
+install dependencies
+→ prepare reports
+→ syntax check
+→ collection check
+→ initialize local data
+→ start and smoke-check local services
+→ unit tests
+→ integration tests
+→ E2E tests
+→ upload reports
 ```
 
-CI should run tests that are:
+Default CI should remain:
 
 - deterministic,
 - self-contained,
-- safe for public execution,
-- not dependent on private credentials,
-- not dependent on unstable live systems.
+- public-safe,
+- independent from private systems.
 
-The goal is not only to get a green pipeline.
+---
 
-The goal is to know what the green pipeline actually proves.
+## What green CI proves
+
+Green CI supports claims about:
+
+- active Python syntax,
+- test-suite collectability,
+- tested reusable mechanics,
+- local service integration,
+- local POM/SOM examples,
+- the configured runner and dependency combination.
+
+It does not prove:
+
+- complete requirements coverage,
+- correct risk selection,
+- meaningful assertions in an unknown project,
+- usability of adaptation guidance,
+- reusability across all application types,
+- framework acceptance.
+
+---
+
+## Next formal testing phase
+
+Framework acceptance should add an agile, risk-based layer above the current
+technical baseline.
+
+Expected work includes:
+
+- define framework stakeholders and users,
+- define requirements and quality characteristics,
+- identify acceptance risks,
+- derive test conditions and cases,
+- decide test levels and evidence,
+- execute small acceptance increments,
+- record defects and framework friction,
+- update requirements and tests as learning occurs,
+- summarize what is accepted, rejected, or still unproven.
+
+The approach should be ISTQB-informed without turning the work into excessive
+ceremony.
+
+Traceability should help decisions.
+
+It should not become paperwork without value.

@@ -28,7 +28,7 @@ It is not:
 a demo shop
 a demo CRM
 a demo ERP
-a Salesforce clone
+a domain-specific product
 a plug-and-play enterprise framework
 ```
 
@@ -42,8 +42,8 @@ with project-specific content.
 Current stage:
 
 ```text
-POM/SOM foundation completed and inactive legacy placeholders removed for the
-framework-core phase.
+POM/SOM foundation completed, inactive legacy placeholders removed, and public
+documentation aligned for the framework-core phase.
 ```
 
 This does not mean the framework is fully validated.
@@ -53,8 +53,8 @@ demo-product features.
 
 Next important work is around:
 
-- adaptation workflow,
-- future framework UAT,
+- agile, risk-based framework acceptance,
+- framework requirements and acceptance risks,
 - human-led adaptation guide validation,
 - AI-assisted filling instructions,
 - reporting improvements,
@@ -97,7 +97,7 @@ Documentation
 ├── POM guides/checkpoints
 ├── SOM guides/checkpoints
 ├── adaptation guidance
-└── future filling/UAT plans
+└── future filling/acceptance plans
 ```
 
 ---
@@ -397,7 +397,7 @@ Parked topics:
 - AI-assisted framework filling guide,
 - framework UAT plan,
 - context-aware framework filler,
-- Salesforce/ERP/CRM hard POM validation,
+- complex enterprise UI validation,
 - real e-commerce validation,
 - reporting/Allure dashboard,
 - dependency and runner compatibility review.

@@ -4,52 +4,88 @@
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-> A reusable QA automation framework skeleton for enterprise UI and API testing.  
-> Bring your own application, locators, endpoints, data, and domain rules.
+> A reusable Python test automation framework skeleton for UI and API testing.
+>
+> Bring your own application, locators, endpoints, data, risks, and domain rules.
 
-This repository is a **framework skeleton**, not a plug-and-play automation product.
+This repository is a **framework skeleton**, not a plug-and-play automation
+product.
 
-It provides a clean structure for building tests around two complementary automation patterns:
+It provides two complementary adapter patterns:
 
-- **Page Object Model (POM)** for browser-based UI and E2E flows.
-- **Service Object Model (SOM)** for API, microservice, and integration testing.
+- **Page Object Model (POM)** for browser-based UI and E2E automation.
+- **Service Object Model (SOM)** for API, service, and integration automation.
 
-The repository includes a small working example implementation so the structure can be executed,
-reviewed, and adapted before it is used against a real application.
+A small local implementation keeps the skeleton executable and reviewable.
+
+It is not the product.
+
+---
+
+## Current status
+
+The POM and SOM foundations are closed for the current framework-core stage.
+
+The repository currently contains:
+
+```text
+POM foundation
+→ BasePage, BaseComponent, concrete Page Objects, component example, E2E flow
+
+SOM foundation
+→ BaseClient, MicroserviceClient, concrete Service Objects, typed models,
+  integration tests, multi-service workflow
+
+Local execution targets
+→ minimal deterministic FastAPI services and demo shop
+
+Adaptation guidance
+→ purpose-first human-led adaptation guide
+
+Next major phase
+→ framework acceptance against real or realistic application needs
+```
+
+Green local tests and CI prove that the committed implementation is executable
+and internally consistent.
+
+They do **not** yet prove that the skeleton is useful to a person adapting it to
+a concrete project.
+
+That is the purpose of the next framework-acceptance phase.
 
 ---
 
 ## What this repository is
 
-This repository is a practical starting point for building automated tests in enterprise-style
-systems such as:
+This repository is a practical starting point for automation around systems
+such as:
 
-- CRM platforms,
-- billing systems,
-- customer portals,
-- internal back-office tools,
-- API-driven microservice platforms,
-- regulated or integration-heavy environments.
+- customer-facing web applications,
+- internal business tools,
+- API-driven platforms,
+- integration-heavy systems,
+- regulated environments,
+- complex enterprise applications.
 
-It provides the reusable structure. You provide the project-specific context.
+It provides reusable structure.
 
-In a real project, you are expected to replace or extend:
+The project supplies:
 
+- the real testing or test-support need,
+- application behavior,
 - UI locators,
-- page actions,
-- API endpoints,
-- service methods,
+- API contracts,
+- authentication,
 - test data,
-- authentication flow,
 - environment configuration,
-- business assertions,
-- domain-specific fixtures.
+- risks,
+- expected results,
+- domain-specific fixtures and workflows.
 
-The goal is not to pretend that a public repository can fully automate an unknown enterprise
-system.
+The framework should be filled because a project has a real need.
 
-The goal is to show how a QA automation framework can be structured so it can be safely adapted
-to one.
+It should not be filled only because folders exist.
 
 ---
 
@@ -58,81 +94,155 @@ to one.
 This repository is **not**:
 
 - a ready-made framework for every application,
-- a Salesforce automation framework out of the box,
-- a complete enterprise test suite,
-- a replacement for domain knowledge,
+- a complete test suite,
+- a domain-specific automation product,
+- a replacement for test analysis or domain knowledge,
 - an AI agent,
-- a self-healing test tool,
-- a code generator that removes the need for review.
+- a self-healing tool,
+- a code generator that removes the need for review,
+- proof that the skeleton has already passed framework acceptance.
 
-The skeleton can be used with AI-assisted development, but the output still requires QA review,
-project context, and manual adaptation.
+The local examples demonstrate structure and execution.
+
+They do not claim production readiness for an unknown system.
+
+---
+
+## Purpose-first adaptation
+
+The preferred adaptation sequence is:
+
+```text
+project need
+→ automation intent
+→ smallest useful scope
+→ required context
+→ POM / SOM / workflow / fixture
+→ expected result or useful output
+→ implementation
+→ evidence
+→ human acceptance
+```
+
+Typical automation intents include:
+
+```text
+verification
+→ regression, smoke, integration, contract, or E2E checks
+
+test support
+→ repeated setup, cleanup, record creation, or environment preparation
+
+data and environment work
+→ seeding, generation, reconciliation, or state reset
+
+diagnostic work
+→ defect reproduction, traces, screenshots, responses, or evidence collection
+```
+
+Not every useful automation is a test.
+
+```text
+POM and SOM are reusable automation adapters.
+
+Tests are one consumer.
+Test-support workflows are another.
+```
+
+A workflow should not pretend to be a test when it does not verify product
+behavior.
+
+For the full process, see:
+
+- [Adaptation guide](docs/adaptation-guide.md)
+- [Human-led adaptation guide](docs/human-led-adaptation.md)
+
+---
+
+## Human-led does not mean tool-free
+
+A human-led adaptation may use:
+
+- Playwright Codegen,
+- browser DevTools,
+- OpenAPI/Swagger,
+- IDE refactoring,
+- deterministic generators,
+- LLM assistance.
+
+The distinction is ownership.
+
+A human owns:
+
+- the project need,
+- architecture,
+- Page Object and Service Object boundaries,
+- test-level selection,
+- risk selection,
+- assertions,
+- final acceptance.
+
+Tools may accelerate discovery and drafting.
+
+They do not own correctness.
 
 ---
 
 ## Why POM and SOM are in one repository
 
-Many enterprise systems are not tested effectively through only one layer.
-
-A realistic test automation project usually needs both:
+Many systems are not tested effectively through only one interface.
 
 | Layer | Pattern | Purpose |
 |---|---|---|
-| UI / E2E | Page Object Model | Model screens, forms, user actions, and browser flows |
-| API / integration | Service Object Model | Model endpoints, service operations, contracts, and backend behavior |
+| UI / E2E | Page Object Model | Model screens, reusable components, user actions, and visible outcomes |
+| API / integration | Service Object Model | Model endpoints, service operations, contracts, setup, and backend behavior |
 
-Keeping POM and SOM in one framework skeleton is intentional.
+POM and SOM share one repository, but they are not merged into one abstraction.
 
-They are not mixed into one abstraction. They are separated into different adapter layers:
+```text
+pages/ and components/
+→ UI adapter layer
 
-- `pages/` contains UI-facing Page Objects.
-- `api/` contains API-facing Service Objects.
-- `tests/e2e/` uses POM.
-- `tests/integration/` uses SOM.
-- shared fixtures, settings, data, and reporting support both layers.
+api/
+→ API/service adapter layer
 
-The shared repository gives one consistent test structure while keeping UI and API responsibilities
-separate.
+tests/
+→ verification intent and assertions
+
+optional project workflows
+→ repeated test-support orchestration
+```
 
 ---
 
-## Core framework vs example implementation
+## Core framework vs local execution targets
 
-This repository contains two things:
-
-```text
-1. Reusable framework skeleton
-2. Replaceable example implementation
-```
-
-### Reusable framework skeleton
-
-These parts represent the structure you would keep and adapt in a real project:
+### Reusable framework structure
 
 ```text
-pages/        Page Object Model layer for UI automation
-components/   Reusable UI component abstractions
-api/          Service Object Model layer for API automation
-testdata/     Test data models, seed data, and settings
-tests/        Unit, integration, and E2E test structure
+pages/        Page Object Model layer
+components/   reusable UI component layer
+api/          Service Object Model layer
+testdata/     deterministic example data and settings
+tests/        unit, integration, and E2E structure
 .github/      CI workflow
-docs/         Project documentation and adaptation guides
+docs/         decisions, guides, gaps, and limitations
 ```
 
-### Replaceable example implementation
-
-These parts exist so the skeleton can run locally and demonstrate the patterns:
+### Replaceable local examples
 
 ```text
-services/     Example FastAPI microservices: users, orders, products
-tests/unit/   Example unit tests for data models and constraints
+services/     minimal FastAPI users, products, and orders services
+demo shop     minimal UI target for the POM flow
+tests/unit/   reusable-mechanics and local-model examples
 tests/integration/
-              Example API tests through Service Objects
-tests/e2e/    Example browser tests through Page Objects
+              Service Object examples and neutral workflow
+tests/e2e/    browser examples through Page Objects
 ```
 
-In a real project, the example microservices can be removed or replaced with your actual
-application under test.
+The local targets exist to exercise the framework.
+
+They must not become a product roadmap.
 
 ---
 
@@ -167,7 +277,10 @@ qa-automation-framework/
 │   ├── som-guide.md
 │   ├── som-foundation-checkpoint.md
 │   ├── adaptation-guide.md
+│   ├── human-led-adaptation.md
 │   ├── framework-filling-instructions-plan.md
+│   ├── example-cases.md
+│   ├── ai-assisted-adaptation.md
 │   └── future-ideas.md
 ├── pages/
 │   ├── base_page.py
@@ -200,262 +313,284 @@ qa-automation-framework/
 
 ---
 
-## Main patterns
+## Page Object Model
 
-### Page Object Model
+The POM layer hides browser mechanics from tests.
 
-The POM layer hides browser details from tests.
-
-Tests should not know CSS selectors, XPath expressions, or Playwright mechanics directly.
-
-Instead of this:
+Instead of:
 
 ```python
 page.get_by_test_id("search-input").fill("laptop")
 page.get_by_test_id("search-submit").click()
 ```
 
-A test should speak through a Page Object:
+a test should speak through a Page Object:
 
 ```python
 search_page.search_for("laptop")
 ```
 
-The responsibility of a Page Object is to expose meaningful user actions.
+Responsibility split:
 
-The responsibility of a test is to describe the scenario and verify the outcome.
+```text
+BasePage / BaseComponent
+→ reusable Playwright mechanics
 
-### Service Object Model
+Concrete Page Objects / Components
+→ application-facing UI actions and state
 
-The SOM layer hides HTTP details from tests.
+Tests
+→ scenario intent and business assertions
+```
 
-Tests should not build raw URLs, headers, payloads, and status-code handling repeatedly.
+---
 
-Instead of this:
+## Service Object Model
+
+The SOM layer hides repeated HTTP mechanics from tests and workflows.
+
+Instead of:
 
 ```python
 response = client.post("/orders", json=order_payload)
 assert response.status_code == 201
 ```
 
-A test should speak through a Service Object:
+a test can speak through a Service Object:
 
 ```python
 order = order_service.create(order_payload)
 ```
 
-The responsibility of a Service Object is to expose meaningful API operations.
-
-The responsibility of a test is to verify business-relevant behavior.
-
----
-
-## Stack
-
-| Area | Technology |
-|---|---|
-| UI automation | Playwright + pytest |
-| API automation | httpx + Service Object Model |
-| Test runner | pytest |
-| Test data | SQLAlchemy + SQLite |
-| Example backend | FastAPI |
-| Reporting | Allure |
-| CI | GitHub Actions |
-| Language | Python 3.11+ |
-
----
-
-## Test strategy
-
-The framework follows the ISTQB-style test pyramid.
+Responsibility split:
 
 ```text
-        E2E / UI
-      Playwright + POM
-     critical user flows
+BaseClient / MicroserviceClient
+→ reusable HTTP mechanics
 
-    Integration / API
-       httpx + SOM
- contracts, APIs, services
+Concrete Service Objects
+→ service operations and response mapping
 
-       Unit tests
- models, constraints, logic
+Tests or workflows
+→ verification or orchestration intent
 ```
 
-E2E tests are intentionally fewer because they are slower, more fragile, and more expensive to
-maintain.
-
-Detailed execution rules are documented in [Testing Strategy](docs/testing-strategy.md).
-
----
-
-## Current example coverage
-
-The repository currently includes an executable example test suite split by test level:
+The active examples use readable neutral concepts:
 
 ```text
-tests/unit/          unit-level examples
-tests/integration/   API / SOM examples
-tests/e2e/           UI / POM examples
+User
+Product
+Order
+external_id
+external_reference
 ```
 
-The example implementation is intentionally small.
-
-Its purpose is to demonstrate structure, not to simulate a full enterprise system.
-
-All committed examples are local and deterministic. A real project may add external/live tests later, but they must remain explicit and opt-in.
+A real project replaces or extends their meaning.
 
 ---
 
-## How to use this skeleton
+## Testing strategy
 
-### 1. Clone the repository
+The repository separates:
 
-```bash
-git clone https://github.com/MarcinMikula/qa-automation-framework.git
-cd qa-automation-framework
+```text
+framework consistency gates
+→ syntax and pytest collection
+
+unit tests
+→ small deterministic contracts and reusable mechanics
+
+integration tests
+→ Service Objects, APIs, and component boundaries
+
+E2E tests
+→ a small number of user-visible browser flows
 ```
 
-### 2. Install dependencies
+The test pyramid is used as a maintenance heuristic, not as a claim that one
+fixed distribution is correct for every project.
+
+Test placement should follow:
+
+- the risk,
+- the behavior being checked,
+- the fastest trustworthy test level,
+- maintainability,
+- diagnostic value.
+
+See [Testing strategy](docs/testing-strategy.md).
+
+---
+
+## Current executable examples
+
+### POM
+
+```text
+product search
+→ product details
+→ add to cart
+→ checkout
+→ order confirmation
+```
+
+The flow exists to exercise Page Objects and component boundaries.
+
+It is not the future reference implementation.
+
+### SOM
+
+```text
+user
+→ product
+→ order
+→ status change
+→ optional external reference
+```
+
+The flow exists to exercise Service Objects and typed models.
+
+It is not a universal domain model.
+
+See [Example cases](docs/example-cases.md).
+
+---
+
+## Run locally
+
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 python -m playwright install chromium
 ```
 
-### 3. Initialize local test data
+### Initialize local test data
 
 ```bash
 python testdata/testdb.py
 ```
 
-### 4. Start the example services
+### Start local services manually
 
 ```bash
-python -m services.users.main &
-python -m services.orders.main &
-python -m services.products.main &
+python -m services.users.main
+python -m services.orders.main
+python -m services.products.main
 ```
 
-### 5. Run tests
+Integration and E2E fixtures may also start the required local targets.
+
+### Run checks and tests
 
 ```bash
-python -m pytest tests/ -v
-```
-
-Run selected levels:
-
-```bash
+python -m compileall -q api pages components services testdata tests
+python -m pytest --collect-only -q
 python -m pytest tests/unit/ -v
 python -m pytest tests/integration/ -v
 python -m pytest tests/e2e/ -v
 ```
 
-### 6. Generate an Allure report
+### Generate Allure results locally
 
 ```bash
 pytest tests/ --alluredir=allure-results
 allure serve allure-results
 ```
 
----
-
-## How to adapt this framework to a real project
-
-The short version:
-
-1. Replace or extend Page Objects in `pages/` and `components/`.
-2. Replace or extend Service Objects in `api/`.
-3. Replace demo data in `testdata/`.
-4. Move environment-specific values into settings or environment variables.
-5. Add tests at the correct level: unit, integration, or E2E.
-6. When the project adds external/live tests, mark them explicitly and keep them out of default CI.
-
-For the full process, see [Adaptation Guide](docs/adaptation-guide.md).
+A published Allure dashboard is not part of the current baseline.
 
 ---
 
 ## Documentation
 
-Detailed project documentation lives in [`docs/`](docs/).
-
 | Document | Purpose |
 |---|---|
-| [Documentation index](docs/README.md) | Entry point for the full documentation set |
-| [Architecture decisions](docs/architecture-decisions.md) | Key design decisions and boundaries |
-| [Project map](docs/project-map.md) | Current framework layers, status, and boundaries |
-| [Gaps](docs/gaps.md) | Known open gaps and follow-up work |
-| [Known limitations](docs/known-limitations.md) | Current boundaries and intentional non-goals |
-| [Testing strategy](docs/testing-strategy.md) | Unit, integration, E2E, markers, and CI scope |
-| [Future ideas](docs/future-ideas.md) | Ideas intentionally not in the current scope |
-| [POM guide](docs/pom-guide.md) | How to structure UI automation with Page Objects |
-| [POM foundation checkpoint](docs/pom-foundation-checkpoint.md) | Current POM foundation and stop point |
-| [SOM guide](docs/som-guide.md) | How to structure API automation with Service Objects |
-| [SOM foundation checkpoint](docs/som-foundation-checkpoint.md) | Current SOM foundation and client boundary |
-| [Adaptation guide](docs/adaptation-guide.md) | How to adapt the skeleton to a real project |
-| [Example cases](docs/example-cases.md) | Planned Salesforce-like UI and API/SOM examples |
-| [AI-assisted adaptation](docs/ai-assisted-adaptation.md) | How to use AI safely with this skeleton |
+| [Documentation index](docs/README.md) | Entry point for project documentation |
+| [Architecture decisions](docs/architecture-decisions.md) | Current design decisions and boundaries |
+| [Project map](docs/project-map.md) | Current framework layers, status, and direction |
+| [Gaps](docs/gaps.md) | Open work and deferred validation |
+| [Known limitations](docs/known-limitations.md) | Current boundaries and evidence limits |
+| [Testing strategy](docs/testing-strategy.md) | Consistency gates, test levels, markers, and CI |
+| [POM guide](docs/pom-guide.md) | Page Object Model rules |
+| [POM foundation checkpoint](docs/pom-foundation-checkpoint.md) | Current POM stop point |
+| [SOM guide](docs/som-guide.md) | Service Object Model rules |
+| [SOM foundation checkpoint](docs/som-foundation-checkpoint.md) | Current SOM stop point |
+| [Adaptation guide](docs/adaptation-guide.md) | Short purpose-first adaptation path |
+| [Human-led adaptation](docs/human-led-adaptation.md) | Detailed path from project need to human acceptance |
+| [Example cases](docs/example-cases.md) | Current examples and future reference implementation boundary |
+| [AI-assisted adaptation](docs/ai-assisted-adaptation.md) | Preliminary AI guardrails and future comparison boundary |
+| [Future ideas](docs/future-ideas.md) | Ideas intentionally outside current scope |
 
 Root-level supporting documents:
 
-- [AUTOMATION_PRINCIPLES.md](AUTOMATION_PRINCIPLES.md) — evergreen testing and automation principles.
-- [PHILOSOPHY.md](PHILOSOPHY.md) — older design rationale, to be rewritten after principles extraction.
-- [LEARNINGS.md](LEARNINGS.md) — learning journal and lessons from building the framework.
-- [CODEGEN.md](CODEGEN.md) — notes about Swagger/OpenAPI-based Service Object generation.
+- [AUTOMATION_PRINCIPLES.md](AUTOMATION_PRINCIPLES.md) — evergreen testing
+  and automation principles.
+- [PHILOSOPHY.md](PHILOSOPHY.md) — project-specific rationale.
+- [LEARNINGS.md](LEARNINGS.md) — decisions and lessons from implementation.
+- [CODEGEN.md](CODEGEN.md) — OpenAPI-based Service Object scaffolding notes.
 
 ---
 
-## Domain annotations
+## Future reference implementation
 
-Some example files use domain markers to show what is reusable and what is project-specific.
+After framework acceptance stabilizes the skeleton, create one separate
+repository:
 
-```python
-# [DOMAIN: TELCO] — telecommunications-specific example
-# [DOMAIN: CRM] — CRM-specific example
-# [DOMAIN: GENERIC] — reusable across most projects
+```text
+qa-automation-framework-ecommerce-demo
 ```
 
-When adapting the framework, search for domain markers and replace anything that does not match
-your project context.
+It should contain a controlled comparison of:
 
-The markers are not part of the framework mechanics.
+```text
+human-led adaptation
+vs
+AI-assisted adaptation
+```
 
-They are documentation hints for safe adaptation.
+Both approaches should use the same target, starting skeleton, scope,
+acceptance criteria, and quality gates.
+
+This core repository remains domain-neutral.
 
 ---
 
 ## AI-assisted adaptation
 
-This repository is designed to work well with AI-assisted development.
+AI may help draft:
 
-AI can speed up framework adaptation, but it should not decide business meaning on its own.
+- Page Objects,
+- Service Objects,
+- fixtures,
+- workflows,
+- test skeletons,
+- documentation,
+- refactoring proposals.
 
-A QA engineer still needs to verify:
+A human must still verify:
 
+- whether the need is real,
 - whether the scenario matters,
-- whether the assertion is valuable,
-- whether the data is realistic,
-- whether the locator is stable,
-- whether the API operation matches the real contract,
-- whether the test failure would help diagnose a real problem.
+- whether the test level is appropriate,
+- whether locators and contracts are verified,
+- whether assertions protect the intended risk,
+- whether the result is maintainable.
 
-See [AI-assisted adaptation](docs/ai-assisted-adaptation.md) for a practical workflow.
+```text
+AI proposes.
+Tests provide evidence.
+A human accepts or rejects.
+```
+
+See [AI-assisted adaptation](docs/ai-assisted-adaptation.md).
 
 ---
 
 ## Tooling
 
-Developed with AI assistance and manual QA review.
+Developed with Python, pytest, Playwright, httpx, FastAPI, SQLAlchemy, Allure,
+GitHub Actions, and AI-assisted coding tools.
 
-Tools used during development:
-
-- Python,
-- pytest,
-- Playwright,
-- FastAPI,
-- SQLAlchemy,
-- Allure,
-- GitHub Actions,
-- AI-assisted coding tools.
-
-Every generated or AI-assisted change should be reviewed before being treated as framework code.
+Generated or AI-assisted output is not treated as framework code until it has
+been reviewed and tested.

@@ -1,313 +1,275 @@
-# Framework Philosophy
+# Framework philosophy
 
-This document explains the testing philosophy behind this repository.
+This document explains the project-specific rationale behind the repository.
 
-It is intentionally project-specific.
-
-General, evergreen automation principles live in
-[`AUTOMATION_PRINCIPLES.md`](AUTOMATION_PRINCIPLES.md). This file focuses on
-why this framework skeleton is structured the way it is.
+General, evergreen testing principles live in
+[`AUTOMATION_PRINCIPLES.md`](AUTOMATION_PRINCIPLES.md).
 
 ---
 
-## 1. The framework is a skeleton, not a product
+## 1. The repository is a skeleton, not a product
 
-This repository is not a ready-made automation product.
+The framework provides reusable structure.
 
-It is a reusable structure for building automated tests around real enterprise
-systems.
+A real project supplies:
 
-A real project still needs its own:
-
-- application URLs,
-- authentication flow,
-- UI locators,
-- API endpoints,
+- application behavior,
+- risks,
+- locators,
+- endpoints,
+- authentication,
 - test data,
-- environment configuration,
-- business assertions,
-- domain-specific fixtures.
+- environment rules,
+- expected results,
+- domain language.
 
 The framework provides the shape.
 
 The project provides the truth.
 
-This distinction matters because enterprise systems cannot be automated
-honestly without domain context.
-
 ---
 
-## 2. The test should describe intent
+## 2. Adaptation starts from a real need
 
-The main job of a test is not to show that a tool can click buttons or send
-requests.
+Do not fill framework folders because they exist.
 
-The main job of a test is to describe behavior worth protecting.
-
-A good test should make the reader understand:
-
-- what scenario is being checked,
-- what input data is used,
-- what result is expected,
-- why the result matters,
-- what kind of failure the test would expose.
-
-A test that passes but protects no meaningful behavior is noise.
-
-A test that fails but does not help diagnose the problem is expensive.
-
-The framework is designed to keep tests readable enough that their intent is
-visible before debugging starts.
-
----
-
-## 3. POM and SOM are adapter layers
-
-The repository contains both Page Object Model and Service Object Model because
-enterprise systems are rarely tested well through only one layer.
-
-They are not mixed into one abstraction.
-
-They are separate adapters:
+Start with:
 
 ```text
-pages/   -> UI adapter layer
-api/     -> API/service adapter layer
+What real testing or test-support problem are we solving?
 ```
 
-The test should not know UI selectors or raw HTTP mechanics.
+The need may be:
 
-Instead, it should use project-specific language:
+- regression protection,
+- a smoke check,
+- an API contract check,
+- repeated data setup,
+- environment preparation,
+- defect reproduction,
+- diagnostic evidence collection.
 
-```python
-login_page.login(username, password)
-dashboard.search_customer(msisdn)
-customer_service.change_plan(customer_id, new_plan)
-order_service.create_order(customer_id, product_id)
-```
-
-POM hides browser interaction details.
-
-SOM hides API interaction details.
-
-The test remains focused on the scenario.
+The need should determine the automation scope and architecture.
 
 ---
 
-## 4. Page Objects model user actions
+## 3. Not every automation is a test
 
-A Page Object should expose meaningful actions that a user or role can perform.
+Verification automation should produce a meaningful verdict against an
+expected result.
 
-Examples:
+Test-support automation may instead:
 
-```python
-login_page.login(...)
-case_page.create_case(...)
-opportunity_page.create_opportunity(...)
-dashboard.search_customer(...)
-```
+- create a record,
+- prepare state,
+- clean data,
+- return identifiers,
+- collect evidence.
 
-A Page Object may know selectors, waits, navigation details, and page-specific
-mechanics.
+POM and SOM are reusable adapters.
 
-A test should not.
+Tests and support workflows can both consume them.
 
-The value of POM is not that selectors are stored in another file.
-
-The value of POM is that UI mechanics are translated into readable test
-language.
+A workflow must not pretend to be a product-behavior test when its main purpose
+is only to perform repeatable work.
 
 ---
 
-## 5. Service Objects model business operations
+## 4. POM and SOM are separate adapter layers
 
-A Service Object should expose meaningful API operations.
+```text
+pages/ and components/
+→ UI adapter layer
 
-Examples:
-
-```python
-customer_service.get_customer_by_msisdn(...)
-customer_service.suspend_account(...)
-billing_service.get_invoice_status(...)
-order_service.create_order(...)
+api/
+→ API/service adapter layer
 ```
 
-A Service Object may know endpoints, headers, payload shape, authentication,
-status-code expectations, and response parsing.
+POM translates browser mechanics into readable application actions.
 
-A test should not repeat those details.
+SOM translates HTTP mechanics into readable service operations.
 
-The value of SOM is not wrapping `get()` and `post()`.
+Tests should remain focused on intent and expected results.
 
-The value of SOM is that API mechanics are translated into domain-level
-operations.
+Workflows should remain focused on orchestration and useful output.
 
 ---
 
-## 6. Configuration, object model, and state are the core concerns
+## 5. Neutral does not mean abstract
 
-This framework is built around three practical automation concerns.
+The skeleton uses readable examples such as:
 
-### Configuration
+```text
+User
+Product
+Order
+```
 
-Tests should not hardcode environment-specific values.
+It avoids both:
 
-URLs, credentials, tokens, browser settings, and API hosts belong in
-configuration or environment variables.
+```text
+hidden assumptions from one industry
+and
+unhelpful names such as Entity or GenericResource
+```
 
-The same framework should be adaptable to local, DEV, SIT, UAT, staging, or
-production-like environments without rewriting test logic.
+Project adaptation owns the real domain vocabulary.
 
-### Object model
+The neutral examples exist to explain the pattern.
 
-Each system layer should have a clear test-facing model:
+They are not universal business models.
 
-- Page Objects for UI screens and flows,
-- Service Objects for API and service operations,
-- optional component objects for reusable UI fragments,
-- fixtures for setup and shared context.
+---
 
-This makes tests easier to read and safer to change.
+## 6. Human-led does not mean tool-free
 
-### State
+A human-led adaptation may use:
 
-Test data and environment state are part of the test design.
+- Playwright Codegen,
+- DevTools,
+- OpenAPI/Swagger,
+- IDE refactoring,
+- deterministic generators,
+- LLM assistance.
 
-A test should make it clear:
+A human still owns:
 
-- what data it needs,
-- who creates that data,
-- whether the data is isolated,
+- purpose,
+- architecture,
+- risk selection,
+- test-level selection,
+- assertions,
+- final acceptance.
+
+Tools accelerate work.
+
+They do not own quality.
+
+---
+
+## 7. Test levels answer different questions
+
+The repository separates:
+
+- syntax and collection checks,
+- unit tests,
+- integration tests,
+- E2E tests.
+
+The test pyramid is a useful maintenance heuristic.
+
+It is not a mandatory ratio and it is not a substitute for risk analysis.
+
+The preferred level is the fastest level that can provide trustworthy evidence
+for the risk being checked.
+
+---
+
+## 8. State and configuration are part of test design
+
+Tests and workflows should make clear:
+
+- what data they need,
+- who creates it,
+- whether it is isolated,
 - whether cleanup is required,
-- whether the test can run repeatedly.
+- whether execution is repeatable,
+- which environment is targeted.
 
-Uncontrolled state is one of the most common causes of flaky automation.
-
----
-
-## 7. The test pyramid guides scope
-
-The framework follows a practical test pyramid:
-
-```text
-        E2E / UI
-      few, critical flows
-
-    API / integration
-   contracts and services
-
-        Unit
- small rules and logic
-```
-
-Each layer has a different purpose.
-
-Unit tests should protect small, deterministic behavior.
-
-Integration/API tests should protect contracts and service boundaries.
-
-E2E tests should protect critical user-facing flows.
-
-E2E tests are valuable, but they are also expensive. They should not be used as
-a replacement for missing lower-level tests.
+URLs, credentials, tokens, and environment-specific values should not be hidden
+inside generic base classes.
 
 ---
 
-## 8. The example implementation is replaceable
+## 9. Local targets are replaceable
 
-The repository contains local example services and demo tests so the framework
-can be executed and reviewed without access to a private application.
+The local services and demo shop make the repository executable.
 
-Those examples are not the product.
+They demonstrate:
 
-They exist to demonstrate:
-
-- project structure,
+- structure,
 - POM usage,
 - SOM usage,
-- fixture organization,
+- fixtures,
 - test levels,
 - CI-safe execution.
 
-In a real project, the example services may be removed or replaced by the
-actual system under test.
+They are not framework features and should not grow into a rich application.
 
-This is intentional.
-
----
-
-## 9. AI can help adaptation, but QA owns correctness
-
-This framework is designed to work well with AI-assisted development.
-
-AI can help generate first drafts of:
-
-- Page Objects,
-- Service Objects,
-- fixtures,
-- test skeletons,
-- mock data,
-- documentation updates.
-
-But AI does not own the meaning of the test.
-
-A QA engineer still needs to verify:
-
-- whether the scenario matters,
-- whether the assertion is meaningful,
-- whether the data is realistic,
-- whether the locator is stable,
-- whether the API operation matches the real contract,
-- whether the test belongs at UI, API, or unit level.
-
-AI can speed up scaffolding.
-
-QA review turns scaffolding into useful automation.
+```text
+The demo target exists to exercise the framework.
+It must not become the framework.
+```
 
 ---
 
-## 10. Honest limitations are part of the design
+## 10. AI assistance is a capability to evaluate
 
-A framework skeleton should not pretend to be more complete than it is.
+AI may draft framework content, but it cannot safely invent project truth.
 
-Known limitations are useful when they are explicit.
+The human-led path should establish whether the skeleton itself is useful.
 
-They tell the reader:
+Only then should the AI-assisted path be compared against the same target,
+scope, acceptance criteria, and quality gates.
 
-- what is currently implemented,
-- what is demo-only,
-- what needs project-specific adaptation,
-- what should not be trusted blindly,
-- what may be added later.
+The comparison belongs in one future reference repository:
 
-For this repository, detailed boundaries live in:
+```text
+qa-automation-framework-ecommerce-demo
+```
 
-- [`docs/known-limitations.md`](docs/known-limitations.md),
-- [`docs/gaps.md`](docs/gaps.md),
-- [`docs/future-ideas.md`](docs/future-ideas.md).
+---
 
-This keeps the project honest and easier to maintain.
+## 11. Green CI is necessary but insufficient
+
+Green CI can prove that committed checks passed.
+
+It cannot prove that:
+
+- the correct project need was selected,
+- important risks are covered,
+- assertions are meaningful,
+- adaptation instructions are usable,
+- the framework helps a real user.
+
+Framework acceptance must provide that evidence.
+
+---
+
+## 12. Larger ideas should be challengeable
+
+For larger decisions, ask:
+
+```text
+1. What problem are we really solving?
+2. What is the simplest useful solution?
+3. What could make this idea a bad solution?
+4. What result or evidence would make us abandon it?
+```
+
+The goal is not to reject ideas automatically.
+
+The goal is to keep the repository evidence-driven.
 
 ---
 
 ## Summary
 
-This framework is built around one practical idea:
+```text
+Core repository
+→ teaches the pattern
 
-> Tests should express business intent while the framework hides repetitive
-> technical mechanics.
+Framework acceptance
+→ proves whether the pattern helps
 
-POM hides UI mechanics.
+Reference implementation
+→ shows one complete adaptation
 
-SOM hides API mechanics.
+AI comparison
+→ evaluates how well AI can help fill the same skeleton
+```
 
-Fixtures and configuration hide repeatable setup.
+The framework should make useful automation easier to structure, understand,
+run, and maintain.
 
-Test data makes state explicit.
-
-The test itself should remain readable, meaningful, and useful when it fails.
-
-The goal is not to automate everything.
-
-The goal is to make the right tests easier to write, understand, run, and
-maintain.
+It should not automate everything or hide uncertainty.
