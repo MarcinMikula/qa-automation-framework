@@ -438,6 +438,66 @@ docs/human-led-adaptation.md
 
 ---
 
+## Framework acceptance learnings
+
+This section starts with the framework acceptance phase.
+
+It should contain only conclusions that survived analysis.
+
+Raw observations, execution evidence, working decisions, and unresolved
+questions belong in:
+
+```text
+docs/framework-acceptance-evidence.md
+```
+
+### Lesson 12 — Separate raw evidence from distilled learning
+
+Framework acceptance will produce more observations than durable lessons.
+
+A single failure may mean:
+
+- a framework defect,
+- a documentation defect,
+- a project-specific need,
+- a user mistake,
+- a limitation,
+- an unusual target-system constraint.
+
+It is dangerous to turn the first observation directly into a framework rule.
+
+The better flow is:
+
+```text
+evidence
+→ analysis
+→ decision
+→ re-test
+→ conclusion
+→ learning
+```
+
+This creates two different records:
+
+```text
+docs/framework-acceptance-evidence.md
+→ what happened, where, and with what evidence
+
+LEARNINGS.md
+→ what changed in our understanding after evidence was analysed
+```
+
+A repeated observation may justify a reusable framework change.
+
+An isolated observation may remain project-specific.
+
+The distinction helps prevent two opposite mistakes:
+
+- losing important acceptance evidence,
+- over-generalising from one case.
+
+---
+
 ## Future learning area: real application adaptation
 
 The most valuable future learnings will appear when this framework is used
@@ -512,8 +572,11 @@ Current shape:
 - evergreen principles are preserved separately,
 - project-specific docs live in `docs/`,
 - an initial purpose-first human-led adaptation guide now exists,
-- AI-assisted filling guidance and framework acceptance still remain future work,
-- the next major source of learning should be real-world adaptation.
+- AI-assisted filling guidance remains future work,
+- framework acceptance is now starting with an explicit test basis, risk model,
+  requirements backlog, and evidence log,
+- the next major source of learning should be human-led real-world or realistic
+  adaptation evidence.
 
-The project is now ready for further framework cleanup, adaptation guidance,
-and later acceptance validation against a real or realistic application.
+The project is now entering framework acceptance against real or realistic
+application needs. Acceptance evidence should drive the next framework changes.

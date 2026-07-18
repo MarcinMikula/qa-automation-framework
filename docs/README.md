@@ -27,8 +27,11 @@ and adaptation guidance.
 13. [Framework filling instructions plan](framework-filling-instructions-plan.md)
 14. [Example cases](example-cases.md)
 15. [AI-assisted adaptation](ai-assisted-adaptation.md)
-16. [Gaps](gaps.md)
-17. [Future ideas](future-ideas.md)
+16. [Framework requirements](framework-requirements.md)
+17. [Framework acceptance plan](framework-acceptance-plan.md)
+18. [Framework acceptance evidence](framework-acceptance-evidence.md)
+19. [Gaps](gaps.md)
+20. [Future ideas](future-ideas.md)
 
 ---
 
@@ -53,6 +56,9 @@ and adaptation guidance.
 | [framework-filling-instructions-plan.md](framework-filling-instructions-plan.md) | Human-led and AI-assisted guidance plan |
 | [example-cases.md](example-cases.md) | Current examples, acceptance boundary, and future reference repository |
 | [ai-assisted-adaptation.md](ai-assisted-adaptation.md) | Preliminary AI guardrails and comparison boundary |
+| [framework-requirements.md](framework-requirements.md) | Initial acceptance requirements, including practical usability and adoption-efficiency expectations |
+| [framework-acceptance-plan.md](framework-acceptance-plan.md) | Risk-based incremental acceptance strategy, target-user boundaries, usability north star, and entry/exit criteria |
+| [framework-acceptance-evidence.md](framework-acceptance-evidence.md) | Raw acceptance observations, evidence, working decisions, and re-test results |
 
 ---
 
@@ -71,9 +77,11 @@ Human-led adaptation guidance
 Public documentation
 → aligned before framework acceptance
 
-Next major phase
-→ agile, risk-based framework acceptance with explicit requirements,
-  test planning, execution, and evidence
+Framework acceptance
+→ Iteration 0 test basis established: requirements, risks, plan, and evidence log
+
+Next execution phase
+→ select and run the first small human-led acceptance slice
 
 AI-assisted adaptation
 → guarded future comparison after the human-led baseline
