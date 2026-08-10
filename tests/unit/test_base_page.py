@@ -3,6 +3,10 @@
 These tests protect reusable POM framework behavior without starting a browser.
 """
 
+import pytest
+from playwright.sync_api import Error as PlaywrightError
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
 from pages.base_page import BasePage
 
 
@@ -12,17 +16,26 @@ class FakeLocator:
         text: str = "Example text",
         texts: list[str] | None = None,
         visible: bool = True,
+        *,
+        fail_click: bool = False,
+        fail_fill: bool = False,
     ) -> None:
         self.text = text
         self.texts = texts or ["First", "Second"]
         self.visible = visible
+        self.fail_click = fail_click
+        self.fail_fill = fail_fill
         self.clicked = False
         self.filled_with: str | None = None
 
     def click(self) -> None:
+        if self.fail_click:
+            raise PlaywrightTimeoutError("click timed out")
         self.clicked = True
 
     def fill(self, value: str) -> None:
+        if self.fail_fill:
+            raise PlaywrightTimeoutError("fill timed out")
         self.filled_with = value
 
     def inner_text(self) -> str:
@@ -137,6 +150,93 @@ class TestBasePageTestIdHelpers:
         base_page.fill_by_test_id("username", "marcin")
 
         assert locator.filled_with == "marcin"
+
+    def test_click_by_test_id_uses_optional_repair_hook_after_timeout(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        page.locators_by_test_id["old-submit"] = FakeLocator(fail_click=True)
+        replacement = FakeLocator()
+        page.locators_by_test_id["new-submit"] = replacement
+        base_page = BasePage(page)
+
+        def recover(*, action_name: str, test_id: str, retry) -> bool:
+            assert action_name == "click"
+            assert test_id == "old-submit"
+            retry("new-submit")
+            return True
+
+        monkeypatch.setattr(base_page, "_try_repair_test_id_action", recover)
+
+        base_page.click_by_test_id("old-submit")
+
+        assert replacement.clicked is True
+
+    def test_fill_by_test_id_uses_optional_repair_hook_after_timeout(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        page.locators_by_test_id["old-username"] = FakeLocator(fail_fill=True)
+        replacement = FakeLocator()
+        page.locators_by_test_id["new-username"] = replacement
+        base_page = BasePage(page)
+
+        def recover(*, action_name: str, test_id: str, retry) -> bool:
+            assert action_name == "fill"
+            assert test_id == "old-username"
+            retry("new-username")
+            return True
+
+        monkeypatch.setattr(base_page, "_try_repair_test_id_action", recover)
+
+        base_page.fill_by_test_id("old-username", "marcin")
+
+        assert replacement.filled_with == "marcin"
+
+    def test_original_timeout_is_preserved_when_repair_does_not_recover(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        page.locators_by_test_id["old-username"] = FakeLocator(fail_fill=True)
+        base_page = BasePage(page)
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_test_id_action",
+            lambda **_: False,
+        )
+
+        with pytest.raises(PlaywrightTimeoutError, match="fill timed out"):
+            base_page.fill_by_test_id("old-username", "marcin")
+
+    def test_non_timeout_playwright_error_is_not_delegated_to_repair(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator()
+
+        def fail_fill(_: str) -> None:
+            raise PlaywrightError("browser interaction failed")
+
+        locator.fill = fail_fill
+        page.locators_by_test_id["username"] = locator
+        base_page = BasePage(page)
+
+        def unexpected_repair(**_) -> bool:
+            pytest.fail("Repair hook must not run for non-timeout Playwright errors.")
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_test_id_action",
+            unexpected_repair,
+        )
+
+        with pytest.raises(PlaywrightError, match="browser interaction failed"):
+            base_page.fill_by_test_id("username", "marcin")
 
     def test_text_by_test_id_returns_inner_text(self):
         page = FakePage()

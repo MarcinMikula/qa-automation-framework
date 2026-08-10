@@ -11,7 +11,7 @@ from __future__ import annotations
 from html import escape
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 app = FastAPI(title="Demo Shop UI")
@@ -42,6 +42,13 @@ PRODUCTS: list[dict[str, Any]] = [
 
 _cart: list[dict[str, Any]] = []
 _orders: list[dict[str, Any]] = []
+
+_DEFAULT_SEARCH_INPUT_TEST_ID = "search-input"
+_ALLOWED_SEARCH_INPUT_TEST_IDS = {
+    _DEFAULT_SEARCH_INPUT_TEST_ID,
+    "catalog-search-input",
+}
+_search_input_test_id = _DEFAULT_SEARCH_INPUT_TEST_ID
 
 
 def _layout(title: str, body: str) -> str:
@@ -81,14 +88,37 @@ def health_check() -> dict[str, Any]:
         "products_count": len(PRODUCTS),
         "cart_items_count": len(_cart),
         "orders_count": len(_orders),
+        "search_input_test_id": _search_input_test_id,
     }
 
 
 @app.post("/shop/reset")
 def reset_state() -> dict[str, str]:
+    global _search_input_test_id
+
     _cart.clear()
     _orders.clear()
+    _search_input_test_id = _DEFAULT_SEARCH_INPUT_TEST_ID
     return {"status": "reset"}
+
+
+@app.post("/shop/test-control/search-input-testid")
+def set_search_input_test_id(test_id: str) -> dict[str, str]:
+    """Set one allowlisted locator drift for deterministic test-repair acceptance."""
+
+    global _search_input_test_id
+
+    if test_id not in _ALLOWED_SEARCH_INPUT_TEST_IDS:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported controlled search-input data-testid.",
+        )
+
+    _search_input_test_id = test_id
+    return {
+        "status": "configured",
+        "search_input_test_id": _search_input_test_id,
+    }
 
 
 @app.get("/shop", response_class=HTMLResponse)
@@ -122,7 +152,7 @@ def search_page(q: str = "") -> HTMLResponse:
       <h1 data-testid="page-title">Product search</h1>
       <form action="/shop" method="get">
         <label for="search-input">Search</label>
-        <input id="search-input" data-testid="search-input" name="q" value="{escape(q)}" />
+        <input id="search-input" data-testid="{escape(_search_input_test_id)}" name="q" value="{escape(q)}" />
         <button data-testid="search-submit" type="submit">Search</button>
       </form>
       <section data-testid="search-results">
@@ -160,7 +190,14 @@ def product_page(slug: str) -> HTMLResponse:
 def add_to_cart(slug: str) -> RedirectResponse:
     product = _find_product(slug)
     if product is not None:
-        _cart.append({"slug": product["slug"], "name": product["name"], "price": product["price"], "quantity": 1})
+        _cart.append(
+            {
+                "slug": product["slug"],
+                "name": product["name"],
+                "price": product["price"],
+                "quantity": 1,
+            }
+        )
     return RedirectResponse("/shop/cart", status_code=303)
 
 
@@ -243,7 +280,10 @@ def order_confirmation_page(order_id: str) -> HTMLResponse:
           <h1 data-testid="page-title">Order not found</h1>
           <a data-testid="back-to-search" href="/shop">Back to search</a>
         """
-        return HTMLResponse(_layout("Demo Shop - Order not found", body), status_code=404)
+        return HTMLResponse(
+            _layout("Demo Shop - Order not found", body),
+            status_code=404,
+        )
 
     items_html = "\n".join(
         f"""
