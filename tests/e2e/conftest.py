@@ -8,6 +8,7 @@ are not already running.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import time
@@ -15,12 +16,16 @@ from collections.abc import Generator
 
 import httpx
 import pytest
+from playwright.sync_api import Page
 
 from testdata.settings import USERS_BASE_URL
 
 DEMO_SHOP_BASE_URL = "http://localhost:8010"
 _STARTUP_TIMEOUT_S = 30
 _POLL_INTERVAL_S = 0.5
+_DEFAULT_SEARCH_INPUT_TEST_ID = "search-input"
+_SEARCH_INPUT_TEST_ID_ENV = "DEMO_SHOP_SEARCH_INPUT_TEST_ID"
+_ACTION_TIMEOUT_ENV = "DEMO_SHOP_ACTION_TIMEOUT_MS"
 
 
 def _is_service_up(base_url: str, health_path: str = "/health") -> bool:
@@ -62,6 +67,49 @@ def _terminate_process(process: subprocess.Popen | None) -> None:
         process.kill()
 
 
+def _post_demo_shop(path: str, **kwargs) -> httpx.Response:
+    """POST to one deterministic demo-shop control endpoint and require success."""
+    response = httpx.post(
+        f"{DEMO_SHOP_BASE_URL}{path}",
+        timeout=5.0,
+        **kwargs,
+    )
+    response.raise_for_status()
+    return response
+
+
+def _configure_demo_shop_locator_drift() -> None:
+    """Apply the allowlisted search-input locator state requested for this run."""
+    requested_test_id = os.getenv(
+        _SEARCH_INPUT_TEST_ID_ENV,
+        _DEFAULT_SEARCH_INPUT_TEST_ID,
+    ).strip()
+    if not requested_test_id:
+        requested_test_id = _DEFAULT_SEARCH_INPUT_TEST_ID
+
+    _post_demo_shop(
+        "/shop/test-control/search-input-testid",
+        params={"test_id": requested_test_id},
+    )
+
+
+def _configure_optional_action_timeout(page: Page) -> None:
+    """Apply a test-only Playwright action timeout when explicitly requested."""
+    raw_timeout = os.getenv(_ACTION_TIMEOUT_ENV)
+    if raw_timeout is None:
+        return
+
+    try:
+        timeout_ms = float(raw_timeout)
+    except ValueError as exc:
+        raise RuntimeError(f"{_ACTION_TIMEOUT_ENV} must be numeric.") from exc
+
+    if timeout_ms <= 0:
+        raise RuntimeError(f"{_ACTION_TIMEOUT_ENV} must be greater than zero.")
+
+    page.set_default_timeout(timeout_ms)
+
+
 @pytest.fixture(scope="session")
 def demo_shop_app() -> Generator[str, None, None]:
     """Start the local demo shop unless it is already running."""
@@ -91,11 +139,18 @@ def demo_shop_app() -> Generator[str, None, None]:
 
 
 @pytest.fixture
-def clean_demo_shop(demo_shop_app: str) -> Generator[None, None, None]:
-    """Reset demo shop state before and after each E2E test."""
-    httpx.post(f"{DEMO_SHOP_BASE_URL}/shop/reset", timeout=5.0)
+def clean_demo_shop(
+    demo_shop_app: str,
+    page: Page,
+) -> Generator[None, None, None]:
+    """Reset demo state and apply optional controlled locator drift."""
+    _post_demo_shop("/shop/reset")
+    _configure_demo_shop_locator_drift()
+    _configure_optional_action_timeout(page)
+
     yield
-    httpx.post(f"{DEMO_SHOP_BASE_URL}/shop/reset", timeout=5.0)
+
+    _post_demo_shop("/shop/reset")
 
 
 @pytest.fixture(scope="session")

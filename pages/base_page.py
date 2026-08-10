@@ -9,9 +9,11 @@ business assertions.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from urllib.parse import urljoin
 
 from playwright.sync_api import Locator, Page
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 
 class BasePage:
@@ -41,11 +43,31 @@ class BasePage:
 
     def click_by_test_id(self, test_id: str) -> None:
         """Click an element identified by data-testid."""
-        self.by_test_id(test_id).click()
+        try:
+            self.by_test_id(test_id).click()
+        except PlaywrightTimeoutError:
+            recovered = self._try_repair_test_id_action(
+                action_name="click",
+                test_id=test_id,
+                retry=lambda replacement: self.by_test_id(replacement).click(),
+            )
+            if recovered:
+                return
+            raise
 
     def fill_by_test_id(self, test_id: str, value: str) -> None:
         """Fill an input identified by data-testid."""
-        self.by_test_id(test_id).fill(value)
+        try:
+            self.by_test_id(test_id).fill(value)
+        except PlaywrightTimeoutError:
+            recovered = self._try_repair_test_id_action(
+                action_name="fill",
+                test_id=test_id,
+                retry=lambda replacement: self.by_test_id(replacement).fill(value),
+            )
+            if recovered:
+                return
+            raise
 
     def text_by_test_id(self, test_id: str) -> str:
         """Return text from an element identified by data-testid."""
@@ -66,6 +88,38 @@ class BasePage:
     def title(self) -> str:
         """Return the current browser page title."""
         return self.page.title()
+
+    def _try_repair_test_id_action(
+        self,
+        *,
+        action_name: str,
+        test_id: str,
+        retry: Callable[[str], None],
+    ) -> bool:
+        """Delegate one timed-out test-id interaction to optional TestRepairEngine.
+
+        The import is deliberately lazy so the framework remains independently
+        runnable when TestRepairEngine is not installed. If the package is
+        installed but its own import fails for another reason, that error is not
+        hidden as an optional-dependency absence.
+        """
+
+        try:
+            from test_repair_engine.contracts import RepairAction
+            from test_repair_engine.playwright_adapter import recover_test_id_action
+        except ModuleNotFoundError as exc:
+            if exc.name == "test_repair_engine":
+                return False
+            raise
+
+        return recover_test_id_action(
+            self.page,
+            action=RepairAction(action_name),
+            original_test_id=test_id,
+            retry=retry,
+            page_object=self.__class__.__name__,
+            method_name=f"{action_name}_by_test_id",
+        )
 
     def _build_url(self, path: str) -> str:
         """Build a URL from an absolute URL or a path relative to base_url."""
