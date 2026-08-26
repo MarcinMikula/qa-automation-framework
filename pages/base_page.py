@@ -12,6 +12,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from urllib.parse import urljoin
 
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import Locator, Page
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
@@ -45,7 +46,10 @@ class BasePage:
         """Click an element identified by data-testid."""
         try:
             self.by_test_id(test_id).click()
-        except PlaywrightTimeoutError:
+        except PlaywrightError as exc:
+            if not self._should_delegate_test_id_repair(error=exc, test_id=test_id):
+                raise
+
             recovered = self._try_repair_test_id_action(
                 action_name="click",
                 test_id=test_id,
@@ -59,7 +63,10 @@ class BasePage:
         """Fill an input identified by data-testid."""
         try:
             self.by_test_id(test_id).fill(value)
-        except PlaywrightTimeoutError:
+        except PlaywrightError as exc:
+            if not self._should_delegate_test_id_repair(error=exc, test_id=test_id):
+                raise
+
             recovered = self._try_repair_test_id_action(
                 action_name="fill",
                 test_id=test_id,
@@ -89,6 +96,25 @@ class BasePage:
         """Return the current browser page title."""
         return self.page.title()
 
+    def _should_delegate_test_id_repair(
+        self,
+        *,
+        error: PlaywrightError,
+        test_id: str,
+    ) -> bool:
+        """Return whether a failed test-id interaction may enter TRE."""
+
+        if isinstance(error, PlaywrightTimeoutError):
+            return True
+
+        if "strict mode violation" not in error.message.lower():
+            return False
+
+        try:
+            return self.by_test_id(test_id).count() > 1
+        except PlaywrightError:
+            return False
+
     def _try_repair_test_id_action(
         self,
         *,
@@ -96,7 +122,7 @@ class BasePage:
         test_id: str,
         retry: Callable[[str], None],
     ) -> bool:
-        """Delegate one timed-out test-id interaction to optional TestRepairEngine.
+        """Delegate one qualified failed test-id interaction to optional TestRepairEngine.
 
         The import is deliberately lazy so the framework remains independently
         runnable when TestRepairEngine is not installed. If the package is
