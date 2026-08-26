@@ -346,6 +346,84 @@ class TestBasePageTestIdHelpers:
         with pytest.raises(PlaywrightError, match="strict mode violation"):
             base_page.click_by_test_id("submit-button")
 
+    def test_original_strict_mode_error_is_preserved_when_repair_declines(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator(match_count=2)
+        original_error = PlaywrightError(
+            'Locator.click: Error: strict mode violation: '
+            'get_by_test_id("old-submit") resolved to 2 elements:'
+        )
+
+        def fail_click() -> None:
+            raise original_error
+
+        locator.click = fail_click
+        page.locators_by_test_id["old-submit"] = locator
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def decline_repair(**_) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            return False
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_test_id_action",
+            decline_repair,
+        )
+
+        with pytest.raises(PlaywrightError) as exc_info:
+            base_page.click_by_test_id("old-submit")
+
+        assert repair_calls == 1
+        assert exc_info.value is original_error
+
+    def test_strict_mode_count_probe_failure_preserves_original_error(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator(match_count=2)
+        original_error = PlaywrightError(
+            'Locator.click: Error: strict mode violation: '
+            'get_by_test_id("submit-button") resolved to 2 elements:'
+        )
+
+        def fail_click() -> None:
+            raise original_error
+
+        count_calls = 0
+
+        def fail_count() -> int:
+            nonlocal count_calls
+            count_calls += 1
+            raise PlaywrightError("count probe failed")
+
+        locator.click = fail_click
+        locator.count = fail_count
+        page.locators_by_test_id["submit-button"] = locator
+        base_page = BasePage(page)
+
+        def unexpected_repair(**_) -> bool:
+            pytest.fail("Repair hook must not run when count confirmation fails.")
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_test_id_action",
+            unexpected_repair,
+        )
+
+        with pytest.raises(PlaywrightError) as exc_info:
+            base_page.click_by_test_id("submit-button")
+
+        assert count_calls == 1
+        assert exc_info.value is original_error
+
     def test_text_by_test_id_returns_inner_text(self):
         page = FakePage()
         page.locators_by_test_id["message"] = FakeLocator(text="Saved")
