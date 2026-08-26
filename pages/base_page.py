@@ -114,6 +114,7 @@ class BasePage:
             return self.by_test_id(test_id).count() > 1
         except PlaywrightError:
             return False
+
     def _try_repair_test_id_action(
         self,
         *,
