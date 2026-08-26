@@ -19,14 +19,19 @@ class FakeLocator:
         *,
         fail_click: bool = False,
         fail_fill: bool = False,
+        match_count: int = 1,
     ) -> None:
         self.text = text
         self.texts = texts or ["First", "Second"]
         self.visible = visible
         self.fail_click = fail_click
         self.fail_fill = fail_fill
+        self.match_count = match_count
         self.clicked = False
         self.filled_with: str | None = None
+
+    def count(self) -> int:
+        return self.match_count
 
     def click(self) -> None:
         if self.fail_click:
@@ -237,6 +242,109 @@ class TestBasePageTestIdHelpers:
 
         with pytest.raises(PlaywrightError, match="browser interaction failed"):
             base_page.fill_by_test_id("username", "marcin")
+
+    def test_click_by_test_id_delegates_strict_mode_multiple_match_to_repair(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator(match_count=2)
+        replacement = FakeLocator()
+
+        def fail_click() -> None:
+            raise PlaywrightError(
+                'Locator.click: Error: strict mode violation: '
+                'get_by_test_id("old-submit") resolved to 2 elements:'
+            )
+
+        locator.click = fail_click
+        page.locators_by_test_id["old-submit"] = locator
+        page.locators_by_test_id["new-submit"] = replacement
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def recover(*, action_name: str, test_id: str, retry) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            assert action_name == "click"
+            assert test_id == "old-submit"
+            retry("new-submit")
+            return True
+
+        monkeypatch.setattr(base_page, "_try_repair_test_id_action", recover)
+
+        base_page.click_by_test_id("old-submit")
+
+        assert repair_calls == 1
+        assert replacement.clicked is True
+
+    def test_fill_by_test_id_delegates_strict_mode_multiple_match_to_repair(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator(match_count=2)
+        replacement = FakeLocator()
+
+        def fail_fill(_: str) -> None:
+            raise PlaywrightError(
+                'Locator.fill: Error: strict mode violation: '
+                'get_by_test_id("old-username") resolved to 2 elements:'
+            )
+
+        locator.fill = fail_fill
+        page.locators_by_test_id["old-username"] = locator
+        page.locators_by_test_id["new-username"] = replacement
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def recover(*, action_name: str, test_id: str, retry) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            assert action_name == "fill"
+            assert test_id == "old-username"
+            retry("new-username")
+            return True
+
+        monkeypatch.setattr(base_page, "_try_repair_test_id_action", recover)
+
+        base_page.fill_by_test_id("old-username", "marcin")
+
+        assert repair_calls == 1
+        assert replacement.filled_with == "marcin"
+
+    def test_strict_mode_text_without_multiple_match_is_not_delegated_to_repair(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator(match_count=1)
+
+        def fail_click() -> None:
+            raise PlaywrightError(
+                'Locator.click: Error: strict mode violation: '
+                'get_by_test_id("submit-button") resolved to 2 elements:'
+            )
+
+        locator.click = fail_click
+        page.locators_by_test_id["submit-button"] = locator
+        base_page = BasePage(page)
+
+        def unexpected_repair(**_) -> bool:
+            pytest.fail(
+                "Repair hook must not run when current test-id count is not multiple."
+            )
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_test_id_action",
+            unexpected_repair,
+        )
+
+        with pytest.raises(PlaywrightError, match="strict mode violation"):
+            base_page.click_by_test_id("submit-button")
 
     def test_text_by_test_id_returns_inner_text(self):
         page = FakePage()
