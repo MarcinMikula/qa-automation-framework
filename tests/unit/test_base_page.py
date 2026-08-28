@@ -161,7 +161,7 @@ class TestBasePageTestIdHelpers:
         monkeypatch: pytest.MonkeyPatch,
     ):
         page = FakePage()
-        page.locators_by_test_id["old-submit"] = FakeLocator(fail_click=True)
+        page.locators_by_test_id["old-submit"] = FakeLocator(fail_click=True, match_count=0)
         replacement = FakeLocator()
         page.locators_by_test_id["new-submit"] = replacement
         base_page = BasePage(page)
@@ -183,7 +183,7 @@ class TestBasePageTestIdHelpers:
         monkeypatch: pytest.MonkeyPatch,
     ):
         page = FakePage()
-        page.locators_by_test_id["old-username"] = FakeLocator(fail_fill=True)
+        page.locators_by_test_id["old-username"] = FakeLocator(fail_fill=True, match_count=0)
         replacement = FakeLocator()
         page.locators_by_test_id["new-username"] = replacement
         base_page = BasePage(page)
@@ -216,6 +216,107 @@ class TestBasePageTestIdHelpers:
 
         with pytest.raises(PlaywrightTimeoutError, match="fill timed out"):
             base_page.fill_by_test_id("old-username", "marcin")
+
+    def test_timeout_actionability_click_with_unique_match_is_not_delegated_to_repair(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        page.locators_by_test_id["submit-button"] = FakeLocator(
+            fail_click=True,
+            match_count=1,
+        )
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def unexpected_repair(**_) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            return True
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_test_id_action",
+            unexpected_repair,
+        )
+
+        with pytest.raises(PlaywrightTimeoutError, match="click timed out"):
+            base_page.click_by_test_id("submit-button")
+
+        assert repair_calls == 0
+
+    def test_timeout_actionability_fill_with_unique_match_is_not_delegated_to_repair(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        page.locators_by_test_id["username"] = FakeLocator(
+            fail_fill=True,
+            match_count=1,
+        )
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def unexpected_repair(**_) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            return True
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_test_id_action",
+            unexpected_repair,
+        )
+
+        with pytest.raises(PlaywrightTimeoutError, match="fill timed out"):
+            base_page.fill_by_test_id("username", "marcin")
+
+        assert repair_calls == 0
+
+    def test_timeout_actionability_count_probe_failure_preserves_original_error(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator(match_count=1)
+        original_error = PlaywrightTimeoutError("click timed out")
+
+        def fail_click() -> None:
+            raise original_error
+
+        count_calls = 0
+
+        def fail_count() -> int:
+            nonlocal count_calls
+            count_calls += 1
+            raise PlaywrightError("count probe failed")
+
+        locator.click = fail_click
+        locator.count = fail_count
+        page.locators_by_test_id["submit-button"] = locator
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def unexpected_repair(**_) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            return True
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_test_id_action",
+            unexpected_repair,
+        )
+
+        with pytest.raises(PlaywrightTimeoutError) as exc_info:
+            base_page.click_by_test_id("submit-button")
+
+        assert count_calls == 1
+        assert repair_calls == 0
+        assert exc_info.value is original_error
 
     def test_non_timeout_playwright_error_is_not_delegated_to_repair(
         self,
