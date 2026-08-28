@@ -105,7 +105,10 @@ class BasePage:
         """Return whether a failed test-id interaction may enter TRE."""
 
         if isinstance(error, PlaywrightTimeoutError):
-            return True
+            try:
+                return self.by_test_id(test_id).count() == 0
+            except PlaywrightError:
+                return False
 
         if "strict mode violation" not in error.message.lower():
             return False
