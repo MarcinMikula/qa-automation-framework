@@ -58,6 +58,8 @@ class FakePage:
         self.navigated_to: str | None = None
         self.requested_test_ids: list[str] = []
         self.locators_by_test_id: dict[str, FakeLocator] = {}
+        self.requested_roles: list[tuple[str, object, bool]] = []
+        self.locators_by_role_name: dict[tuple[str, object], FakeLocator] = {}
         self.load_states: list[str] = []
         self.url = "http://example.test/current"
         self.page_title = "Example title"
@@ -71,6 +73,19 @@ class FakePage:
     def get_by_test_id(self, test_id: str) -> FakeLocator:
         self.requested_test_ids.append(test_id)
         return self.locators_by_test_id.setdefault(test_id, FakeLocator())
+
+    def get_by_role(
+        self,
+        role: str,
+        *,
+        name: object,
+        exact: bool = False,
+    ) -> FakeLocator:
+        self.requested_roles.append((role, name, exact))
+        return self.locators_by_role_name.setdefault(
+            (role, name),
+            FakeLocator(),
+        )
 
     def title(self) -> str:
         return self.page_title
@@ -546,6 +561,215 @@ class TestBasePageTestIdHelpers:
 
         assert base_page.is_visible_by_test_id("modal") is False
 
+
+class TestBasePageRoleLinkHelpers:
+    ACCESSIBLE_NAME = "Belt Sander Belt Sander $73.59"
+
+    def test_click_by_role_link_clicks_exact_link(self):
+        page = FakePage()
+        locator = FakeLocator()
+        page.locators_by_role_name[
+            ("link", self.ACCESSIBLE_NAME)
+        ] = locator
+        base_page = BasePage(page)
+
+        base_page.click_by_role_link(self.ACCESSIBLE_NAME)
+
+        assert locator.clicked is True
+        assert page.requested_roles == [
+            ("link", self.ACCESSIBLE_NAME, True)
+        ]
+
+    def test_click_by_role_link_uses_optional_repair_after_missing_timeout(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        import re
+
+        page = FakePage()
+        original = FakeLocator(fail_click=True, match_count=0)
+        replacement_pattern = re.compile(
+            r"^Belt\b.*?\bSander\b.*?\bBelt\b.*?\bSander\b.*?\b73\b.*?\b59$",
+            re.IGNORECASE,
+        )
+        replacement = FakeLocator()
+        page.locators_by_role_name[
+            ("link", self.ACCESSIBLE_NAME)
+        ] = original
+        page.locators_by_role_name[
+            ("link", replacement_pattern)
+        ] = replacement
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def recover(*, accessible_name: str, retry) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            assert accessible_name == self.ACCESSIBLE_NAME
+            retry(replacement_pattern)
+            return True
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_role_link_click",
+            recover,
+            raising=False,
+        )
+
+        base_page.click_by_role_link(self.ACCESSIBLE_NAME)
+
+        assert repair_calls == 1
+        assert replacement.clicked is True
+
+    def test_role_link_actionability_timeout_with_unique_match_is_not_delegated(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        original = FakeLocator(fail_click=True, match_count=1)
+        page.locators_by_role_name[
+            ("link", self.ACCESSIBLE_NAME)
+        ] = original
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def unexpected_repair(**_) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            return True
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_role_link_click",
+            unexpected_repair,
+            raising=False,
+        )
+
+        with pytest.raises(
+            PlaywrightTimeoutError,
+            match="click timed out",
+        ):
+            base_page.click_by_role_link(self.ACCESSIBLE_NAME)
+
+        assert repair_calls == 0
+
+    def test_role_link_count_probe_failure_preserves_original_timeout(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator(match_count=0)
+        original_error = PlaywrightTimeoutError("click timed out")
+
+        def fail_click() -> None:
+            raise original_error
+
+        def fail_count() -> int:
+            raise PlaywrightError("count probe failed")
+
+        locator.click = fail_click
+        locator.count = fail_count
+        page.locators_by_role_name[
+            ("link", self.ACCESSIBLE_NAME)
+        ] = locator
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def unexpected_repair(**_) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            return True
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_role_link_click",
+            unexpected_repair,
+            raising=False,
+        )
+
+        with pytest.raises(PlaywrightTimeoutError) as exc_info:
+            base_page.click_by_role_link(self.ACCESSIBLE_NAME)
+
+        assert repair_calls == 0
+        assert exc_info.value is original_error
+
+    def test_role_link_preserves_original_timeout_when_repair_declines(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator(match_count=0)
+        original_error = PlaywrightTimeoutError("click timed out")
+
+        def fail_click() -> None:
+            raise original_error
+
+        locator.click = fail_click
+        page.locators_by_role_name[
+            ("link", self.ACCESSIBLE_NAME)
+        ] = locator
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def decline_repair(**_) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            return False
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_role_link_click",
+            decline_repair,
+            raising=False,
+        )
+
+        with pytest.raises(PlaywrightTimeoutError) as exc_info:
+            base_page.click_by_role_link(self.ACCESSIBLE_NAME)
+
+        assert repair_calls == 1
+        assert exc_info.value is original_error
+
+    def test_role_link_non_timeout_error_is_not_delegated(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        page = FakePage()
+        locator = FakeLocator()
+
+        def fail_click() -> None:
+            raise PlaywrightError("browser interaction failed")
+
+        locator.click = fail_click
+        page.locators_by_role_name[
+            ("link", self.ACCESSIBLE_NAME)
+        ] = locator
+        base_page = BasePage(page)
+
+        repair_calls = 0
+
+        def unexpected_repair(**_) -> bool:
+            nonlocal repair_calls
+            repair_calls += 1
+            return True
+
+        monkeypatch.setattr(
+            base_page,
+            "_try_repair_role_link_click",
+            unexpected_repair,
+            raising=False,
+        )
+
+        with pytest.raises(
+            PlaywrightError,
+            match="browser interaction failed",
+        ):
+            base_page.click_by_role_link(self.ACCESSIBLE_NAME)
+
+        assert repair_calls == 0
 
 class TestBasePageMetadata:
     def test_current_url_returns_page_url(self):

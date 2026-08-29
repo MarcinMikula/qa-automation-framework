@@ -9,6 +9,7 @@ business assertions.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from urllib.parse import urljoin
 
@@ -59,6 +60,45 @@ class BasePage:
                 return
             raise
 
+    def click_by_role_link(self, accessible_name: str) -> None:
+        """Click a link identified by its exact accessible name.
+
+        TestRepairEngine delegation is intentionally limited to a timeout where
+        the original exact ROLE_LINK locator currently resolves to zero
+        elements. Existing matches, count-probe failures, and non-timeout
+        Playwright errors preserve the original browser failure.
+        """
+
+        locator = self.page.get_by_role(
+            "link",
+            name=accessible_name,
+            exact=True,
+        )
+
+        try:
+            locator.click()
+        except PlaywrightError as exc:
+            if not isinstance(exc, PlaywrightTimeoutError):
+                raise
+
+            try:
+                original_match_count = locator.count()
+            except PlaywrightError:
+                raise exc
+
+            if original_match_count != 0:
+                raise
+
+            recovered = self._try_repair_role_link_click(
+                accessible_name=accessible_name,
+                retry=lambda replacement: self.page.get_by_role(
+                    "link",
+                    name=replacement,
+                ).click(),
+            )
+            if recovered:
+                return
+            raise
     def fill_by_test_id(self, test_id: str, value: str) -> None:
         """Fill an input identified by data-testid."""
         try:
@@ -150,6 +190,35 @@ class BasePage:
             method_name=f"{action_name}_by_test_id",
         )
 
+    def _try_repair_role_link_click(
+        self,
+        *,
+        accessible_name: str,
+        retry: Callable[[re.Pattern[str]], None],
+    ) -> bool:
+        """Delegate one qualified failed ROLE_LINK click to optional TRE.
+
+        The import remains lazy so the framework runs independently when
+        TestRepairEngine is not installed. Only the already-qualified
+        ROLE_LINK CLICK capability is exposed here.
+        """
+
+        try:
+            from test_repair_engine.playwright_adapter import (
+                recover_role_link_click,
+            )
+        except ModuleNotFoundError as exc:
+            if exc.name == "test_repair_engine":
+                return False
+            raise
+
+        return recover_role_link_click(
+            self.page,
+            original_accessible_name=accessible_name,
+            retry=retry,
+            page_object=self.__class__.__name__,
+            method_name="click_by_role_link",
+        )
     def _build_url(self, path: str) -> str:
         """Build a URL from an absolute URL or a path relative to base_url."""
         if path.startswith(("http://", "https://")):
