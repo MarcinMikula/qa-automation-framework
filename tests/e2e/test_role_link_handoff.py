@@ -1,4 +1,4 @@
-"""Browser-level RED for the qualified BasePage ROLE_LINK CLICK handoff."""
+"""Browser-level regression coverage for the qualified BasePage ROLE_LINK CLICK handoff."""
 
 from __future__ import annotations
 

@@ -99,6 +99,7 @@ class BasePage:
             if recovered:
                 return
             raise
+
     def fill_by_test_id(self, test_id: str, value: str) -> None:
         """Fill an input identified by data-testid."""
         try:
@@ -219,6 +220,7 @@ class BasePage:
             page_object=self.__class__.__name__,
             method_name="click_by_role_link",
         )
+
     def _build_url(self, path: str) -> str:
         """Build a URL from an absolute URL or a path relative to base_url."""
         if path.startswith(("http://", "https://")):
