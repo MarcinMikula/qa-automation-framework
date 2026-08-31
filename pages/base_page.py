@@ -14,8 +14,11 @@ from collections.abc import Callable
 from urllib.parse import urljoin
 
 from playwright.sync_api import Error as PlaywrightError
-from playwright.sync_api import Locator, Page
+from playwright.sync_api import Frame, FrameLocator, Locator, Page
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+
+PlaywrightInteractionScope = Page | Frame | FrameLocator
 
 
 class BasePage:
@@ -27,8 +30,15 @@ class BasePage:
     Objects into assertion-heavy test containers.
     """
 
-    def __init__(self, page: Page, base_url: str = "") -> None:
+    def __init__(
+        self,
+        page: Page,
+        base_url: str = "",
+        *,
+        interaction_scope: PlaywrightInteractionScope | None = None,
+    ) -> None:
         self.page = page
+        self.interaction_scope = page if interaction_scope is None else interaction_scope
         self.base_url = base_url.rstrip("/")
 
     def open(self, path: str = "") -> None:
@@ -41,7 +51,7 @@ class BasePage:
 
     def by_test_id(self, test_id: str) -> Locator:
         """Return a locator for a stable data-testid selector."""
-        return self.page.get_by_test_id(test_id)
+        return self.interaction_scope.get_by_test_id(test_id)
 
     def click_by_test_id(self, test_id: str) -> None:
         """Click an element identified by data-testid."""
@@ -69,7 +79,7 @@ class BasePage:
         Playwright errors preserve the original browser failure.
         """
 
-        locator = self.page.get_by_role(
+        locator = self.interaction_scope.get_by_role(
             "link",
             name=accessible_name,
             exact=True,
@@ -91,7 +101,7 @@ class BasePage:
 
             recovered = self._try_repair_role_link_click(
                 accessible_name=accessible_name,
-                retry=lambda replacement: self.page.get_by_role(
+                retry=lambda replacement: self.interaction_scope.get_by_role(
                     "link",
                     name=replacement,
                 ).click(),
@@ -183,7 +193,7 @@ class BasePage:
             raise
 
         return recover_test_id_action(
-            self.page,
+            self.interaction_scope,
             action=RepairAction(action_name),
             original_test_id=test_id,
             retry=retry,
@@ -214,7 +224,7 @@ class BasePage:
             raise
 
         return recover_role_link_click(
-            self.page,
+            self.interaction_scope,
             original_accessible_name=accessible_name,
             retry=retry,
             page_object=self.__class__.__name__,
