@@ -50,6 +50,44 @@ They do not know the tested application domain.
 
 ---
 
+## Page lifecycle and interaction scope
+
+`BasePage` always owns a real Playwright `Page` for page-level lifecycle:
+
+```text
+open()
+wait_for_ready()
+current_url()
+title()
+```
+
+Locator interactions may use a separate optional `interaction_scope`:
+
+```text
+Page | Frame | FrameLocator
+```
+
+When no scope is supplied, `interaction_scope` defaults to the same `Page`, so
+existing Page Objects keep their normal behavior.
+
+A project may explicitly supply a `Frame` or `FrameLocator` when application
+knowledge says that the relevant UI lives inside an iframe. `BasePage` and
+TestRepairEngine do not discover or choose that frame automatically.
+
+This keeps two responsibilities separate:
+
+```text
+Page
+-> navigation and page metadata lifecycle
+
+interaction_scope
+-> locator mechanics and optional runtime-repair handoff
+```
+
+The explicit scope contract was qualified and accepted with real Chromium for
+both current repair families. It does not mean that a `Frame` or `FrameLocator`
+is a replacement for the full `Page` contract.
+
 ## Optional TestRepairEngine boundary
 
 `click_by_test_id()` and `fill_by_test_id()` may delegate a timed-out Playwright
@@ -78,10 +116,23 @@ Important rules:
 - assertions and expected business behavior are never repaired here,
 - a recovered interaction is not equivalent to a passing test.
 
-The current integration slice is intentionally limited to timed-out
-`data-testid` click and fill helpers. Other failure modes, locator families, or
-interaction types require separate validation before they belong in this
-boundary.
+The current integration remains explicitly bounded:
+
+```text
+TEST_ID
+-> click / fill
+-> zero-match timeout or separately qualified strict-mode multiple match
+
+ROLE_LINK
+-> click only
+-> original exact accessible name no longer resolves
+-> deterministic insertion-only recovery
+```
+
+These interactions may run inside the default `Page` scope or an explicitly
+supplied `Frame` / `FrameLocator` scope. The scope does not widen locator-repair
+authority: other locator families, interaction types, timing/actionability
+healing, or automatic frame discovery still require separate qualification.
 
 ---
 

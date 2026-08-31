@@ -300,3 +300,48 @@ The next major phase should define:
 
 The phase should be incremental, risk-based, and transparent about what each
 test proves.
+
+---
+
+## Decision 13 - Separate Page lifecycle from locator interaction scope
+
+**Decision**
+
+`BasePage` keeps a real Playwright `Page` for navigation and page-level
+metadata, while locator mechanics may use an explicitly supplied interaction
+scope:
+
+```text
+Page | Frame | FrameLocator
+```
+
+**Reasoning**
+
+Controlled and public-external qualification showed that the existing
+TestRepairEngine recovery logic already works when the correct frame context is
+supplied. `FrameLocator` supports the required locator mechanics but does not
+provide the complete `Page` lifecycle API.
+
+Treating `Frame` or `FrameLocator` as a full `BasePage.page` would therefore mix
+two different contracts.
+
+**Consequence**
+
+```text
+BasePage.page
+-> navigation
+-> load state
+-> URL
+-> title
+
+BasePage.interaction_scope
+-> locator interactions
+-> failure classification
+-> optional TestRepairEngine handoff
+```
+
+`interaction_scope` defaults to `page`.
+
+The project or application model owns frame selection. The framework does not
+discover iframes automatically, and TestRepairEngine receives no authority to
+choose or switch browsing contexts.
