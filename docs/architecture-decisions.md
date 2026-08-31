@@ -300,6 +300,7 @@ The next major phase should define:
 
 The phase should be incremental, risk-based, and transparent about what each
 test proves.
+
 ---
 
 ## Decision 13 - Separate Page lifecycle from locator interaction scope
